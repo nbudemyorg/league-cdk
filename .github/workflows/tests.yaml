@@ -4,6 +4,7 @@ on:
       - main
     types:
       - opened
+      - reopened
 
 jobs:
   build-and-test:
