@@ -1,0 +1,48 @@
+name: Deploy League Stack
+
+on:
+  push:
+    branches:
+      - 'main'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write # Required for OIDC
+      contents: read
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v6
+        with:
+          role-to-assume: ${{ secrets.AWS_OIDC_ROLE }}
+          aws-region: eu-west-1
+
+      - name: Install Node v24
+        uses: actions/setup-node@v6
+        with:
+          node-version: '24.x'
+
+      - name: Install CDK
+        run: npm install -g aws-cdk
+
+      - name: Python setup
+        uses: actions/setup-python@v6
+        with:
+          python-version: 3.12
+
+      - name: venv setup
+        run: |
+          python -m venv .venv
+          source .venv/bin/activate
+
+      - name: Install cdk dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install .
+
+      - name: CDK Deploy
+        run: cdk deploy --all --yes
