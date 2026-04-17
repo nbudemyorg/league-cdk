@@ -63,8 +63,8 @@ def test_password_is_valid_checkpw(
     password = 'DoesNotMatter'
     response = password_is_valid(users_table_with_user, player, password)
 
-    assert mock_bcrypt.call_count == 1
     assert response
+    assert mock_bcrypt.call_count == 1
 
     response = password_is_valid(users_table_with_user, player, password)
 

@@ -2,13 +2,14 @@ from http import cookies
 
 import boto3
 from auth_layer import valid_session
+from aws_lambda_context import LambdaContext
 from html_layer import access_denied, home_page, server_error
 
 db_client = boto3.resource('dynamodb')
 sessions_table = db_client.Table('Sessions')
 
 
-def lambda_handler(event, context):
+def lambda_handler(event: dict, context: LambdaContext) -> dict:
 
     event_cookies = event.get('headers', False).get('cookie', False)
 

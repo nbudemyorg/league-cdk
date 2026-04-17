@@ -1,7 +1,8 @@
+from aws_lambda_context import LambdaContext
 from html_layer import registration_form
 
 
-def lambda_handler(event, context):
+def lambda_handler(event: dict, context: LambdaContext) -> dict:
 
     return {
         'statusCode': 200,

@@ -1,11 +1,13 @@
 import json
 import re
 from datetime import UTC, datetime, timedelta
+from typing import cast
 from urllib.parse import parse_qs
 
 import bcrypt
 import boto3
 from auth_layer import create_session_item, valid_player_id
+from aws_lambda_context import LambdaContext
 from botocore.exceptions import ClientError
 from types_boto3_dynamodb.service_resource import Table
 
@@ -30,7 +32,7 @@ users_table = db_client.Table('Users')
 sessions_table = db_client.Table('Sessions')
 
 
-def lambda_handler(event: dict, context: dict) -> dict:
+def lambda_handler(event: dict, context: LambdaContext) -> dict:
 
     event_body = form_data_valid(event['body'])
 
@@ -127,7 +129,7 @@ def form_data_valid(form_data: str) -> dict[str, str] | None:
 
 
 def create_user_item(
-    table: Table, supplied_id: str, hashed_password: str
+    table: Table, supplied_id: str, hashed_password: bytes
 ) -> bool:
     """Creates a new item in the users table holding the Player ID
     and hashed password"""
@@ -172,15 +174,15 @@ def player_id_exists(table: Table, supplied_id: str) -> bool | None:
         return 'Item' in response
 
 
-def generate_password_hash(supplied_password: str) -> str:
+def generate_password_hash(supplied_password: str) -> bytes:
     """Generates a bcrypt hash with salt of the supplied password"""
 
     password_bytes = supplied_password.encode('utf-8')
     password_salt = bcrypt.gensalt()
 
-    bytes_hash = bcrypt.hashpw(password_bytes, password_salt)
+    hashed_password = bcrypt.hashpw(password_bytes, password_salt)
 
-    return bytes_hash.decode('utf-8')
+    return cast('bytes', hashed_password)
 
 
 def valid_invitation_key(supplied_key: str) -> bool:

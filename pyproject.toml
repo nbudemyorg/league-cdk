@@ -22,6 +22,7 @@ markers = [
 
 [project.optional-dependencies]
 dev = [
+    'aws-lambda-context>=1.1.0,<2.0.0',
     'moto>=5.1,<6.0',
     'pytest>=9.0,<10.0',
     'pytest-uuid==1.0.0',
@@ -59,6 +60,24 @@ quote-style = 'single'
 indent-style = 'space'
 
 [tool.mypy]
-ignore_missing_imports = true
 check_untyped_defs = true
 disallow_incomplete_defs = true
+disallow_untyped_calls = true
+disallow_untyped_decorators = true
+disallow_untyped_defs = true
+ignore_missing_imports = true
+no_implicit_optional = true
+show_error_codes = true
+show_error_context = true
+strict_optional = true
+warn_redundant_casts = true
+warn_return_any = true
+warn_unused_ignores = true
+
+#disallow_any_generics = true
+#
+#
+#follow_imports = normal
+#ignore_missing_imports = true
+#no_implicit_reexport = true
+#strict_equality = true
