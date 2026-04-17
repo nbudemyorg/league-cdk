@@ -1,3 +1,5 @@
+aws_lambda_context>=1.1.0,<2.0.0
+aws_lambda_typing>=2.20.0,<3.0.0
 bcrypt>=5.0.0,<6.0.0
-types-boto3-dynamodb>=1.42.0,<2.0.0
 mypy_boto3_dynamodb>=1.42.0,<2.0.0
+types-boto3-dynamodb>=1.42.0,<2.0.0
