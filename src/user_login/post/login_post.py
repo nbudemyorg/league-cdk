@@ -6,6 +6,8 @@ import bcrypt
 import boto3
 from auth_layer import create_session_item, valid_player_id
 from aws_lambda_context import LambdaContext
+from aws_lambda_typing.events import APIGatewayProxyEventV1
+from aws_lambda_typing.responses import APIGatewayProxyResponseV1
 from boto3.dynamodb.types import Binary
 from botocore.exceptions import ClientError
 from types_boto3_dynamodb.service_resource import Table
@@ -18,9 +20,14 @@ users_table = db_client.Table('Users')
 sessions_table = db_client.Table('Sessions')
 
 
-def lambda_handler(event: dict, context: LambdaContext) -> dict:
+def lambda_handler(
+    event: APIGatewayProxyEventV1, context: LambdaContext
+) -> APIGatewayProxyResponseV1:
 
-    user_data = valid_form_data(event['body'])
+    if isinstance(event['body'], str):
+        user_data = valid_form_data(event['body'])
+    else:
+        user_data = None
 
     if not user_data:
         return {
