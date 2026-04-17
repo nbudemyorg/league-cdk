@@ -2,13 +2,18 @@ from http import cookies
 
 import boto3
 from auth_layer import valid_session
+from aws_lambda_context import LambdaContext
+from aws_lambda_typing.events import APIGatewayProxyEventV1
+from aws_lambda_typing.responses import APIGatewayProxyResponseV1
 from html_layer import access_denied, home_page, server_error
 
 db_client = boto3.resource('dynamodb')
 sessions_table = db_client.Table('Sessions')
 
 
-def lambda_handler(event, context):
+def lambda_handler(
+    event: APIGatewayProxyEventV1, context: LambdaContext
+) -> APIGatewayProxyResponseV1:
 
     event_cookies = event.get('headers', False).get('cookie', False)
 
@@ -21,10 +26,10 @@ def lambda_handler(event, context):
             'body': access_denied,
         }
 
-    event_cookies = cookies.SimpleCookie()
-    event_cookies.load(event['headers']['cookie'])
-    player_id = event_cookies.get('player_id', None)
-    session_id = event_cookies.get('session_id', None)
+    received_cookies = cookies.SimpleCookie()
+    received_cookies.load(event['headers']['cookie'])
+    player_id = received_cookies.get('player_id', None)
+    session_id = received_cookies.get('session_id', None)
 
     if not player_id or not session_id:
         return {

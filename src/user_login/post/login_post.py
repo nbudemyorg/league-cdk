@@ -1,21 +1,33 @@
 import json
+from typing import TYPE_CHECKING, cast
 from urllib.parse import parse_qs
 
 import bcrypt
 import boto3
 from auth_layer import create_session_item, valid_player_id
+from aws_lambda_context import LambdaContext
+from aws_lambda_typing.events import APIGatewayProxyEventV1
+from aws_lambda_typing.responses import APIGatewayProxyResponseV1
+from boto3.dynamodb.types import Binary
 from botocore.exceptions import ClientError
-from mypy_boto3_dynamodb.type_defs import GetItemOutputTableTypeDef
 from types_boto3_dynamodb.service_resource import Table
+
+if TYPE_CHECKING:
+    from mypy_boto3_dynamodb.type_defs import GetItemOutputTableTypeDef
 
 db_client = boto3.resource('dynamodb')
 users_table = db_client.Table('Users')
 sessions_table = db_client.Table('Sessions')
 
 
-def lambda_handler(event, context):
+def lambda_handler(
+    event: APIGatewayProxyEventV1, context: LambdaContext
+) -> APIGatewayProxyResponseV1:
 
-    user_data = valid_form_data(event['body'])
+    if isinstance(event['body'], str):
+        user_data = valid_form_data(event['body'])
+    else:
+        user_data = None
 
     if not user_data:
         return {
@@ -91,12 +103,12 @@ def password_is_valid(
     if pw_val is None:
         return False
 
-    if isinstance(pw_val, bytes):
+    if isinstance(pw_val, Binary):
         stored_bytes = pw_val
-    elif isinstance(pw_val, str):
-        stored_bytes = pw_val.encode('utf-8')
     else:
         return False
 
     password_bytes = supplied_password.encode('utf-8')
-    return bcrypt.checkpw(password_bytes, stored_bytes)
+    result = bcrypt.checkpw(password_bytes, stored_bytes.__bytes__())
+
+    return cast('bool', result)

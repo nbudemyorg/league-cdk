@@ -154,7 +154,8 @@ def test_generate_password_hash(
 
     response = generate_password_hash('AnyOldPassword')
 
-    assert response == 'MockGeneratedHash'
+    assert type(response) is bytes
+    assert response == b'MockGeneratedHash'
 
 
 @pytest.mark.parametrize(
