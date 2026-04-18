@@ -58,11 +58,11 @@ class LoginRegistrationStack(Stack):
             layer_source='layers/static',
         )
 
-        reg_dependencies_layer = layers.create_lambda_layer(
+        bcrypt_pkg_layer = layers.create_lambda_layer(
             self,
             self.stack_name,
             layer_name='bcrypt',
-            layer_source='layers/login_registration/requirements.txt',
+            layer_source='layers/pkg/bcrypt/requirements.txt',
         )
 
         sessions_dependencies_layer = layers.create_lambda_layer(
@@ -92,7 +92,7 @@ class LoginRegistrationStack(Stack):
             code=Code.from_asset(path='src/user_registration/post'),
             timeout=Duration.seconds(10),
             layers=[
-                reg_dependencies_layer,
+                bcrypt_pkg_layer,
                 sessions_dependencies_layer,
                 common_pkg_layer,
             ],
@@ -143,7 +143,7 @@ class LoginRegistrationStack(Stack):
             code=Code.from_asset(path='src/user_login/post'),
             timeout=Duration.seconds(5),
             layers=[
-                reg_dependencies_layer,
+                bcrypt_pkg_layer,
                 sessions_dependencies_layer,
                 common_pkg_layer,
             ],
