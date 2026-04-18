@@ -80,7 +80,7 @@ class LoginRegistrationStack(Stack):
             runtime=Runtime.PYTHON_3_14,
             code=Code.from_asset(path='src/user_registration/get'),
             timeout=Duration.seconds(5),
-            layers=[static_content_layer],
+            layers=[static_content_layer, common_pkg_layer],
         )
 
         registration_lambda_post = Function(
@@ -91,7 +91,11 @@ class LoginRegistrationStack(Stack):
             runtime=Runtime.PYTHON_3_14,
             code=Code.from_asset(path='src/user_registration/post'),
             timeout=Duration.seconds(10),
-            layers=[reg_dependencies_layer, sessions_dependencies_layer],
+            layers=[
+                reg_dependencies_layer,
+                sessions_dependencies_layer,
+                common_pkg_layer,
+            ],
         )
 
         registration_users_rw = iam.PolicyStatement(
@@ -127,7 +131,7 @@ class LoginRegistrationStack(Stack):
             runtime=Runtime.PYTHON_3_14,
             code=Code.from_asset(path='src/user_login/get'),
             timeout=Duration.seconds(5),
-            layers=[static_content_layer],
+            layers=[static_content_layer, common_pkg_layer],
         )
 
         login_lambda_post = Function(
@@ -138,7 +142,11 @@ class LoginRegistrationStack(Stack):
             runtime=Runtime.PYTHON_3_14,
             code=Code.from_asset(path='src/user_login/post'),
             timeout=Duration.seconds(5),
-            layers=[reg_dependencies_layer, sessions_dependencies_layer],
+            layers=[
+                reg_dependencies_layer,
+                sessions_dependencies_layer,
+                common_pkg_layer,
+            ],
         )
 
         login_users_ro = iam.PolicyStatement(
@@ -166,7 +174,11 @@ class LoginRegistrationStack(Stack):
             runtime=Runtime.PYTHON_3_14,
             code=Code.from_asset(path='src/home_page/get'),
             timeout=Duration.seconds(5),
-            layers=[sessions_dependencies_layer, static_content_layer],
+            layers=[
+                sessions_dependencies_layer,
+                static_content_layer,
+                common_pkg_layer,
+            ],
         )
 
         home_sessions_ro = iam.PolicyStatement(
