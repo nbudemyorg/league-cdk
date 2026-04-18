@@ -44,6 +44,13 @@ class LoginRegistrationStack(Stack):
             time_to_live_attribute='expires',
         )
 
+        common_pkg_layer = layers.create_lambda_layer(
+            self,
+            self.stack_name,
+            layer_name='common-pkg',
+            layer_source='layers/pkg/common/requirements.txt',
+        )
+
         static_content_layer = layers.create_lambda_layer(
             self,
             self.stack_name,

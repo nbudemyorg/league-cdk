@@ -13,7 +13,7 @@ def test_lambda_count():
 
 
 def test_lambda_layer_count():
-    template.resource_count_is('AWS::Lambda::LayerVersion', 3)
+    template.resource_count_is('AWS::Lambda::LayerVersion', 4)
 
 
 def test_registration_get_lambda():
