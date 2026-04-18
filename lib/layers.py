@@ -13,7 +13,7 @@ def create_lambda_layer(
     supplied_path = Path(layer_source)
 
     if supplied_path.is_file():
-        output_dir = './build'
+        output_dir = f'./build/{layer_name}'
         subprocess_string = (
             f'pip install -r {layer_source} -t {output_dir}/python'
         )
