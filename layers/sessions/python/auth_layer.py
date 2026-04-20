@@ -1,5 +1,4 @@
 import re
-from typing import cast
 from uuid import uuid4
 
 from aws_lambda_typing.responses import APIGatewayProxyResponseV1
@@ -23,7 +22,7 @@ def create_session_item(table, supplied_id: str) -> str | bool:
 
 
 def create_login_response(
-        player: str, session: str
+    player: str, session: str
 ) -> APIGatewayProxyResponseV1:
 
     multi_value_headers = {}

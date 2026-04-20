@@ -55,7 +55,7 @@ def lambda_handler(
 
     return cast(
         'APIGatewayProxyResponseV1',
-        create_login_response(player_id, session_id)
+        create_login_response(player_id, session_id),
     )
 
 
