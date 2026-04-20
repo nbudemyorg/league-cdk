@@ -1,12 +1,15 @@
 import json
 import re
-from datetime import UTC, datetime, timedelta
 from typing import cast
 from urllib.parse import parse_qs
 
 import bcrypt
 import boto3
-from auth_layer import create_session_item, valid_player_id
+from auth_layer import (
+    create_login_response,
+    create_session_item,
+    valid_player_id,
+)
 from aws_lambda_context import LambdaContext
 from aws_lambda_typing.events import APIGatewayProxyEventV1
 from aws_lambda_typing.responses import APIGatewayProxyResponseV1
@@ -93,21 +96,10 @@ def lambda_handler(
     if not session_id:
         return {'statusCode': 500, 'body': json.dumps('Put Item failed')}
 
-    expiration_date = datetime.now(UTC) + timedelta(hours=COOKIE_EXPIRE_HOURS)
-
-    session_id_cookie = f'session_id={session_id} ;expires={expiration_date}'
-
-    player_id_cookie = (
-        f'player_id={supplied_player_id} ;expires={expiration_date}'
+    return cast(
+        'APIGatewayProxyResponseV1',
+        create_login_response(supplied_player_id, session_id),
     )
-
-    return {
-        'statusCode': 301,
-        'multiValueHeaders': {
-            'Set-Cookie': [session_id_cookie, player_id_cookie],
-            'Location': ['/prod/home'],
-        },
-    }
 
 
 def form_data_valid(form_data: str) -> dict[str, str] | None:
