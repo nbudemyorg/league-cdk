@@ -1,10 +1,12 @@
 import os
 import sys
+from datetime import datetime
 from unittest.mock import MagicMock
 
 import boto3
 import pytest
 from botocore.exceptions import ClientError
+from dateutil.tz import UTC
 from moto import mock_aws
 from pytest_mock import MockerFixture
 from types_boto3_dynamodb.service_resource import Table
@@ -76,6 +78,20 @@ def sessions_table(aws_credentials):
             ],
         )
         yield sessions_table
+
+
+@pytest.fixture(scope='function')
+def frozen_date():
+    yield datetime(
+        year=2026,
+        month=4,
+        day=20,
+        hour=15,
+        minute=6,
+        second=3,
+        microsecond=100,
+        tzinfo=UTC,
+    )
 
 
 @pytest.fixture(scope='function')
