@@ -1,11 +1,11 @@
 import re
-from datetime import UTC, datetime, timedelta
-from http import cookies
+from typing import cast
 from uuid import uuid4
 
+from aws_lambda_typing.responses import APIGatewayProxyResponseV1
 from botocore.exceptions import ClientError
 
-COOKIE_MAX_AGE = 864_000 #  24 * 60 * 60 seconds (1 Day)
+COOKIE_MAX_AGE = 864_000  #  24 * 60 * 60 seconds (1 Day)
 
 
 def create_session_item(table, supplied_id: str) -> str | bool:
@@ -22,7 +22,9 @@ def create_session_item(table, supplied_id: str) -> str | bool:
         return session_id
 
 
-def create_login_response(player: str, session: str) -> dict[str, list[str]]:
+def create_login_response(
+        player: str, session: str
+) -> APIGatewayProxyResponseV1:
 
     multi_value_headers = {}
 
@@ -38,10 +40,7 @@ def create_login_response(player: str, session: str) -> dict[str, list[str]]:
     multi_value_headers.update(cookie_section)
     multi_value_headers.update(location)
 
-    return {
-        'statusCode': 301,
-        'multiValueHeaders': multi_value_headers
-    }
+    return {'statusCode': 301, 'multiValueHeaders': multi_value_headers}
 
 
 def valid_session(table, player: str, session: str) -> bool:

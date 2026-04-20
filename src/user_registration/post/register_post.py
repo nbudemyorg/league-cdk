@@ -1,13 +1,11 @@
 import json
 import re
-from datetime import UTC, datetime, timedelta
 from typing import cast
 from urllib.parse import parse_qs
 
 import bcrypt
 import boto3
 from auth_layer import (
-    COOKIE_MAX_AGE,
     create_login_response,
     create_session_item,
     valid_player_id,
@@ -98,7 +96,10 @@ def lambda_handler(
     if not session_id:
         return {'statusCode': 500, 'body': json.dumps('Put Item failed')}
 
-    return create_login_response(supplied_player_id, session_id)
+    return cast(
+        'APIGatewayProxyResponseV1',
+        create_login_response(supplied_player_id, session_id)
+    )
 
 
 def form_data_valid(form_data: str) -> dict[str, str] | None:

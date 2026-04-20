@@ -5,7 +5,6 @@ from urllib.parse import parse_qs
 import bcrypt
 import boto3
 from auth_layer import (
-    COOKIE_MAX_AGE,
     create_login_response,
     create_session_item,
     valid_player_id,
@@ -54,7 +53,10 @@ def lambda_handler(
     if not session_id:
         return {'statusCode': 500, 'body': json.dumps('Put Item failed')}
 
-    return create_login_response(player_id, session_id)
+    return cast(
+        'APIGatewayProxyResponseV1',
+        create_login_response(player_id, session_id)
+    )
 
 
 def valid_form_data(event_body: str) -> dict[str, str] | None:

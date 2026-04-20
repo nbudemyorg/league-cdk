@@ -47,12 +47,12 @@ def test_valid_session_without_item(sessions_table: Table) -> None:
 
     assert not session_is_valid
 
+
 @pytest.mark.sessions
 def test_create_login_response() -> None:
 
     player_id = 'PlayerOne'
     session_id = 'DoesNotMatter'
-    expires_seconds = 3600
 
     login_response = create_login_response(
         player=player_id, session=session_id
@@ -60,9 +60,7 @@ def test_create_login_response() -> None:
 
     assert login_response['statusCode'] == 301
     assert isinstance(login_response['multiValueHeaders']['Location'], list)
-    assert  isinstance(
-        login_response['multiValueHeaders']['Set-Cookie'], list
-    )
+    assert isinstance(login_response['multiValueHeaders']['Set-Cookie'], list)
 
     set_cookies = login_response['multiValueHeaders']['Set-Cookie']
 
