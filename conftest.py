@@ -1,12 +1,11 @@
 import os
 import sys
-from datetime import datetime
+from datetime import UTC, datetime
 from unittest.mock import MagicMock
 
 import boto3
 import pytest
 from botocore.exceptions import ClientError
-from dateutil.tz import UTC
 from moto import mock_aws
 from pytest_mock import MockerFixture
 from types_boto3_dynamodb.service_resource import Table

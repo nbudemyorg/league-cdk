@@ -15,8 +15,6 @@ def create_session_item(table: Table, supplied_id: str) -> str | bool:
 
     session_expiry = datetime.now(UTC) + timedelta(seconds=COOKIE_MAX_AGE)
 
-    print(f'****EXPIRY : {session_expiry} ****\n')
-
     session_item = {
         'player_id': supplied_id,
         'session_id': session_id,
