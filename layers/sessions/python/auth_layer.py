@@ -7,18 +7,23 @@ from botocore.exceptions import ClientError
 from types_boto3_dynamodb.service_resource import Table
 
 COOKIE_MAX_AGE = 86_400  #  24 * 60 * 60 seconds (1 Day)
+ADD_TTL = 60
 
 
 def create_session_item(table: Table, supplied_id: str) -> str | bool:
     """Creates a new session item for given player_id"""
     session_id = str(uuid4())
 
-    session_expiry = datetime.now(UTC) + timedelta(seconds=COOKIE_MAX_AGE)
+    now = datetime.now(UTC)
+
+    session_expiry = now + timedelta(seconds=COOKIE_MAX_AGE)
+    item_ttl = int(session_expiry.timestamp() + ADD_TTL)
 
     session_item = {
         'player_id': supplied_id,
         'session_id': session_id,
         'expiry': session_expiry.isoformat(),
+        'ttl': item_ttl,
     }
 
     try:

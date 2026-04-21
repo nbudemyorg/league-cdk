@@ -46,7 +46,7 @@ def test_sessions_table_props():
                 ]
             ),
             'TimeToLiveSpecification': assertions.Match.object_equals(
-                {'AttributeName': 'expires', 'Enabled': True}
+                {'AttributeName': 'ttl', 'Enabled': True}
             ),
         },
     )

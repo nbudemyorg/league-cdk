@@ -41,7 +41,7 @@ class LoginRegistrationStack(Stack):
             sort_key=dynamodb.Attribute(
                 name='session_id', type=dynamodb.AttributeType.STRING
             ),
-            time_to_live_attribute='expires',
+            time_to_live_attribute='ttl',
         )
 
         common_pkg_layer = layers.create_lambda_layer(
