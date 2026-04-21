@@ -84,6 +84,13 @@ class LoginRegistrationStack(Stack):
             layer_source='./layers/sessions',
         )
 
+        email_validator_layer = layers.create_lambda_layer(
+            self,
+            self.stack_name,
+            layer_name='emailvalidator',
+            layer_source='./layers/pkg/email/requirements.txt',
+        )
+
         registration_lambda_get = Function(
             self,
             'UserRegistrationGET',
@@ -107,6 +114,7 @@ class LoginRegistrationStack(Stack):
                 bcrypt_pkg_layer,
                 sessions_dependencies_layer,
                 common_pkg_layer,
+                email_validator_layer,
             ],
         )
 

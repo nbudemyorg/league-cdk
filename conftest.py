@@ -135,7 +135,11 @@ def users_table_client_error(users_table: Table, mocker: MockerFixture):
 
 @pytest.fixture
 def test_user(scope='function'):
-    user_data = {'player_id': 'PlayerOne', 'password': b'NotReallyAHash'}
+    user_data = {
+        'player_id': 'PlayerOne',
+        'password': 'NotReallyAHash',
+        'email': 'bob@hotmail.com',
+    }
     yield user_data
 
 

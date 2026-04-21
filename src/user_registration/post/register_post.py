@@ -14,9 +14,10 @@ from aws_lambda_context import LambdaContext
 from aws_lambda_typing.events import APIGatewayProxyEventV1
 from aws_lambda_typing.responses import APIGatewayProxyResponseV1
 from botocore.exceptions import ClientError
+from email_validator import EmailNotValidError, validate_email
 from types_boto3_dynamodb.service_resource import Table
 
-COOKIE_EXPIRE_HOURS = 2
+TEST_EMAIL_DELIVERY = True
 
 secret_name = 'league/invitation_key'
 region_name = 'eu-west-1'
@@ -42,12 +43,14 @@ def lambda_handler(
 ) -> APIGatewayProxyResponseV1:
 
     if isinstance(event['body'], str):
-        event_body = form_data_valid(event['body'])
+        event_body = form_data_valid(event['body'], TEST_EMAIL_DELIVERY)
     else:
         event_body = None
 
     if not event_body:
         return {'statusCode': 400, 'body': json.dumps('Invalid Request')}
+
+    supplied_email = event_body['email']
     supplied_invite = event_body['invite']
     supplied_player_id = event_body['player_id']
     supplied_player_password = event_body['password']
@@ -85,7 +88,9 @@ def lambda_handler(
 
     hashed_password = generate_password_hash(supplied_player_password)
 
-    if not create_user_item(users_table, supplied_player_id, hashed_password):
+    if not create_user_item(
+        users_table, supplied_player_id, hashed_password, supplied_email
+    ):
         return {
             'statusCode': 500,
             'body': json.dumps('Server Error: Put Item failed'),
@@ -102,7 +107,9 @@ def lambda_handler(
     )
 
 
-def form_data_valid(form_data: str) -> dict[str, str] | None:
+def form_data_valid(
+    form_data: str, check_delivery: bool
+) -> dict[str, str] | None:
     """Inspect supplied message body to ensure all required fields have been
     supplied via the HTML form"""
 
@@ -110,11 +117,20 @@ def form_data_valid(form_data: str) -> dict[str, str] | None:
 
     transformed_data = {key: value[0] for key, value in user_data.items()}
 
-    invite = transformed_data.get('invite', False)
-    player_id = transformed_data.get('player_id', False)
-    password = transformed_data.get('password', False)
+    invite = transformed_data.get('invite')
+    player_id = transformed_data.get('player_id')
+    password = transformed_data.get('password')
+    email = transformed_data.get('email', 'invalid')
 
-    if not invite or not player_id or not password:
+    if not all([invite, player_id, password, email]):
+        return None
+
+    try:
+        email_info = validate_email(email, check_deliverability=check_delivery)
+        transformed_data['email'] = email_info.normalized
+
+    except EmailNotValidError as e:
+        print(str(e))
         return None
 
     if (
@@ -128,12 +144,16 @@ def form_data_valid(form_data: str) -> dict[str, str] | None:
 
 
 def create_user_item(
-    table: Table, supplied_id: str, hashed_password: bytes
+    table: Table, supplied_id: str, hashed_password: str, email: str
 ) -> bool:
     """Creates a new item in the users table holding the Player ID
     and hashed password"""
 
-    user_db_item = {'player_id': supplied_id, 'password': hashed_password}
+    user_db_item = {
+        'player_id': supplied_id,
+        'password': hashed_password,
+        'email': email,
+    }
 
     try:
         table.put_item(Item=user_db_item)
@@ -173,15 +193,15 @@ def player_id_exists(table: Table, supplied_id: str) -> bool | None:
         return 'Item' in response
 
 
-def generate_password_hash(supplied_password: str) -> bytes:
+def generate_password_hash(supplied_password: str) -> str:
     """Generates a bcrypt hash with salt of the supplied password"""
 
     password_bytes = supplied_password.encode('utf-8')
     password_salt = bcrypt.gensalt()
 
-    hashed_password = bcrypt.hashpw(password_bytes, password_salt)
+    password_bytes = bcrypt.hashpw(password_bytes, password_salt)
 
-    return cast('bytes', hashed_password)
+    return password_bytes.decode()
 
 
 def valid_invitation_key(supplied_key: str) -> bool:
