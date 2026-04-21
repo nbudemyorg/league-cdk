@@ -44,6 +44,18 @@ class LoginRegistrationStack(Stack):
             time_to_live_attribute='ttl',
         )
 
+        password_reset_table = dynamodb.Table(
+            self,
+            'PasswordReset',
+            removal_policy=RemovalPolicy.DESTROY,
+            table_name='PasswordReset',
+            billing_mode=dynamodb.BillingMode.PAY_PER_REQUEST,
+            partition_key=dynamodb.Attribute(
+                name='reset_id', type=dynamodb.AttributeType.STRING
+            ),
+            time_to_live_attribute='ttl',
+        )
+
         common_pkg_layer = layers.create_lambda_layer(
             self,
             self.stack_name,
