@@ -137,3 +137,27 @@ def test_api_get_register_lambda_permission():
             }
         ),
     )
+
+
+def test_api_has_reset_resource():
+    template.has_resource_properties(
+        'AWS::ApiGateway::Resource', {'PathPart': 'reset'}
+    )
+
+
+def test_api_get_reset_lambda_permission():
+    template.has_resource_properties(
+        'AWS::Lambda::Permission',
+        assertions.Match.object_like(
+            {
+                'Action': 'lambda:InvokeFunction',
+                'Principal': 'apigateway.amazonaws.com',
+                'SourceArn': {
+                    'Fn::Join': [
+                        '',
+                        assertions.Match.array_with(['/GET/reset']),
+                    ]
+                },
+            }
+        ),
+    )

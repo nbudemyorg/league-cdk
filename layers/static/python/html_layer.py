@@ -63,3 +63,12 @@ registration_form = """
   <button type="submit">Submit</button>
 </form>
 """
+
+password_reset_form = """
+<form action="/prod/reset" method="post">
+  <label for="player_id">PlayerId:</label>
+  <input type="text" id="player_id" name="player_id" required>
+
+  <button type="submit">Login</button>
+</form>
+"""
