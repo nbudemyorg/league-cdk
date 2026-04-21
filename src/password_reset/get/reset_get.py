@@ -1,0 +1,17 @@
+from aws_lambda_context import LambdaContext
+from aws_lambda_typing.events import APIGatewayProxyEventV1
+from aws_lambda_typing.responses import APIGatewayProxyResponseV1
+from html_layer import password_reset_form
+
+
+def lambda_handler(
+    event: APIGatewayProxyEventV1, context: LambdaContext
+) -> APIGatewayProxyResponseV1:
+
+    return {
+        'statusCode': 200,
+        'headers': {
+            'Content-Type': 'text/html',
+        },
+        'body': password_reset_form,
+    }

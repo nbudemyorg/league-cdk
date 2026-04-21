@@ -210,8 +210,23 @@ class LoginRegistrationStack(Stack):
 
         home_page_lambda_get.add_to_role_policy(home_sessions_ro)
 
+        password_reset_lambda_get = Function(
+            self,
+            'UserPasswordReset',
+            function_name='UserPasswordResetGET',
+            handler='reset_get.lambda_handler',
+            runtime=Runtime.PYTHON_3_14,
+            code=Code.from_asset(path='src/password_reset/get'),
+            timeout=Duration.seconds(5),
+            layers=[
+                static_content_layer,
+                common_pkg_layer,
+            ],
+        )
+
         self.login_lambda = login_lambda_post
         self.login_lambda_get = login_lambda_get
         self.registration_lambda = registration_lambda_post
         self.registration_lambda_get = registration_lambda_get
         self.home_page_lambda = home_page_lambda_get
+        self.password_reset_lambda_get = password_reset_lambda_get
