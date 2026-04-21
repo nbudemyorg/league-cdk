@@ -5,6 +5,7 @@ from freezegun import freeze_time
 from types_boto3_dynamodb.service_resource import Table
 
 from layers.sessions.python.auth_layer import (
+    ADD_TTL,
     COOKIE_MAX_AGE,
     create_login_response,
     create_session_item,
@@ -23,8 +24,10 @@ def test_create_session_item(
         moto_get_item = sessions_table.get_item(Key=session_item)
 
         expected_expiry = frozen_date + timedelta(seconds=COOKIE_MAX_AGE)
+        expected_ttl = int(expected_expiry.timestamp() + ADD_TTL)
         expected_item = session_item
         expected_item['expiry'] = expected_expiry.isoformat()
+        expected_item['ttl'] = expected_ttl
 
         assert moto_get_item['Item'] == expected_item
 
