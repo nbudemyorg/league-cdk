@@ -15,11 +15,23 @@ PASSWORD_VARIATIONS = [
     ('PLAYERONE1a', 'PlayerOne', False),
 ]
 
-FORM_VARIATIONS = [
+FORM_MISSING_PARAM = [
+    ('player_id=New_User', None),
     ('player_id=New_User&password=bobbins', None),
+    ('player_id=New_User&password=bobbins&email=bob@hotmail.com', None),
+    ('password=bobbins', None),
     ('password=bobbins&invite=CorrectValue', None),
-    ('player_id=New_User&invite=CorrectValue', None),
+    ('password=bobbins&invite=CorrectValue&email=bob@hotmail.com', None),
+    ('invite=CorrectValue', None),
+    ('invite=CorrectValue,player_id=New_User&', None),
+    ('invite=CorrectValue,player_id=New_User&email=bob@hotmail.com', None),
+    ('email=bob@hotmail.com', None),
+    ('email=bob@hotmail.com&invite=CorrectValue', None),
+    ('email=bob@hotmail.com&invite=CorrectValue&password=bobbins', None),
 ]
+
+
+DELIVERY_CHECK = False
 
 
 @pytest.mark.registration
@@ -46,13 +58,16 @@ def test_create_user_item_success(
 
     new_player = test_user['player_id']
     stub_hash = test_user['password']
-    response = create_user_item(users_table, new_player, stub_hash)
+    email = test_user['email']
+
+    response = create_user_item(users_table, new_player, stub_hash, email)
 
     user_item = users_table.get_item(Key={'player_id': new_player})
 
     assert response
     assert user_item['Item']['player_id'] == new_player
     assert user_item['Item']['password'] == stub_hash
+    assert user_item['Item']['email'] == email
 
 
 @pytest.mark.registration
@@ -64,7 +79,7 @@ def test_create_user_item_exception(
     from src.user_registration.post.register_post import create_user_item
 
     response = create_user_item(
-        users_table_client_error, 'DoesNotMatter', 'DoesNotMatter'
+        users_table_client_error, 'DoesNotMatter', 'DoesNotMatter', 'bogus'
     )
 
     assert not response
@@ -154,8 +169,8 @@ def test_generate_password_hash(
 
     response = generate_password_hash('AnyOldPassword')
 
-    assert type(response) is bytes
-    assert response == b'MockGeneratedHash'
+    assert type(response) is str
+    assert response == 'MockGeneratedHash'
 
 
 @pytest.mark.parametrize(
@@ -177,7 +192,7 @@ def test_password_meets_criteria(
     assert password_meets_criteria(password, player) is expected_result
 
 
-@pytest.mark.parametrize('form_data, expected_result', FORM_VARIATIONS)
+@pytest.mark.parametrize('form_data, expected_result', FORM_MISSING_PARAM)
 @pytest.mark.registration
 def test_invalid_form_data(
     form_data: str,
@@ -188,23 +203,27 @@ def test_invalid_form_data(
 
     from src.user_registration.post.register_post import form_data_valid
 
-    assert form_data_valid(form_data) is expected_result
+    assert form_data_valid(form_data, DELIVERY_CHECK) is expected_result
 
 
 @pytest.mark.registration
 def test_valid_form_data(invitation_secret: SecretsManagerClient) -> None:
     """Test expected dict is returned when all form params supplied"""
 
-    valid_form_params = """
-    player_id=PyTest_Player&password=NotVerySecure&invite=PyTestInvite
-    """
+    valid_form_params = (
+        'player_id=PyTest_Player&password=NotVerySecure&'
+        'invite=PyTestInvite&email=bob@hotmail.com'
+    )
+
     expected_result = {
         'player_id': 'PyTest_Player',
         'password': 'NotVerySecure',
         'invite': 'PyTestInvite',
+        'email': 'bob@hotmail.com',
     }
+
     from src.user_registration.post.register_post import form_data_valid
 
-    response = form_data_valid(valid_form_params.strip())
+    response = form_data_valid(valid_form_params, DELIVERY_CHECK)
 
     assert response == expected_result

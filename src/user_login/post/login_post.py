@@ -12,7 +12,6 @@ from auth_layer import (
 from aws_lambda_context import LambdaContext
 from aws_lambda_typing.events import APIGatewayProxyEventV1
 from aws_lambda_typing.responses import APIGatewayProxyResponseV1
-from boto3.dynamodb.types import Binary
 from botocore.exceptions import ClientError
 from types_boto3_dynamodb.service_resource import Table
 
@@ -96,17 +95,11 @@ def password_is_valid(
     if not item:
         return False
 
-    pw_val = item.get('password')
+    stored_value = item.get('password')
 
-    if pw_val is None:
+    if not isinstance(stored_value, str):
         return False
 
-    if isinstance(pw_val, Binary):
-        stored_bytes = pw_val
-    else:
-        return False
-
-    password_bytes = supplied_password.encode('utf-8')
-    result = bcrypt.checkpw(password_bytes, stored_bytes.__bytes__())
-
-    return cast('bool', result)
+    posted_password_bytes = supplied_password.encode('utf-8')
+    stored_password_bytes = stored_value.encode('utf-8')
+    return bcrypt.checkpw(posted_password_bytes, stored_password_bytes)
