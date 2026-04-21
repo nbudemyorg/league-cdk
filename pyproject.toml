@@ -17,7 +17,8 @@ markers = [
     'sessions: Session related tests',
     'registration: Registration related tests',
     'login: Login related tests',
-    'homepage: Homepage related tests'
+    'homepage: Homepage related tests',
+    'cdk: CDK related tests'
 ]
 
 [project.optional-dependencies]
