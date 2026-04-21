@@ -54,6 +54,9 @@ registration_form = """
   <label for="password">Password:</label>
   <input type="password" id="password" name="password" required>
 
+  <label for="email">Email:</label>
+  <input type="text" id="email" name="email" required>
+
   <label for="invite">Invite Key:</label>
   <input type="password" id="invite" name="invite" required>
 
