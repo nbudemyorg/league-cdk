@@ -179,7 +179,7 @@ def test_api_get_reset_lambda_permission():
 
 
 @pytest.mark.cdk
-def test_api_get_reset_lambda_permission():
+def test_api_post_reset_lambda_permission():
     template.has_resource_properties(
         'AWS::Lambda::Permission',
         assertions.Match.object_like(
