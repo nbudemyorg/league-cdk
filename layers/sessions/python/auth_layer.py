@@ -65,7 +65,10 @@ def get_player_item(table: Table, supplied_id: str) -> dict[str, str] | None:
     except ClientError:
         return None
     else:
-        return 'Item' in response
+        if 'Item' in response:
+            return response['Item']
+
+        return {'id_not_found': supplied_id}
 
 
 def generate_password_hash(supplied_password: str) -> str:

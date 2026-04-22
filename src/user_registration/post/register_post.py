@@ -8,6 +8,7 @@ from auth_layer import (
     create_login_response,
     create_session_item,
     generate_password_hash,
+    get_player_item,
     valid_player_id,
 )
 from aws_lambda_context import LambdaContext
@@ -184,13 +185,15 @@ def player_id_exists(table: Table, supplied_id: str) -> bool | None:
     """Makes sure the supplied Player ID is not already stored in
     the user table."""
 
-    try:
-        response = table.get_item(Key={'player_id': supplied_id})
+    player_item = get_player_item(table, supplied_id)
 
-    except ClientError:
-        return None
-    else:
-        return 'Item' in response
+    if player_item is not None:
+        if player_item.get('id_not_found'):
+            return False
+        if player_item.get('player_id') == supplied_id:
+            return True
+
+    return None
 
 
 def valid_invitation_key(supplied_key: str) -> bool:

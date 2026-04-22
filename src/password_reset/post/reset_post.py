@@ -1,11 +1,10 @@
 import secrets
 from datetime import UTC, datetime, timedelta
 from decimal import Decimal
-from typing import cast
 from urllib.parse import parse_qs
 
 import boto3
-from auth_layer import valid_player_id
+from auth_layer import get_player_item, valid_player_id
 from aws_lambda_context import LambdaContext
 from aws_lambda_typing.events import APIGatewayProxyEventV1
 from aws_lambda_typing.responses import APIGatewayProxyResponseV1
@@ -33,8 +32,10 @@ def lambda_handler(
 
     player_item = get_player_item(users_table, processed_form['player_id'])
 
-    if not player_item:
+    if player_item.get('id_not_found'):
         return silent_fail_response()
+    if player_item is None:
+        return fail_response()
 
     updated_player = update_player_item(users_table, player_item, True)
 
@@ -79,22 +80,6 @@ def silent_fail_response() -> APIGatewayProxyResponseV1:
 
 def fail_response() -> APIGatewayProxyResponseV1:
     return {'statusCode': 503, 'body': 'Server Error'}
-
-
-def get_player_item(table: Table, supplied_id: str) -> dict[str, str] | None:
-    """Returns item for Player ID if it exists in the Users table."""
-
-    try:
-        response = table.get_item(Key={'player_id': supplied_id})
-
-    except ClientError:
-        return None
-    else:
-        if 'Item' in response:
-            player_item = response['Item']
-            return cast('dict[str, str]', player_item)
-
-        return None
 
 
 def update_player_item(
