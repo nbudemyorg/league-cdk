@@ -1,5 +1,6 @@
 import aws_cdk as core
 import aws_cdk.assertions as assertions
+import pytest
 
 from league.login_registration_stack import LoginRegistrationStack
 
@@ -8,14 +9,17 @@ stack = LoginRegistrationStack(app, 'league')
 template = assertions.Template.from_stack(stack)
 
 
+@pytest.mark.cdk
 def test_lambda_count():
     template.resource_count_is('AWS::Lambda::Function', 7)
 
 
+@pytest.mark.cdk
 def test_lambda_layer_count():
     template.resource_count_is('AWS::Lambda::LayerVersion', 5)
 
 
+@pytest.mark.cdk
 def test_registration_get_lambda():
     template.has_resource_properties(
         'AWS::Lambda::Function',
@@ -28,6 +32,7 @@ def test_registration_get_lambda():
     )
 
 
+@pytest.mark.cdk
 def test_registration_post_lambda():
     template.has_resource_properties(
         'AWS::Lambda::Function',
@@ -40,6 +45,7 @@ def test_registration_post_lambda():
     )
 
 
+@pytest.mark.cdk
 def test_registration_post_lambda_role_policies():
 
     template.has_resource_properties(
@@ -113,6 +119,7 @@ def test_registration_post_lambda_role_policies():
     )
 
 
+@pytest.mark.cdk
 def test_home_page_lambda():
     template.has_resource_properties(
         'AWS::Lambda::Function',
@@ -125,6 +132,7 @@ def test_home_page_lambda():
     )
 
 
+@pytest.mark.cdk
 def test_home_page_lambda_role_policies():
     template.has_resource_properties(
         'AWS::IAM::Policy',
@@ -158,6 +166,7 @@ def test_home_page_lambda_role_policies():
     )
 
 
+@pytest.mark.cdk
 def test_user_login_get_lambda():
     template.has_resource_properties(
         'AWS::Lambda::Function',
@@ -170,6 +179,7 @@ def test_user_login_get_lambda():
     )
 
 
+@pytest.mark.cdk
 def test_user_login_post_lambda():
     template.has_resource_properties(
         'AWS::Lambda::Function',
@@ -182,6 +192,7 @@ def test_user_login_post_lambda():
     )
 
 
+@pytest.mark.cdk
 def test_login_lambda_role_policies():
     template.has_resource_properties(
         'AWS::IAM::Policy',
@@ -222,6 +233,86 @@ def test_login_lambda_role_policies():
                                         )
                                     },
                                     'Sid': 'LoginLambdaSessionsTableWO',
+                                }
+                            ),
+                        ]
+                    )
+                }
+            )
+        },
+    )
+
+
+@pytest.mark.cdk
+def test_password_reset_get_lambda():
+    template.has_resource_properties(
+        'AWS::Lambda::Function',
+        {
+            'Handler': 'reset_get.lambda_handler',
+            'FunctionName': 'UserPasswordResetGET',
+            'Runtime': 'python3.14',
+            'Timeout': 5,
+        },
+    )
+
+
+@pytest.mark.cdk
+def test_password_reset_post_lambda():
+    template.has_resource_properties(
+        'AWS::Lambda::Function',
+        {
+            'Handler': 'reset_post.lambda_handler',
+            'FunctionName': 'UserPasswordResetPOST',
+            'Runtime': 'python3.14',
+            'Timeout': 10,
+        },
+    )
+
+
+@pytest.mark.cdk
+def test_password_reset_role_policies():
+    template.has_resource_properties(
+        'AWS::IAM::Policy',
+        {
+            'PolicyDocument': assertions.Match.object_like(
+                {
+                    'Statement': assertions.Match.array_with(
+                        [
+                            assertions.Match.object_like(
+                                {
+                                    'Action': [
+                                        'dynamodb:PutItem',
+                                        'dynamodb:GetItem',
+                                    ],
+                                    'Effect': 'Allow',
+                                    'Resource': {
+                                        'Fn::GetAtt': assertions.Match.array_with(
+                                            [
+                                                assertions.Match.string_like_regexp(
+                                                    '(Users).{8}$'
+                                                ),
+                                                'Arn',
+                                            ]
+                                        )
+                                    },
+                                    'Sid': 'PasswordResetLambdaUsersTableRW',
+                                }
+                            ),
+                            assertions.Match.object_like(
+                                {
+                                    'Action': 'dynamodb:PutItem',
+                                    'Effect': 'Allow',
+                                    'Resource': {
+                                        'Fn::GetAtt': assertions.Match.array_with(
+                                            [
+                                                assertions.Match.string_like_regexp(
+                                                    '(PasswordReset).{8}$'
+                                                ),
+                                                'Arn',
+                                            ]
+                                        )
+                                    },
+                                    'Sid': 'PasswordResetLambdaPasswordResetTableRW',
                                 }
                             ),
                         ]
