@@ -3,11 +3,11 @@ import re
 from typing import cast
 from urllib.parse import parse_qs
 
-import bcrypt
 import boto3
 from auth_layer import (
     create_login_response,
     create_session_item,
+    generate_password_hash,
     valid_player_id,
 )
 from aws_lambda_context import LambdaContext
@@ -191,17 +191,6 @@ def player_id_exists(table: Table, supplied_id: str) -> bool | None:
         return None
     else:
         return 'Item' in response
-
-
-def generate_password_hash(supplied_password: str) -> str:
-    """Generates a bcrypt hash with salt of the supplied password"""
-
-    password_bytes = supplied_password.encode('utf-8')
-    password_salt = bcrypt.gensalt()
-
-    password_bytes = bcrypt.hashpw(password_bytes, password_salt)
-
-    return password_bytes.decode()
 
 
 def valid_invitation_key(supplied_key: str) -> bool:

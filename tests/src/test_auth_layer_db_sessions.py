@@ -2,6 +2,7 @@ from datetime import datetime, timedelta
 
 import pytest
 from freezegun import freeze_time
+from pytest_mock import MockerFixture
 from types_boto3_dynamodb.service_resource import Table
 
 from layers.sessions.python.auth_layer import (
@@ -103,3 +104,19 @@ def test_create_login_response() -> None:
 
     assert f'session_id={session_id}; Max-Age={COOKIE_MAX_AGE}' in set_cookies
     assert f'player_id={player_id}; Max-Age={COOKIE_MAX_AGE}' in set_cookies
+
+
+@pytest.mark.sessions
+def test_generate_password_hash(mocker: MockerFixture) -> None:
+    """Test generate_password_hash returns a mocked hashed password"""
+
+    from layers.sessions.python.auth_layer import generate_password_hash
+
+    mock_bcrypt = mocker.patch('layers.sessions.python.auth_layer.bcrypt')
+    mock_bcrypt.hashpw.return_value = b'MockGeneratedHash'
+    mock_bcrypt.gensalt.return_value = 'PinchOfSalt'
+
+    response = generate_password_hash('AnyOldPassword')
+
+    assert type(response) is str
+    assert response == 'MockGeneratedHash'
