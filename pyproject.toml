@@ -14,11 +14,13 @@ dependencies = [
 [tool.pytest.ini_options]
 addopts = '-rA -s -v'
 markers = [
-    'sessions: Session related tests',
-    'registration: Registration related tests',
-    'login: Login related tests',
+    'cdk: CDK related tests',
     'homepage: Homepage related tests',
-    'cdk: CDK related tests'
+    'login: Login related tests',
+    'registration: Registration related tests',
+    'reset: Password reset related tests',
+    'sessions: Session related tests',
+    'player_id: PlayerId related tests'
 ]
 
 [project.optional-dependencies]

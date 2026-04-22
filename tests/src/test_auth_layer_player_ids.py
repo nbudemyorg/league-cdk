@@ -7,6 +7,7 @@ from layers.sessions.python.auth_layer import (
 )
 
 CROSS_PLATFORM_INVALID_IDS = [
+    ('', False),
     ('No', False),
     ('Invalid+plyr', False),
     ('Invalid&plyr', False),
@@ -45,6 +46,7 @@ XBOX_VALID_IDS = [('Valid player', True), ('valid player', True)]
 @pytest.mark.parametrize(
     'player_id, expected_result', CROSS_PLATFORM_INVALID_IDS + PSN_INVALID_IDS
 )
+@pytest.mark.player_id
 def test_valid_psn_id_invalid_ply(
     player_id: str, expected_result: bool
 ) -> None:
@@ -56,6 +58,7 @@ def test_valid_psn_id_invalid_ply(
 @pytest.mark.parametrize(
     'player_id, expected_result', CROSS_PLATFORM_INVALID_IDS + XBOX_INVALID_IDS
 )
+@pytest.mark.player_id
 def test_valid_xbox_id_invalid_ply(
     player_id: str, expected_result: bool
 ) -> None:
@@ -67,6 +70,7 @@ def test_valid_xbox_id_invalid_ply(
 @pytest.mark.parametrize(
     'player_id, expected_result', CROSS_PLATFORM_VALID_IDS + PSN_VALID_IDS
 )
+@pytest.mark.player_id
 def test_valid_psn_id_valid_ply(player_id: str, expected_result: bool) -> None:
     """Test valid PSN IDs are accepted"""
 
@@ -76,6 +80,7 @@ def test_valid_psn_id_valid_ply(player_id: str, expected_result: bool) -> None:
 @pytest.mark.parametrize(
     'player_id, expected_result', CROSS_PLATFORM_VALID_IDS + XBOX_VALID_IDS
 )
+@pytest.mark.player_id
 def test_valid_xbox_id_valid_ply(
     player_id: str, expected_result: bool
 ) -> None:
@@ -88,6 +93,7 @@ def test_valid_xbox_id_valid_ply(
     'player_id, expected_result',
     CROSS_PLATFORM_VALID_IDS + PSN_VALID_IDS + XBOX_VALID_IDS,
 )
+@pytest.mark.player_id
 def test_valid_player_id_valid_ply(
     player_id: str, expected_result: bool
 ) -> None:
@@ -99,6 +105,7 @@ def test_valid_player_id_valid_ply(
 @pytest.mark.parametrize(
     'player_id, expected_result', CROSS_PLATFORM_INVALID_IDS
 )
+@pytest.mark.player_id
 def test_valid_player_id_invalid_ply(
     player_id: str, expected_result: bool
 ) -> None:
