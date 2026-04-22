@@ -2,6 +2,7 @@ import re
 from datetime import UTC, datetime, timedelta
 from uuid import uuid4
 
+import bcrypt
 from aws_lambda_typing.responses import APIGatewayProxyResponseV1
 from botocore.exceptions import ClientError
 from types_boto3_dynamodb.service_resource import Table
@@ -53,6 +54,29 @@ def create_login_response(
     multi_value_headers.update(location)
 
     return {'statusCode': 301, 'multiValueHeaders': multi_value_headers}
+
+
+def get_player_item(table: Table, supplied_id: str) -> dict[str, str] | None:
+    """Returns item for Player ID if it exists in the Users table."""
+
+    try:
+        response = table.get_item(Key={'player_id': supplied_id})
+
+    except ClientError:
+        return None
+    else:
+        return 'Item' in response
+
+
+def generate_password_hash(supplied_password: str) -> str:
+    """Generates a bcrypt hash with salt of the supplied password"""
+
+    password_bytes = supplied_password.encode('utf-8')
+    password_salt = bcrypt.gensalt()
+
+    password_bytes = bcrypt.hashpw(password_bytes, password_salt)
+
+    return password_bytes.decode()
 
 
 def valid_session(table: Table, player: str, session: str) -> bool:

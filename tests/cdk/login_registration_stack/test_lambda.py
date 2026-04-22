@@ -9,7 +9,7 @@ template = assertions.Template.from_stack(stack)
 
 
 def test_lambda_count():
-    template.resource_count_is('AWS::Lambda::Function', 6)
+    template.resource_count_is('AWS::Lambda::Function', 7)
 
 
 def test_lambda_layer_count():

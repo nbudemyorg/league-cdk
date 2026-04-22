@@ -59,3 +59,9 @@ class LeagueRootStack(Stack):
                 login_registration_stack.password_reset_lambda_get
             ),
         )
+        reset_resource.add_method(
+            'POST',
+            LambdaIntegration(
+                login_registration_stack.password_reset_lambda_post
+            ),
+        )

@@ -69,6 +69,6 @@ password_reset_form = """
   <label for="player_id">PlayerId:</label>
   <input type="text" id="player_id" name="player_id" required>
 
-  <button type="submit">Login</button>
+  <button type="submit">Submit</button>
 </form>
 """

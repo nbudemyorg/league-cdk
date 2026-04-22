@@ -224,9 +224,38 @@ class LoginRegistrationStack(Stack):
             ],
         )
 
+        password_reset_lambda_post = Function(
+            self,
+            'UserPasswordResetPOST',
+            function_name='UserPasswordResetPOST',
+            handler='reset_post.lambda_handler',
+            runtime=Runtime.PYTHON_3_14,
+            code=Code.from_asset(path='src/password_reset/post'),
+            timeout=Duration.seconds(10),
+            layers=[sessions_dependencies_layer],
+        )
+
+        password_reset_users_rw = iam.PolicyStatement(
+            effect=iam.Effect.ALLOW,
+            actions=['dynamodb:PutItem', 'dynamodb:GetItem'],
+            resources=[users_table.table_arn],
+            sid='RegistrationLambdaUsersTableRW',
+        )
+
+        password_reset_reset_wo = iam.PolicyStatement(
+            effect=iam.Effect.ALLOW,
+            actions=['dynamodb:PutItem'],
+            resources=[password_reset_table.table_arn],
+            sid='PasswordResetLambdaUsersTableRW',
+        )
+
+        password_reset_lambda_post.add_to_role_policy(password_reset_users_rw)
+        password_reset_lambda_post.add_to_role_policy(password_reset_reset_wo)
+
         self.login_lambda = login_lambda_post
         self.login_lambda_get = login_lambda_get
         self.registration_lambda = registration_lambda_post
         self.registration_lambda_get = registration_lambda_get
         self.home_page_lambda = home_page_lambda_get
         self.password_reset_lambda_get = password_reset_lambda_get
+        self.password_reset_lambda_post = password_reset_lambda_post
