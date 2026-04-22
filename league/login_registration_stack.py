@@ -232,7 +232,11 @@ class LoginRegistrationStack(Stack):
             runtime=Runtime.PYTHON_3_14,
             code=Code.from_asset(path='src/password_reset/post'),
             timeout=Duration.seconds(10),
-            layers=[sessions_dependencies_layer],
+            layers=[
+                sessions_dependencies_layer,
+                common_pkg_layer,
+                bcrypt_pkg_layer,
+            ],
         )
 
         password_reset_users_rw = iam.PolicyStatement(

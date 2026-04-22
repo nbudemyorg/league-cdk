@@ -90,8 +90,11 @@ def get_player_item(table: Table, supplied_id: str) -> dict[str, str] | None:
     except ClientError:
         return None
     else:
-        player_item = response['Item']
-        return cast('dict[str, str]', player_item)
+        if 'Item' in response:
+            player_item = response['Item']
+            return cast('dict[str, str]', player_item)
+
+        return None
 
 
 def update_player_item(
