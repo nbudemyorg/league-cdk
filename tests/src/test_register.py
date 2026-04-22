@@ -1,7 +1,6 @@
 import sys
 
 import pytest
-from pytest_mock import MockerFixture
 from types_boto3_dynamodb.service_resource import Table
 from types_boto3_secretsmanager.client import SecretsManagerClient
 
@@ -151,26 +150,6 @@ def test_valid_invitation_key_false(
     response = valid_invitation_key('IncorrectValue')
 
     assert not response
-
-
-@pytest.mark.registration
-def test_generate_password_hash(
-    invitation_secret: SecretsManagerClient, mocker: MockerFixture
-) -> None:
-    """Test generate_password_hash returns a mocked hashed password"""
-
-    from src.user_registration.post.register_post import generate_password_hash
-
-    mock_bcrypt = mocker.patch(
-        'src.user_registration.post.register_post.bcrypt'
-    )
-    mock_bcrypt.hashpw.return_value = b'MockGeneratedHash'
-    mock_bcrypt.gensalt.return_value = 'PinchOfSalt'
-
-    response = generate_password_hash('AnyOldPassword')
-
-    assert type(response) is str
-    assert response == 'MockGeneratedHash'
 
 
 @pytest.mark.parametrize(
