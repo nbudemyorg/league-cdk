@@ -85,48 +85,6 @@ def test_create_user_item_exception(
 
 
 @pytest.mark.registration
-def test_player_id_exists_false(
-    users_table: Table, invitation_secret: SecretsManagerClient
-) -> None:
-    """Test behavior when player id does not exist in db"""
-
-    from src.user_registration.post.register_post import player_id_exists
-
-    response = player_id_exists(users_table, 'Not_Created')
-
-    assert not response
-
-
-@pytest.mark.registration
-def test_player_id_exists_true(
-    users_table_with_user: Table,
-    invitation_secret: SecretsManagerClient,
-    test_user: dict[str, str],
-) -> None:
-    """Test behavior when player id does exist in db"""
-
-    new_player = test_user['player_id']
-    from src.user_registration.post.register_post import player_id_exists
-
-    response = player_id_exists(users_table_with_user, new_player)
-
-    assert response
-
-
-@pytest.mark.registration
-def test_player_id_exists_exception(
-    users_table_client_error: Table, invitation_secret: SecretsManagerClient
-) -> None:
-    """Test player_id_exists handles AWS ClientError exception"""
-
-    from src.user_registration.post.register_post import player_id_exists
-
-    response = player_id_exists(users_table_client_error, 'DoesNotMatter')
-
-    assert response is None
-
-
-@pytest.mark.registration
 def test_valid_invitation_key_true(
     invitation_secret: SecretsManagerClient,
 ) -> None:
@@ -206,3 +164,66 @@ def test_valid_form_data(invitation_secret: SecretsManagerClient) -> None:
     response = form_data_valid(valid_form_params, DELIVERY_CHECK)
 
     assert response == expected_result
+
+
+@pytest.mark.registration
+def test_player_id_exists_true(
+    monkeypatch: pytest.MonkeyPatch,
+    users_table: Table,
+) -> None:
+    """player_id_exists returns True if the call to get_player_item
+    returns an item with matching player_id"""
+
+    from src.user_registration.post.register_post import player_id_exists
+
+    patched_response = {'player_id': 'AnyOldUser'}
+    monkeypatch.setattr(
+        'src.user_registration.post.register_post.get_player_item',
+        lambda table, supplied_id: patched_response,
+    )
+
+    response = player_id_exists(users_table, 'AnyOldUser')
+
+    assert response is True
+
+
+@pytest.mark.registration
+def test_player_id_exists_false(
+    monkeypatch: pytest.MonkeyPatch,
+    users_table: Table,
+) -> None:
+    """player_id_exists returns False if the call to get_player_item
+    does not return an item for that player_id"""
+
+    from src.user_registration.post.register_post import player_id_exists
+
+    patched_response = {'id_not_found': 'AnyOldUser'}
+    monkeypatch.setattr(
+        'src.user_registration.post.register_post.get_player_item',
+        lambda table, supplied_id: patched_response,
+    )
+
+    response = player_id_exists(users_table, 'AnyOldUser')
+
+    assert response is False
+
+
+@pytest.mark.registration
+def test_player_id_exists_exception(
+    monkeypatch: pytest.MonkeyPatch,
+    users_table: Table,
+) -> None:
+    """player_id_exists returns None if the call to get_player_item
+    results in a ClientError exception"""
+
+    from src.user_registration.post.register_post import player_id_exists
+
+    patched_response = None
+    monkeypatch.setattr(
+        'src.user_registration.post.register_post.get_player_item',
+        lambda table, supplied_id: patched_response,
+    )
+
+    response = player_id_exists(users_table, 'AnyOldUser')
+
+    assert response is None

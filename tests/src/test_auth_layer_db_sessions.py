@@ -120,3 +120,41 @@ def test_generate_password_hash(mocker: MockerFixture) -> None:
 
     assert type(response) is str
     assert response == 'MockGeneratedHash'
+
+
+@pytest.mark.sessions
+def test_get_player_item_true(
+    users_table_with_user: Table,
+    test_user: dict[str, str],
+) -> None:
+
+    from layers.sessions.python.auth_layer import get_player_item
+
+    new_player = test_user['player_id']
+
+    response = get_player_item(users_table_with_user, new_player)
+
+    assert response == test_user
+
+
+@pytest.mark.sessions
+def test_get_player_item_false(users_table: Table) -> None:
+
+    from layers.sessions.python.auth_layer import get_player_item
+
+    player_id = 'NoSuchUser'
+
+    response = get_player_item(users_table, player_id)
+
+    assert response == {'id_not_found': player_id}
+
+
+@pytest.mark.sessions
+def test_get_player_item_exception(users_table_client_error) -> None:
+    from layers.sessions.python.auth_layer import get_player_item
+
+    player_id = 'NoSuchUser'
+
+    response = get_player_item(users_table_client_error, player_id)
+
+    assert response is None
