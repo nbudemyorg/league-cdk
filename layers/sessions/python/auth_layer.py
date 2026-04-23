@@ -1,4 +1,5 @@
 import re
+import secrets
 from datetime import UTC, datetime, timedelta
 from uuid import uuid4
 
@@ -69,6 +70,23 @@ def get_player_item(table: Table, supplied_id: str) -> dict[str, str] | None:
             return response['Item']
 
         return {'id_not_found': supplied_id}
+
+
+def put_player_item(
+    table: Table, item: dict[str, str], reset_token: bool = False
+) -> bool | None:
+
+    if reset_token:
+        token = secrets.token_urlsafe()
+        item['reset_id'] = token
+
+    try:
+        response = table.put_item(Item=item)
+
+    except ClientError:
+        return None
+
+    return item
 
 
 def generate_password_hash(supplied_password: str) -> str:

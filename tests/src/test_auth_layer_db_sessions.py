@@ -158,3 +158,59 @@ def test_get_player_item_exception(users_table_client_error) -> None:
     response = get_player_item(users_table_client_error, player_id)
 
     assert response is None
+
+
+@pytest.mark.sessions
+def test_put_player_item_token_true(
+    users_table: Table,
+    test_user: dict[str, str],
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+
+    from layers.sessions.python.auth_layer import put_player_item
+
+    url_safe_token = 'ThisWillHaveToDo'
+    expected_item = test_user
+    expected_item['reset_id'] = url_safe_token
+    player_id = test_user['player_id']
+
+    monkeypatch.setattr(
+        'layers.sessions.python.auth_layer.secrets.token_urlsafe',
+        lambda : url_safe_token,
+    )
+
+    put_response = put_player_item(users_table, test_user, reset_token=True)
+
+    get_response = users_table.get_item(Key={'player_id': player_id})
+
+    assert put_response == get_response['Item']
+
+
+@pytest.mark.sessions
+def test_put_player_item_token_false(
+    users_table: Table,
+    test_user: dict[str, str],
+) -> None:
+
+    from layers.sessions.python.auth_layer import put_player_item
+
+    player_id = test_user['player_id']
+
+    put_response = put_player_item(users_table, test_user)
+
+    get_response = users_table.get_item(Key={'player_id': player_id})
+
+    assert put_response == get_response['Item']
+
+
+@pytest.mark.sessions
+def test_put_player_item_exception(
+    users_table_client_error: Table,
+    test_user: dict[str, str],
+) -> None:
+
+    from layers.sessions.python.auth_layer import put_player_item
+
+    put_response = put_player_item(users_table_client_error, test_user)
+
+    assert put_response is None

@@ -45,46 +45,6 @@ def test_mocked_modules_imported(
 
 
 @pytest.mark.registration
-def test_create_user_item_success(
-    users_table: Table,
-    monkeypatch: pytest.MonkeyPatch,
-    test_user: dict[str, str],
-    invitation_secret: SecretsManagerClient,
-) -> None:
-    """Test successful creation of a new Item in the Users DynamoDB table"""
-
-    from src.user_registration.post.register_post import create_user_item
-
-    new_player = test_user['player_id']
-    stub_hash = test_user['password']
-    email = test_user['email']
-
-    response = create_user_item(users_table, new_player, stub_hash, email)
-
-    user_item = users_table.get_item(Key={'player_id': new_player})
-
-    assert response
-    assert user_item['Item']['player_id'] == new_player
-    assert user_item['Item']['password'] == stub_hash
-    assert user_item['Item']['email'] == email
-
-
-@pytest.mark.registration
-def test_create_user_item_exception(
-    users_table_client_error: Table, invitation_secret: SecretsManagerClient
-) -> None:
-    """Test create_user_item handles AWS ClientError exception"""
-
-    from src.user_registration.post.register_post import create_user_item
-
-    response = create_user_item(
-        users_table_client_error, 'DoesNotMatter', 'DoesNotMatter', 'bogus'
-    )
-
-    assert not response
-
-
-@pytest.mark.registration
 def test_valid_invitation_key_true(
     invitation_secret: SecretsManagerClient,
 ) -> None:
@@ -227,3 +187,18 @@ def test_player_id_exists_exception(
     response = player_id_exists(users_table, 'AnyOldUser')
 
     assert response is None
+
+
+@pytest.mark.registration
+def test_create_user_item(test_user: dict[str, str]) -> None:
+    """Test successful creation of a new Users Item"""
+
+    from src.user_registration.post.register_post import create_user_item
+
+    new_player = test_user['player_id']
+    stub_hash = test_user['password']
+    email = test_user['email']
+
+    response = create_user_item(new_player, stub_hash, email)
+
+    assert response == test_user
