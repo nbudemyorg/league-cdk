@@ -176,7 +176,7 @@ def test_put_player_item_token_true(
 
     monkeypatch.setattr(
         'layers.sessions.python.auth_layer.secrets.token_urlsafe',
-        lambda : url_safe_token,
+        lambda: url_safe_token,
     )
 
     put_response = put_player_item(users_table, test_user, reset_token=True)
