@@ -94,7 +94,7 @@ def lambda_handler(
         supplied_player_id, hashed_password, supplied_email
     )
 
-    if not put_player_item(user_item):
+    if not put_player_item(users_table, user_item):
         return {
             'statusCode': 500,
             'body': json.dumps('Server Error: Put Item failed'),
