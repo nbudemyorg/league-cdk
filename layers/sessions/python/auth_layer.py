@@ -89,7 +89,7 @@ def put_player_item(
     return item
 
 
-def reset_item_valid(table: Table, reset_id: str) -> bool | None:
+def get_reset_item(table: Table, reset_id: str) -> dict[str, str] | None:
 
     try:
         response = table.get_item(Key={'reset_id': reset_id})
@@ -100,9 +100,9 @@ def reset_item_valid(table: Table, reset_id: str) -> bool | None:
     reset_item = response.get('Item')
 
     if not reset_item:
-        return False
+        return {'item_not_found': reset_id}
 
-    return datetime.now(UTC) < datetime.fromisoformat(reset_item['expiry'])
+    return reset_item
 
 
 def generate_password_hash(supplied_password: str) -> str:

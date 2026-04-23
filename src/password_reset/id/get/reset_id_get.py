@@ -1,7 +1,8 @@
 import json
+from datetime import UTC, datetime
 
 import boto3
-from auth_layer import reset_item_valid
+from auth_layer import get_reset_item
 from aws_lambda_context import LambdaContext
 from aws_lambda_typing.events import APIGatewayProxyEventV1
 from aws_lambda_typing.responses import APIGatewayProxyResponseV1
@@ -22,8 +23,24 @@ def lambda_handler(
 
     reset_id = path_params.get('resetId')
 
-    reset_allowed = reset_item_valid(reset_table, reset_id)
-    if reset_allowed:
+    if not reset_id:
+        return {'statusCode': 400, 'body': json.dumps('Bad Request')}
+
+    stored_item = get_reset_item(reset_table, reset_id)
+
+    if stored_item is None:
+        return {'statusCode': 500, 'body': json.dumps('Server Error')}
+
+    if stored_item.get('item_not_found'):
+        return {
+            'statusCode': 200,
+            'headers': {
+                'Content-Type': 'text/html',
+            },
+            'body': 'Reset token not found',
+        }
+
+    if reset_item_still_valid(stored_item):
         return {
             'statusCode': 200,
             'headers': {
@@ -32,13 +49,15 @@ def lambda_handler(
             'body': new_password_form,
         }
 
-    if reset_allowed is False:
-        return {
-            'statusCode': 200,
-            'headers': {
-                'Content-Type': 'text/html',
-            },
-            'body': 'Reset token expired',
-        }
+    return {
+        'statusCode': 200,
+        'headers': {
+            'Content-Type': 'text/html',
+        },
+        'body': 'Reset token has expired',
+    }
 
-    return {'statusCode': 400, 'body': json.dumps('Server Error')}
+
+def reset_item_still_valid(item: dict[str, str]) -> bool:
+
+    return datetime.now(UTC) < datetime.fromisoformat(item['expiry'])
