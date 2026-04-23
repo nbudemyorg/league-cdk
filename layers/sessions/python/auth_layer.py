@@ -89,6 +89,22 @@ def put_player_item(
     return item
 
 
+def reset_item_valid(table: Table, reset_id: str) -> bool | None:
+
+    try:
+        response = table.get_item(Key={'reset_id': reset_id})
+
+    except ClientError:
+        return None
+
+    reset_item = response.get('Item')
+
+    if not reset_item:
+        return False
+
+    return datetime.now(UTC) < datetime.fromisoformat(reset_item['expiry'])
+
+
 def generate_password_hash(supplied_password: str) -> str:
     """Generates a bcrypt hash with salt of the supplied password"""
 
