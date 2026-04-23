@@ -72,3 +72,12 @@ password_reset_form = """
   <button type="submit">Submit</button>
 </form>
 """
+
+new_password_form = """
+<form action="/prod/reset/id" method="post">
+  <label for="new_password">NewPasssword:</label>
+  <input type="password" id="new_password" name="new_password" required>
+
+  <button type="submit">Submit</button>
+</form>
+"""

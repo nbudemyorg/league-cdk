@@ -11,7 +11,7 @@ template = assertions.Template.from_stack(stack)
 
 @pytest.mark.cdk
 def test_lambda_count():
-    template.resource_count_is('AWS::Lambda::Function', 7)
+    template.resource_count_is('AWS::Lambda::Function', 8)
 
 
 @pytest.mark.cdk
