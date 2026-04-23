@@ -196,6 +196,7 @@ def test_api_post_reset_lambda_permission():
         ),
     )
 
+
 @pytest.mark.cdk
 def test_api_has_reset_id_resource():
     template.has_resource_properties(
