@@ -254,6 +254,20 @@ class LoginRegistrationStack(Stack):
             sid='PasswordResetLambdaPasswordResetTableRW',
         )
 
+        password_reset_table_ro = iam.PolicyStatement(
+            effect=iam.Effect.ALLOW,
+            actions=['dynamodb:GetItem'],
+            resources=[password_reset_table.table_arn],
+            sid='PasswordResetLambdaPasswordResetTableRO',
+        )
+
+        password_reset_table_rw = iam.PolicyStatement(
+            effect=iam.Effect.ALLOW,
+            actions=['dynamodb:GetItem', 'dynamodb:PutItem'],
+            resources=[password_reset_table.table_arn],
+            sid='PasswordResetLambdaPasswordResetTableRW',
+        )
+
         password_reset_lambda_post.add_to_role_policy(password_reset_users_rw)
         password_reset_lambda_post.add_to_role_policy(password_reset_table_wo)
 
@@ -269,7 +283,12 @@ class LoginRegistrationStack(Stack):
                 static_content_layer,
                 common_pkg_layer,
                 sessions_dependencies_layer,
+                sessions_dependencies_layer,
             ],
+        )
+
+        password_reset_id_lambda_get.add_to_role_policy(
+            password_reset_table_ro
         )
 
         self.login_lambda = login_lambda_post
