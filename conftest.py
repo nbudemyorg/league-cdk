@@ -133,6 +133,48 @@ def users_table_client_error(users_table: Table, mocker: MockerFixture):
         yield users_table
 
 
+@pytest.fixture(scope='function')
+def password_reset_table(aws_credentials):
+    """Provide a mocked Dynamodb Users table"""
+    with mock_aws():
+        dynamodb = boto3.resource('dynamodb')
+        password_reset_table = dynamodb.create_table(
+            TableName='PasswordReset',
+            BillingMode='PAY_PER_REQUEST',
+            AttributeDefinitions=[
+                {'AttributeName': 'reset_id', 'AttributeType': 'S'}
+            ],
+            KeySchema=[{'AttributeName': 'reset_id', 'KeyType': 'HASH'}],
+        )
+        yield password_reset_table
+
+
+@pytest.fixture(scope='function')
+def password_reset_table_client_error(
+    password_reset_table: Table, mocker: MockerFixture
+):
+    """Provide a mocked Dynamodb PasswordReset table which throws ClientError
+    exceptions for GetItem & PutItem"""
+    with mock_aws():
+        error_object = {
+            'Error': {
+                'Code': 'PyTestSimulatedException',
+                'Message': 'Pytest mocked ClientError',
+            }
+        }
+        mocker.patch.object(
+            password_reset_table,
+            'put_item',
+            side_effect=ClientError(error_object, 'PutItem'),
+        )
+        mocker.patch.object(
+            password_reset_table,
+            'get_item',
+            side_effect=ClientError(error_object, 'GetItem'),
+        )
+        yield password_reset_table
+
+
 @pytest.fixture
 def test_user(scope='function'):
     user_data = {

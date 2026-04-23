@@ -9,6 +9,7 @@ from auth_layer import (
     create_session_item,
     generate_password_hash,
     get_player_item,
+    put_player_item,
     valid_player_id,
 )
 from aws_lambda_context import LambdaContext
@@ -89,9 +90,11 @@ def lambda_handler(
 
     hashed_password = generate_password_hash(supplied_player_password)
 
-    if not create_user_item(
-        users_table, supplied_player_id, hashed_password, supplied_email
-    ):
+    user_item = create_user_item(
+        supplied_player_id, hashed_password, supplied_email
+    )
+
+    if not put_player_item(user_item):
         return {
             'statusCode': 500,
             'body': json.dumps('Server Error: Put Item failed'),
@@ -100,7 +103,10 @@ def lambda_handler(
     session_id = create_session_item(sessions_table, supplied_player_id)
 
     if not session_id:
-        return {'statusCode': 500, 'body': json.dumps('Put Item failed')}
+        return {
+            'statusCode': 500,
+            'body': json.dumps('Server Error: Put Item failed'),
+        }
 
     return cast(
         'APIGatewayProxyResponseV1',
@@ -145,23 +151,15 @@ def form_data_valid(
 
 
 def create_user_item(
-    table: Table, supplied_id: str, hashed_password: str, email: str
-) -> bool:
-    """Creates a new item in the users table holding the Player ID
-    and hashed password"""
+    supplied_id: str, hashed_password: str, email: str
+) -> dict[str, str]:
+    """Creates a new item holding the Player ID, hashed password and email"""
 
-    user_db_item = {
+    return {
         'player_id': supplied_id,
         'password': hashed_password,
         'email': email,
     }
-
-    try:
-        table.put_item(Item=user_db_item)
-    except ClientError:
-        return False
-    else:
-        return True
 
 
 def password_meets_criteria(
