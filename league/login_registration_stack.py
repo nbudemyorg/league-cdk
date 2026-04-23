@@ -269,6 +269,7 @@ class LoginRegistrationStack(Stack):
                 static_content_layer,
                 common_pkg_layer,
                 sessions_dependencies_layer,
+                sessions_dependencies_layer,
             ],
         )
 
