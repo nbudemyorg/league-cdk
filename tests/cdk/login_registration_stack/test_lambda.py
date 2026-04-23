@@ -270,7 +270,7 @@ def test_password_reset_post_lambda():
 
 
 @pytest.mark.cdk
-def test_password_reset_role_policies():
+def test_password_reset_post_role_policies():
     template.has_resource_properties(
         'AWS::IAM::Policy',
         {
@@ -313,6 +313,53 @@ def test_password_reset_role_policies():
                                         )
                                     },
                                     'Sid': 'PasswordResetLambdaPasswordResetTableRW',
+                                }
+                            ),
+                        ]
+                    )
+                }
+            )
+        },
+    )
+
+
+@pytest.mark.cdk
+def test_password_reset_id_get_lambda():
+    template.has_resource_properties(
+        'AWS::Lambda::Function',
+        {
+            'Handler': 'reset_id_get.lambda_handler',
+            'FunctionName': 'UserPasswordResetIdGET',
+            'Runtime': 'python3.14',
+            'Timeout': 5,
+        },
+    )
+
+
+@pytest.mark.cdk
+def test_password_reset_id_get_role_policies():
+    template.has_resource_properties(
+        'AWS::IAM::Policy',
+        {
+            'PolicyDocument': assertions.Match.object_like(
+                {
+                    'Statement': assertions.Match.array_with(
+                        [
+                            assertions.Match.object_like(
+                                {
+                                    'Action': 'dynamodb:GetItem',
+                                    'Effect': 'Allow',
+                                    'Resource': {
+                                        'Fn::GetAtt': assertions.Match.array_with(
+                                            [
+                                                assertions.Match.string_like_regexp(
+                                                    '(PasswordReset).{8}$'
+                                                ),
+                                                'Arn',
+                                            ]
+                                        )
+                                    },
+                                    'Sid': 'PasswordResetLambdaPasswordResetTableRO',
                                 }
                             ),
                         ]

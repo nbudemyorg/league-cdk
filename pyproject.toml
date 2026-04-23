@@ -19,6 +19,7 @@ markers = [
     'login: Login related tests',
     'registration: Registration related tests',
     'reset: Password reset related tests',
+    'resetid: Password reset Id related tests',
     'sessions: Session related tests',
     'player_id: PlayerId related tests'
 ]
