@@ -195,3 +195,28 @@ def test_api_post_reset_lambda_permission():
             }
         ),
     )
+
+@pytest.mark.cdk
+def test_api_has_reset_id_resource():
+    template.has_resource_properties(
+        'AWS::ApiGateway::Resource', {'PathPart': '{resetId}'}
+    )
+
+
+@pytest.mark.cdk
+def test_api_get_reset_id_lambda_permission():
+    template.has_resource_properties(
+        'AWS::Lambda::Permission',
+        assertions.Match.object_like(
+            {
+                'Action': 'lambda:InvokeFunction',
+                'Principal': 'apigateway.amazonaws.com',
+                'SourceArn': {
+                    'Fn::Join': [
+                        '',
+                        assertions.Match.array_with(['/GET/reset/*']),
+                    ]
+                },
+            }
+        ),
+    )
