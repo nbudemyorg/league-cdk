@@ -1,7 +1,7 @@
 from datetime import UTC, datetime, timedelta
 from uuid import uuid4
 
-from item_types import SessionItem, UserItem
+from league.tables.item_types import SessionItem, UserItem
 
 COOKIE_MAX_AGE = 86_400  #  24 * 60 * 60 seconds (1 Day)
 ADD_TTL = 60

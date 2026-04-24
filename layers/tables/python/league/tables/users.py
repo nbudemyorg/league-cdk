@@ -1,11 +1,11 @@
 from botocore.exceptions import ClientError
-from item_types import UserItem
-from response_libs import (
+from league.tables.item_types import UserItem
+from league.tables.response_libs import (
     get_item_response,
     item_exception_response,
     put_item_response,
 )
-from response_types import GetResult, PutResult
+from league.tables.response_types import GetResult, PutResult
 from types_boto3_dynamodb.service_resource import Table
 
 
