@@ -1,5 +1,5 @@
 from botocore.exceptions import ClientError
-from response_types import GetResult, PutResult
+from league.tables.response_types import GetResult, PutResult
 from types_boto3_dynamodb.type_defs import (
     GetItemOutputTableTypeDef,
     PutItemOutputTableTypeDef,
