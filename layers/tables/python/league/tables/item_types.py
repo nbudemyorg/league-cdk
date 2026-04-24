@@ -15,7 +15,7 @@ class SessionItem(TypedDict):
     ttl: int
 
 
-class PasswordResetItem(TypedDict):
+class ResetItem(TypedDict):
     reset_id: str
     player_id: str
     expiry: str

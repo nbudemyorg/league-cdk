@@ -36,6 +36,16 @@ def mock_bcrypt_module():
     sys.modules['bcrypt'] = MagicMock()
 
 
+@pytest.fixture(scope='module')
+def mock_league_tables_layer():
+    sys.modules['league'] = MagicMock()
+    sys.modules['league.tables'] = MagicMock()
+    sys.modules['league.tables.item_types'] = MagicMock()
+    sys.modules['league.tables.item_libs'] = MagicMock()
+    sys.modules['league.tables.sessions'] = MagicMock()
+    sys.modules['league.tables.users'] = MagicMock()
+
+
 @pytest.fixture(scope='function')
 def aws_credentials():
     """Mocked AWS Credentials for moto."""

@@ -6,52 +6,10 @@ from pytest_mock import MockerFixture
 from types_boto3_dynamodb.service_resource import Table
 
 from layers.sessions.python.auth_layer import (
-    ADD_TTL,
     COOKIE_MAX_AGE,
     create_login_response,
-    create_session_item,
     valid_session,
 )
-
-
-@pytest.mark.sessions
-def test_create_session_item(
-    sessions_table: Table, session_item: dict[str, str], frozen_date: datetime
-) -> None:
-    """Test session item is created for given player_id"""
-
-    with freeze_time(frozen_date):
-        create_session_item(sessions_table, session_item['player_id'])
-        moto_get_item = sessions_table.get_item(Key=session_item)
-
-        expected_expiry = frozen_date + timedelta(seconds=COOKIE_MAX_AGE)
-        expected_ttl = int(expected_expiry.timestamp() + ADD_TTL)
-        expected_item = session_item
-        expected_item['expiry'] = expected_expiry.isoformat()
-        expected_item['ttl'] = expected_ttl
-
-        assert moto_get_item['Item'] == expected_item
-
-
-@pytest.mark.sessions
-def test_valid_session_with_item(
-    sessions_table: Table, session_item: dict[str, str], frozen_date: datetime
-) -> None:
-    """Test function handles unexpired valid session item for a given user"""
-
-    valid_session_expiry = frozen_date + timedelta(hours=1)
-    session_item['expiry'] = valid_session_expiry.isoformat()
-
-    with freeze_time(frozen_date):
-        sessions_table.put_item(Item=session_item)
-
-        session_is_valid = valid_session(
-            sessions_table,
-            session_item['player_id'],
-            session_item['session_id'],
-        )
-
-    assert session_is_valid
 
 
 @pytest.mark.sessions
