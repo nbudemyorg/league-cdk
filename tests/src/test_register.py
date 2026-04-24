@@ -37,11 +37,13 @@ DELIVERY_CHECK = False
 def test_mocked_modules_imported(
     mock_bcrypt_module: None,
     mock_auth_layer: None,
+    mock_league_tables_layer: None,
 ) -> None:
     """Test successful mocked import of modules"""
 
     assert 'auth_layer' in sys.modules
     assert 'bcrypt' in sys.modules
+    assert 'league' in sys.modules
 
 
 @pytest.mark.registration
@@ -136,9 +138,9 @@ def test_player_id_exists_true(
 
     from src.user_registration.post.register_post import player_id_exists
 
-    patched_response = {'player_id': 'AnyOldUser'}
+    patched_response = {'success': True, 'item': {'player_id': 'AnyOldUser'}}
     monkeypatch.setattr(
-        'src.user_registration.post.register_post.get_player_item',
+        'src.user_registration.post.register_post.get_users_item',
         lambda table, supplied_id: patched_response,
     )
 
@@ -157,9 +159,9 @@ def test_player_id_exists_false(
 
     from src.user_registration.post.register_post import player_id_exists
 
-    patched_response = {'id_not_found': 'AnyOldUser'}
+    patched_response = {'success': True, 'item': {}}
     monkeypatch.setattr(
-        'src.user_registration.post.register_post.get_player_item',
+        'src.user_registration.post.register_post.get_users_item',
         lambda table, supplied_id: patched_response,
     )
 
@@ -178,27 +180,12 @@ def test_player_id_exists_exception(
 
     from src.user_registration.post.register_post import player_id_exists
 
-    patched_response = None
+    patched_response = {'success': False}
     monkeypatch.setattr(
-        'src.user_registration.post.register_post.get_player_item',
+        'src.user_registration.post.register_post.get_users_item',
         lambda table, supplied_id: patched_response,
     )
 
     response = player_id_exists(users_table, 'AnyOldUser')
 
     assert response is None
-
-
-@pytest.mark.registration
-def test_create_user_item(test_user: dict[str, str]) -> None:
-    """Test successful creation of a new Users Item"""
-
-    from src.user_registration.post.register_post import create_user_item
-
-    new_player = test_user['player_id']
-    stub_hash = test_user['password']
-    email = test_user['email']
-
-    response = create_user_item(new_player, stub_hash, email)
-
-    assert response == test_user

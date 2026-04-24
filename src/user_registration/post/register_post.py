@@ -6,10 +6,7 @@ from urllib.parse import parse_qs
 import boto3
 from auth_layer import (
     create_login_response,
-    create_session_item,
     generate_password_hash,
-    get_player_item,
-    put_player_item,
     valid_player_id,
 )
 from aws_lambda_context import LambdaContext
@@ -17,6 +14,10 @@ from aws_lambda_typing.events import APIGatewayProxyEventV1
 from aws_lambda_typing.responses import APIGatewayProxyResponseV1
 from botocore.exceptions import ClientError
 from email_validator import EmailNotValidError, validate_email
+from league.tables.item_libs import create_session_item, create_user_item
+from league.tables.item_types import SessionItem, UserItem
+from league.tables.sessions import put_sessions_item
+from league.tables.users import get_users_item, put_users_item
 from types_boto3_dynamodb.service_resource import Table
 
 TEST_EMAIL_DELIVERY = True
@@ -94,15 +95,15 @@ def lambda_handler(
         supplied_player_id, hashed_password, supplied_email
     )
 
-    if not put_player_item(users_table, user_item):
+    if not save_user_item(users_table, user_item):
         return {
             'statusCode': 500,
             'body': json.dumps('Server Error: Put Item failed'),
         }
 
-    session_id = create_session_item(sessions_table, supplied_player_id)
+    session_item = create_session_item(supplied_player_id)
 
-    if not session_id:
+    if not save_session_item(sessions_table, session_item):
         return {
             'statusCode': 500,
             'body': json.dumps('Server Error: Put Item failed'),
@@ -110,7 +111,7 @@ def lambda_handler(
 
     return cast(
         'APIGatewayProxyResponseV1',
-        create_login_response(supplied_player_id, session_id),
+        create_login_response(supplied_player_id, session_item['session_id']),
     )
 
 
@@ -150,16 +151,14 @@ def form_data_valid(
     return None
 
 
-def create_user_item(
-    supplied_id: str, hashed_password: str, email: str
-) -> dict[str, str]:
-    """Creates a new item holding the Player ID, hashed password and email"""
+def save_user_item(table: Table, item: UserItem) -> bool:
+    save_response = put_users_item(table, item)
+    return cast('bool', save_response['success'])
 
-    return {
-        'player_id': supplied_id,
-        'password': hashed_password,
-        'email': email,
-    }
+
+def save_session_item(table: Table, item: SessionItem) -> bool:
+    save_response = put_sessions_item(table, item)
+    return cast('bool', save_response['success'])
 
 
 def password_meets_criteria(
@@ -183,13 +182,11 @@ def player_id_exists(table: Table, supplied_id: str) -> bool | None:
     """Makes sure the supplied Player ID is not already stored in
     the user table."""
 
-    player_item = get_player_item(table, supplied_id)
+    get_item_response = get_users_item(table, supplied_id)
 
-    if player_item is not None:
-        if player_item.get('id_not_found'):
-            return False
-        if player_item.get('player_id') == supplied_id:
-            return True
+    if get_item_response.get('success') is True:
+        item_returned = get_item_response['item']
+        return bool(item_returned)  #  Empty == False
 
     return None
 

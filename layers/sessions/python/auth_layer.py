@@ -1,7 +1,6 @@
 import re
 import secrets
-from datetime import UTC, datetime, timedelta
-from uuid import uuid4
+from datetime import UTC, datetime
 
 import bcrypt
 from aws_lambda_typing.responses import APIGatewayProxyResponseV1
@@ -10,30 +9,6 @@ from types_boto3_dynamodb.service_resource import Table
 
 COOKIE_MAX_AGE = 86_400  #  24 * 60 * 60 seconds (1 Day)
 ADD_TTL = 60
-
-
-def create_session_item(table: Table, supplied_id: str) -> str | bool:
-    """Creates a new session item for given player_id"""
-    session_id = str(uuid4())
-
-    now = datetime.now(UTC)
-
-    session_expiry = now + timedelta(seconds=COOKIE_MAX_AGE)
-    item_ttl = int(session_expiry.timestamp() + ADD_TTL)
-
-    session_item = {
-        'player_id': supplied_id,
-        'session_id': session_id,
-        'expiry': session_expiry.isoformat(),
-        'ttl': item_ttl,
-    }
-
-    try:
-        table.put_item(Item=session_item)
-    except ClientError:
-        return None
-    else:
-        return session_id
 
 
 def create_login_response(
