@@ -60,7 +60,7 @@ class LoginRegistrationStack(Stack):
             self,
             self.stack_name,
             layer_name='league_tables',
-            layer_source='layers/tables'
+            layer_source='layers/tables',
         )
 
         common_pkg_layer = layers.create_lambda_layer(

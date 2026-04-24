@@ -1,6 +1,4 @@
-from typing import Any, NotRequired, TypedDict
-from botocore.exceptions import ClientError
-import boto3
+from typing import NotRequired, TypedDict
 
 
 class UserItem(TypedDict):
@@ -15,6 +13,7 @@ class SessionItem(TypedDict):
     session_id: str
     expiry: str
     ttl: int
+
 
 class PasswordResetItem(TypedDict):
     reset_id: str
