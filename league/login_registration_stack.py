@@ -122,6 +122,7 @@ class LoginRegistrationStack(Stack):
                 sessions_dependencies_layer,
                 common_pkg_layer,
                 email_validator_layer,
+                league_tables_layer,
             ],
         )
 
