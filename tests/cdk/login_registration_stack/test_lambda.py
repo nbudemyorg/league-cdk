@@ -16,7 +16,7 @@ def test_lambda_count():
 
 @pytest.mark.cdk
 def test_lambda_layer_count():
-    template.resource_count_is('AWS::Lambda::LayerVersion', 5)
+    template.resource_count_is('AWS::Lambda::LayerVersion', 6)
 
 
 @pytest.mark.cdk
