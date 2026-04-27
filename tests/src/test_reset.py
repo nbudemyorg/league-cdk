@@ -40,5 +40,3 @@ def test_transform_validate(monkeypatch: pytest.MonkeyPatch):
 
     form_string = 'player_id=bob'
     assert transform_validate(form_string) == valid_data_response
-
-
