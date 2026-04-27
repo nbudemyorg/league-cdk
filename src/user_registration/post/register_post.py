@@ -15,10 +15,9 @@ from aws_lambda_typing.responses import APIGatewayProxyResponseV1
 from botocore.exceptions import ClientError
 from email_validator import EmailNotValidError, validate_email
 from league.tables.item_libs import create_session_item, create_user_item
-from league.tables.item_types import SessionItem, UserItem
+from league.tables.response_types import PutResult
 from league.tables.sessions import put_sessions_item
-from league.tables.users import get_users_item, put_users_item
-from types_boto3_dynamodb.service_resource import Table
+from league.tables.users import put_users_item
 
 TEST_EMAIL_DELIVERY = True
 
@@ -75,27 +74,23 @@ def lambda_handler(
             'body': json.dumps('Invalid password supplied'),
         }
 
-    already_existing_player = player_id_exists(users_table, supplied_player_id)
-
-    if already_existing_player:
-        return {
-            'statusCode': 400,
-            'body': json.dumps('Player ID already registered'),
-        }
-
-    if already_existing_player is None:
-        return {
-            'statusCode': 500,
-            'body': json.dumps('Server Error: Get Item failed'),
-        }
-
     hashed_password = generate_password_hash(supplied_player_password)
 
     user_item = create_user_item(
         supplied_player_id, hashed_password, supplied_email
     )
 
-    if not save_user_item(users_table, user_item):
+    put_response = put_users_item(users_table, user_item)
+
+    user_exists = user_already_exists(put_response)
+
+    if user_exists:
+        return {
+            'statusCode': 400,
+            'body': json.dumps('Player ID already registered'),
+        }
+
+    if user_exists is None:
         return {
             'statusCode': 500,
             'body': json.dumps('Server Error: Put Item failed'),
@@ -103,7 +98,9 @@ def lambda_handler(
 
     session_item = create_session_item(supplied_player_id)
 
-    if not save_session_item(sessions_table, session_item):
+    put_response = put_sessions_item(sessions_table, session_item)
+
+    if not session_saved(put_response):
         return {
             'statusCode': 500,
             'body': json.dumps('Server Error: Put Item failed'),
@@ -151,16 +148,6 @@ def form_data_valid(
     return None
 
 
-def save_user_item(table: Table, item: UserItem) -> bool:
-    save_response = put_users_item(table, item)
-    return cast('bool', save_response['success'])
-
-
-def save_session_item(table: Table, item: SessionItem) -> bool:
-    save_response = put_sessions_item(table, item)
-    return cast('bool', save_response['success'])
-
-
 def password_meets_criteria(
     supplied_password: str, supplied_player: str
 ) -> bool:
@@ -178,15 +165,16 @@ def password_meets_criteria(
     return not re.search(supplied_player.lower(), supplied_password.lower())
 
 
-def player_id_exists(table: Table, supplied_id: str) -> bool | None:
-    """Makes sure the supplied Player ID is not already stored in
-    the user table."""
+def session_saved(response: PutResult) -> bool:
+    return cast('bool', response['success'])
 
-    get_item_response = get_users_item(table, supplied_id)
 
-    if get_item_response.get('success') is True:
-        item_returned = get_item_response['item']
-        return bool(item_returned)  #  Empty == False
+def user_already_exists(response: PutResult) -> bool | None:
+    if response['success']:
+        return False
+
+    if response['error_code'] == 'ConditionalCheckFailedException':
+        return True
 
     return None
 

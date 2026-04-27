@@ -42,6 +42,7 @@ def mock_league_tables_layer():
     sys.modules['league.tables'] = MagicMock()
     sys.modules['league.tables.item_types'] = MagicMock()
     sys.modules['league.tables.item_libs'] = MagicMock()
+    sys.modules['league.tables.response_types'] = MagicMock()
     sys.modules['league.tables.sessions'] = MagicMock()
     sys.modules['league.tables.users'] = MagicMock()
 
