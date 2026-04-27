@@ -4,6 +4,7 @@ from league.tables.response_libs import (
     get_item_response,
     item_exception_response,
     put_item_response,
+    update_item_response,
 )
 from league.tables.response_types import GetResult, PutResult
 from types_boto3_dynamodb.service_resource import Table
@@ -41,6 +42,7 @@ def update_users_item(table: Table, player_id: str, token: str) -> PutResult:
             ExpressionAttributeValues={':r': token},
             ReturnValues='UPDATED_NEW',
         )
+        return update_item_response(response)
 
     except ClientError as e:
         return item_exception_response(e)
