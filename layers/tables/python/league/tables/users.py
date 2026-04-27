@@ -30,3 +30,17 @@ def put_users_item(table: Table, item: UserItem) -> PutResult:
 
     except ClientError as e:
         return item_exception_response(e)
+
+
+def update_users_item(table: Table, player_id: str, token: str) -> PutResult:
+
+    try:
+        response = table.update_item(
+            Key=player_id,
+            UpdateExpression='set reset_id: r',
+            ExpressionAttributeValues={':r': token},
+            ReturnValues='UPDATED_NEW',
+        )
+
+    except ClientError as e:
+        return item_exception_response(e)

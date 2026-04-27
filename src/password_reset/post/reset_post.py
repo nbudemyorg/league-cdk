@@ -1,14 +1,15 @@
-from datetime import UTC, datetime, timedelta
-from decimal import Decimal
+from typing import cast
 from urllib.parse import parse_qs
 
 import boto3
-from auth_layer import get_player_item, put_player_item, valid_player_id
+from auth_layer import valid_player_id
 from aws_lambda_context import LambdaContext
 from aws_lambda_typing.events import APIGatewayProxyEventV1
 from aws_lambda_typing.responses import APIGatewayProxyResponseV1
-from botocore.exceptions import ClientError
-from types_boto3_dynamodb.service_resource import Table
+from league.tables.item_libs import create_reset_item
+from league.tables.password_reset import put_reset_item
+from league.tables.response_types import PutResult, UpdateResult
+from league.tables.users import update_users_item
 
 SECONDS_VALID = 600
 
@@ -29,24 +30,31 @@ def lambda_handler(
     if processed_form['validated'] == 'false':
         return silent_fail_response()
 
-    player_item = get_player_item(users_table, processed_form['player_id'])
+    supplied_player_id = processed_form['player_id']
 
-    if player_item.get('id_not_found'):
-        return silent_fail_response()
-    if player_item is None:
+    reset_item = create_reset_item(supplied_player_id)
+
+    safe_token = reset_item['reset_id']
+
+    update_response = update_users_item(supplied_player_id, safe_token)
+
+    if not users_item_updated(update_response):
         return fail_response()
 
-    updated_player = put_player_item(
-        users_table, player_item, reset_token=True
-    )
+    put_response = put_reset_item(reset_table, reset_item)
 
-    if not updated_player:
-        return fail_response()
-
-    if not create_reset_item(reset_table, updated_player):
+    if not reset_item_saved(put_response):
         return fail_response()
 
     return success_response()
+
+
+def reset_item_saved(response: PutResult) -> bool:
+    return cast('bool', response['success'])
+
+
+def users_item_updated(response: UpdateResult) -> bool:
+    return cast('bool', response['success'])
 
 
 def transform_validate(body: str) -> dict[str, str]:
@@ -81,29 +89,3 @@ def silent_fail_response() -> APIGatewayProxyResponseV1:
 
 def fail_response() -> APIGatewayProxyResponseV1:
     return {'statusCode': 503, 'body': 'Server Error'}
-
-
-def create_reset_item(
-    table: Table, player_item: dict[str, str]
-) -> bool | None:
-
-    player: str = player_item['player_id']
-    token: str = player_item['reset_id']
-    expiry = datetime.now(UTC) + timedelta(seconds=SECONDS_VALID)
-    expiry_string: str = expiry.isoformat()
-    item_ttl = Decimal(expiry.timestamp())
-
-    reset_item: dict[str, str | Decimal] = {
-        'reset_id': token,
-        'player_id': player,
-        'expiry': expiry_string,
-        'ttl': item_ttl,
-    }
-
-    try:
-        table.put_item(Item=reset_item)
-
-    except ClientError:
-        return None
-
-    return True

@@ -13,6 +13,12 @@ class GetItemSuccess(TypedDict):
     consumed_capacity: dict[str, Any] | None
 
 
+class UpdateItemSuccess(TypedDict):
+    success: bool
+    item: dict[str, Any] | None
+    consumed_capacity: dict[str, Any] | None
+
+
 class Failure(TypedDict):
     success: bool
     error_code: str
@@ -21,3 +27,4 @@ class Failure(TypedDict):
 
 PutResult = PutItemSuccess | Failure
 GetResult = GetItemSuccess | Failure
+UpdateResult = UpdateItemSuccess | Failure
