@@ -23,7 +23,9 @@ def get_users_item(table: Table, supplied_id: str) -> GetResult:
 def put_users_item(table: Table, item: UserItem) -> PutResult:
 
     try:
-        response = table.put_item(Item=item)
+        response = table.put_item(
+            Item=item, ConditionExpression='attribute_not_exists(player_id)'
+        )
         return put_item_response(response)
 
     except ClientError as e:

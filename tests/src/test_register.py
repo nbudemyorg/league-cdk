@@ -1,8 +1,9 @@
 import sys
 
 import pytest
-from types_boto3_dynamodb.service_resource import Table
 from types_boto3_secretsmanager.client import SecretsManagerClient
+
+from layers.tables.python.league.tables.response_types import PutResult
 
 PASSWORD_VARIATIONS = [
     ('tooshort', 'PlayerOne', False),
@@ -31,6 +32,29 @@ FORM_MISSING_PARAM = [
 
 
 DELIVERY_CHECK = False
+
+
+@pytest.fixture
+def users_put_result(test_user) -> PutResult:
+    yield {'success': True, 'item': test_user, 'consumed_capacity': {}}
+
+
+@pytest.fixture
+def users_put_result_user_exists() -> PutResult:
+    yield {
+        'success': False,
+        'error_code': 'ConditionalCheckFailedException',
+        'consumed_capacity': {},
+    }
+
+
+@pytest.fixture
+def users_put_result_client_err() -> PutResult:
+    yield {
+        'success': False,
+        'error_code': 'AnyOtherErrorCode',
+        'consumed_capacity': {},
+    }
 
 
 @pytest.mark.registration
@@ -129,63 +153,56 @@ def test_valid_form_data(invitation_secret: SecretsManagerClient) -> None:
 
 
 @pytest.mark.registration
-def test_player_id_exists_true(
-    monkeypatch: pytest.MonkeyPatch,
-    users_table: Table,
+def test_user_already_exists_false(
+    users_put_result: PutResult,
 ) -> None:
-    """player_id_exists returns True if the call to get_player_item
-    returns an item with matching player_id"""
+    """Returns False if the conditional put_item call response
+    has key success:True"""
 
-    from src.user_registration.post.register_post import player_id_exists
+    from src.user_registration.post.register_post import user_already_exists
 
-    patched_response = {'success': True, 'item': {'player_id': 'AnyOldUser'}}
-    monkeypatch.setattr(
-        'src.user_registration.post.register_post.get_users_item',
-        lambda table, supplied_id: patched_response,
-    )
-
-    response = player_id_exists(users_table, 'AnyOldUser')
-
-    assert response is True
-
-
-@pytest.mark.registration
-def test_player_id_exists_false(
-    monkeypatch: pytest.MonkeyPatch,
-    users_table: Table,
-) -> None:
-    """player_id_exists returns False if the call to get_player_item
-    does not return an item for that player_id"""
-
-    from src.user_registration.post.register_post import player_id_exists
-
-    patched_response = {'success': True, 'item': {}}
-    monkeypatch.setattr(
-        'src.user_registration.post.register_post.get_users_item',
-        lambda table, supplied_id: patched_response,
-    )
-
-    response = player_id_exists(users_table, 'AnyOldUser')
+    response = user_already_exists(users_put_result)
 
     assert response is False
 
 
 @pytest.mark.registration
-def test_player_id_exists_exception(
-    monkeypatch: pytest.MonkeyPatch,
-    users_table: Table,
+def test_user_already_exists_true(
+    users_put_result_user_exists: PutResult,
 ) -> None:
-    """player_id_exists returns None if the call to get_player_item
-    results in a ClientError exception"""
+    """Returns True if the condtional put_item call raised an exception with
+    error_code ConditionalCheckFailedException"""
 
-    from src.user_registration.post.register_post import player_id_exists
+    from src.user_registration.post.register_post import user_already_exists
 
-    patched_response = {'success': False}
-    monkeypatch.setattr(
-        'src.user_registration.post.register_post.get_users_item',
-        lambda table, supplied_id: patched_response,
-    )
+    response = user_already_exists(users_put_result_user_exists)
 
-    response = player_id_exists(users_table, 'AnyOldUser')
+    assert response is True
+
+
+@pytest.mark.registration
+def test_user_already_exists_exception(
+    users_put_result_client_err: PutResult,
+) -> None:
+    """Returns None if the conditional put_item call raises any other
+    ClientError error_code"""
+
+    from src.user_registration.post.register_post import user_already_exists
+
+    response = user_already_exists(users_put_result_client_err)
 
     assert response is None
+
+
+@pytest.mark.registration
+def test_session_saved() -> None:
+
+    from src.user_registration.post.register_post import session_saved
+
+    put_result = {'success': True}
+
+    assert session_saved(put_result)
+
+    put_result = {'success': False}
+
+    assert session_saved(put_result) is False
