@@ -246,6 +246,7 @@ class LoginRegistrationStack(Stack):
                 sessions_dependencies_layer,
                 common_pkg_layer,
                 bcrypt_pkg_layer,
+                league_tables_layer,
             ],
         )
 
