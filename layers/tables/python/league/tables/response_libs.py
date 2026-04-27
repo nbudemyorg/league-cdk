@@ -1,8 +1,9 @@
 from botocore.exceptions import ClientError
-from league.tables.response_types import GetResult, PutResult
+from league.tables.response_types import GetResult, PutResult, UpdateResult
 from types_boto3_dynamodb.type_defs import (
     GetItemOutputTableTypeDef,
     PutItemOutputTableTypeDef,
+    UpdateItemOutputTableTypeDef,
 )
 
 
@@ -26,6 +27,18 @@ def item_exception_response(err: ClientError) -> GetResult:
 
 
 def put_item_response(response: PutItemOutputTableTypeDef) -> PutResult:
+    attributes = response.get('Attributes', {})
+    consumed = response.get('ConsumedCapacity', {})
+    return {
+        'success': True,
+        'attributes': attributes,
+        'consumed_capacity': consumed,
+    }
+
+
+def update_item_response(
+    response: UpdateItemOutputTableTypeDef,
+) -> UpdateResult:
     attributes = response.get('Attributes', {})
     consumed = response.get('ConsumedCapacity', {})
     return {

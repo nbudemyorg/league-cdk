@@ -1,5 +1,5 @@
 from botocore.exceptions import ClientError
-from league.tables.item_types import PasswordResetItem
+from league.tables.item_types import ResetItem
 from league.tables.response_libs import (
     get_item_response,
     item_exception_response,
@@ -20,7 +20,7 @@ def get_reset_item(table: Table, reset_id: str) -> GetResult:
         return item_exception_response(e)
 
 
-def put_reset_item(table: Table, item: PasswordResetItem) -> PutResult:
+def put_reset_item(table: Table, item: ResetItem) -> PutResult:
 
     try:
         response = table.put_item(Item=item)
