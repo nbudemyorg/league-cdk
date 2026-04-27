@@ -1,4 +1,5 @@
 import sys
+from typing import Any
 
 import pytest
 from pytest_mock import MockerFixture
@@ -11,14 +12,48 @@ LOGIN_FORM_VARIATIONS = [
 ]
 
 
+@pytest.fixture
+def mock_item_found_response():
+    yield {
+        'success': True,
+        'item': {'player_id': 'A_user', 'password': 'DoesNotMatter'},
+        'consumed_capacity': {},
+    }
+
+
+@pytest.fixture
+def mock_get_item(
+    mocker: MockerFixture, mock_item_found_response: dict[str, Any]
+):
+    yield mocker.patch(
+        'src.user_login.post.login_post.get_users_item',
+        return_value=mock_item_found_response,
+    )
+
+
+@pytest.fixture
+def mock_get_no_item(
+    mock_get_item: MockerFixture, mock_item_found_response: dict[str, Any]
+):
+    mock_item_found_response['item'] = {}
+    mock_get_item.return_value = mock_item_found_response
+    yield mock_get_item
+
+
 @pytest.mark.login
 def test_mocked_modules_imported(
-    mock_auth_layer: None, mock_bcrypt_module: None
+    mock_auth_layer: None,
+    mock_bcrypt_module: None,
+    mock_league_tables_layer: None,
 ) -> None:
     """Test mocked modules are imported"""
 
     assert 'auth_layer' in sys.modules
     assert 'bcrypt' in sys.modules
+    assert 'league.tables.item_libs' in sys.modules
+    assert 'league.tables.item_types' in sys.modules
+    assert 'league.tables.sessions' in sys.modules
+    assert 'league.tables.users' in sys.modules
 
 
 @pytest.mark.parametrize('form_string, expected_result', LOGIN_FORM_VARIATIONS)
@@ -50,33 +85,38 @@ def test_valid_form_data() -> None:
 def test_password_is_valid_checkpw(
     users_table_with_user: Table,
     mocker: MockerFixture,
+    mock_get_item: MockerFixture,
     test_user: dict[str, str],
 ) -> None:
-    """Test that bcrypt.checkpw return value is returned by function"""
+    """Test that result of bcrypt.checkpw is returned by the function when a
+    user password is verified as being valid and invalid"""
 
     from src.user_login.post.login_post import password_is_valid
 
     mock_bcrypt = mocker.patch('src.user_login.post.login_post.bcrypt.checkpw')
     mock_bcrypt.side_effect = [True, False]
 
-    player = test_user['player_id']
+    player = 'A_player'
     password = 'DoesNotMatter'
     response = password_is_valid(users_table_with_user, player, password)
 
     assert response
     assert mock_bcrypt.call_count == 1
+    assert mock_get_item.call_count == 1
 
     response = password_is_valid(users_table_with_user, player, password)
 
     assert not response
     assert mock_bcrypt.call_count == 2
+    assert mock_get_item.call_count == 2
 
 
 @pytest.mark.login
 def test_password_is_valid_no_user_found(
-    users_table: Table, test_user: dict[str, str]
+    users_table: Table,
+    mock_get_no_item: MockerFixture,
 ) -> None:
-    """Test False is returned when player item does not exist in db"""
+    """Test False is returned when item for player does not exist in db"""
 
     from src.user_login.post.login_post import password_is_valid
 
@@ -85,6 +125,8 @@ def test_password_is_valid_no_user_found(
     response = password_is_valid(users_table, player, password)
 
     assert not response
+
+    assert mock_get_no_item.call_count == 1
 
 
 @pytest.mark.login
