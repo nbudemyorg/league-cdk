@@ -1,22 +1,18 @@
 import json
-from typing import TYPE_CHECKING, cast
+from typing import cast
 from urllib.parse import parse_qs
 
 import bcrypt
 import boto3
-from auth_layer import (
-    create_login_response,
-    create_session_item,
-    valid_player_id,
-)
+from auth_layer import create_login_response, valid_player_id
 from aws_lambda_context import LambdaContext
 from aws_lambda_typing.events import APIGatewayProxyEventV1
 from aws_lambda_typing.responses import APIGatewayProxyResponseV1
-from botocore.exceptions import ClientError
+from league.tables.item_libs import create_session_item
+from league.tables.item_types import SessionItem
+from league.tables.sessions import put_sessions_item
+from league.tables.users import get_users_item
 from types_boto3_dynamodb.service_resource import Table
-
-if TYPE_CHECKING:
-    from mypy_boto3_dynamodb.type_defs import GetItemOutputTableTypeDef
 
 db_client = boto3.resource('dynamodb')
 users_table = db_client.Table('Users')
@@ -44,13 +40,22 @@ def lambda_handler(
     if not valid_player_id(player_id):
         return {'statusCode': 400, 'body': json.dumps('Invalid player ID')}
 
-    if not password_is_valid(users_table, player_id, password):
+    valid_password = password_is_valid(users_table, player_id, password)
+
+    if valid_password is False:
         return {'statusCode': 401, 'body': json.dumps('Invalid password')}
+    if valid_password is None:
+        return {'statusCode': 500, 'body': json.dumps('Server Error')}
 
-    session_id = create_session_item(sessions_table, player_id)
+    session_item = create_session_item(sessions_table, player_id)
 
-    if not session_id:
-        return {'statusCode': 500, 'body': json.dumps('Put Item failed')}
+    if not save_session_item(sessions_table, session_item):
+        return {
+            'statusCode': 500,
+            'body': json.dumps('Server Error: Put Item failed'),
+        }
+
+    session_id = session_item['session_id']
 
     return cast(
         'APIGatewayProxyResponseV1',
@@ -82,24 +87,20 @@ def password_is_valid(
 ) -> bool | None:
     """Verify supplied password matches that stored in db using bcrypt"""
 
-    try:
-        response: GetItemOutputTableTypeDef = table.get_item(
-            Key={'player_id': supplied_id}
-        )
+    get_response = get_users_item(table, supplied_id)
 
-    except ClientError:
-        return None
+    if get_response['success'] is True:
+        stored_item = get_response.get('item')
+        if stored_item:
+            stored_password_bytes = stored_item['password'].encode('utf-8')
+            posted_password_bytes = supplied_password.encode('utf-8')
+            return bcrypt.checkpw(posted_password_bytes, stored_password_bytes)
 
-    item = response.get('Item')
-
-    if not item:
         return False
 
-    stored_value = item.get('password')
+    return None
 
-    if not isinstance(stored_value, str):
-        return False
 
-    posted_password_bytes = supplied_password.encode('utf-8')
-    stored_password_bytes = stored_value.encode('utf-8')
-    return bcrypt.checkpw(posted_password_bytes, stored_password_bytes)
+def save_session_item(table: Table, item: SessionItem) -> bool:
+    save_response = put_sessions_item(table, item)
+    return cast('bool', save_response['success'])
