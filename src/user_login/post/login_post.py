@@ -47,7 +47,7 @@ def lambda_handler(
     if valid_password is None:
         return {'statusCode': 500, 'body': json.dumps('Server Error')}
 
-    session_item = create_session_item(sessions_table, player_id)
+    session_item = create_session_item(player_id)
 
     if not save_session_item(sessions_table, session_item):
         return {
