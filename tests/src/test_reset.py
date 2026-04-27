@@ -1,10 +1,6 @@
 import sys
-from datetime import UTC, datetime, timedelta
-from decimal import Decimal
 
 import pytest
-from freezegun import freeze_time
-from types_boto3_dynamodb.service_resource import Table
 
 
 @pytest.mark.reset
