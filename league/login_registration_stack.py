@@ -252,7 +252,11 @@ class LoginRegistrationStack(Stack):
 
         password_reset_users_rw = iam.PolicyStatement(
             effect=iam.Effect.ALLOW,
-            actions=['dynamodb:PutItem', 'dynamodb:GetItem'],
+            actions=[
+                'dynamodb:PutItem',
+                'dynamodb:GetItem',
+                'dynamodb:UpdateItem',
+            ],
             resources=[users_table.table_arn],
             sid='PasswordResetLambdaUsersTableRW',
         )

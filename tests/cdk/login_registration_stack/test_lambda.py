@@ -283,6 +283,7 @@ def test_password_reset_post_role_policies():
                                     'Action': [
                                         'dynamodb:PutItem',
                                         'dynamodb:GetItem',
+                                        'dynamodb:UpdateItem',
                                     ],
                                     'Effect': 'Allow',
                                     'Resource': {

@@ -43,7 +43,7 @@ def create_reset_item(player: str) -> ResetItem:
     token = token_urlsafe()
     expiry = datetime.now(UTC) + timedelta(seconds=SECONDS_VALID)
     expiry_string: str = expiry.isoformat()
-    item_ttl = expiry.timestamp()  #  Decimal?
+    item_ttl = int(expiry.timestamp())
 
     return {
         'reset_id': token,
