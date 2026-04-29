@@ -7,7 +7,6 @@ from aws_lambda_typing.events import APIGatewayProxyEventV1
 from aws_lambda_typing.responses import APIGatewayProxyResponseV1
 from league.tables.item_libs import create_reset_item
 from league.tables.password_reset import put_reset_item
-from league.tables.response_types import PutResult, UpdateResult
 from league.tables.users import update_users_item
 
 SECONDS_VALID = 600
@@ -37,23 +36,15 @@ def lambda_handler(
 
     update_response = update_users_item(users_table, supplied_player_id, token)
 
-    if not users_item_updated(update_response):
+    if not update_response['success']:
         return fail_response()
 
     put_response = put_reset_item(reset_table, reset_item)
 
-    if not reset_item_saved(put_response):
+    if not put_response['success']:
         return fail_response()
 
     return success_response()
-
-
-def reset_item_saved(response: PutResult) -> bool:
-    return response['success']
-
-
-def users_item_updated(response: UpdateResult) -> bool:
-    return response['success']
 
 
 def transform_validate(body: str) -> dict[str, str]:
