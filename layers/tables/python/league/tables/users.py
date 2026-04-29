@@ -9,7 +9,7 @@ from league.tables.response_libs import (
     put_item_response,
     update_item_response,
 )
-from league.tables.response_types import GetResult, GetItemSuccess, PutResult
+from league.tables.response_types import GetResult, PutResult
 from types_boto3_dynamodb.service_resource import Table
 
 
@@ -29,7 +29,7 @@ def put_users_item(table: Table, item: UserItem) -> PutResult:
     try:
         response = table.put_item(
             Item=cast('Mapping[str, Any]', item),
-            ConditionExpression='attribute_not_exists(player_id)'
+            ConditionExpression='attribute_not_exists(player_id)',
         )
         return put_item_response(response)
 
