@@ -1,5 +1,6 @@
 import json
 from datetime import UTC, datetime
+from typing import cast
 
 import boto3
 from aws_lambda_context import LambdaContext
@@ -42,9 +43,9 @@ def lambda_handler(
             'body': 'Reset token not found',
         }
 
-    reset_item = get_response['item']
+    reset_item = get_response.get('item')
 
-    if reset_item_still_valid(reset_item):
+    if reset_item_still_valid(cast('ResetItem', reset_item)):
         return {
             'statusCode': 200,
             'headers': {

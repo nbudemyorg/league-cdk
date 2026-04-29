@@ -1,3 +1,6 @@
+from collections.abc import Mapping
+from typing import Any, cast
+
 from botocore.exceptions import ClientError
 from league.tables.item_types import SessionItem
 from league.tables.response_libs import (
@@ -26,7 +29,7 @@ def get_sessions_item(table: Table, player: str, session: str) -> GetResult:
 def put_sessions_item(table: Table, item: SessionItem) -> PutResult:
 
     try:
-        response = table.put_item(Item=item)
+        response = table.put_item(Item=cast('Mapping[str, Any]', item))
         return put_item_response(response)
 
     except ClientError as e:

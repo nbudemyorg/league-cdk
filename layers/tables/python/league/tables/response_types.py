@@ -1,22 +1,24 @@
 from typing import Any, TypedDict
 
+from types_boto3_dynamodb.type_defs import ConsumedCapacityTypeDef
+
 
 class PutItemSuccess(TypedDict):
     success: bool
     attributes: dict[str, Any] | None
-    consumed_capacity: dict[str, Any] | None
+    consumed_capacity: ConsumedCapacityTypeDef | None
 
 
 class GetItemSuccess(TypedDict):
     success: bool
     item: dict[str, Any] | None
-    consumed_capacity: dict[str, Any] | None
+    consumed_capacity: ConsumedCapacityTypeDef | None
 
 
 class UpdateItemSuccess(TypedDict):
     success: bool
-    item: dict[str, Any] | None
-    consumed_capacity: dict[str, Any] | None
+    attributes: dict[str, Any] | None
+    consumed_capacity: ConsumedCapacityTypeDef | None
 
 
 class Failure(TypedDict):

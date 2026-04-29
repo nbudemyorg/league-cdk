@@ -1,3 +1,6 @@
+from collections.abc import Mapping
+from typing import Any, cast
+
 from botocore.exceptions import ClientError
 from league.tables.item_types import UserItem
 from league.tables.response_libs import (
@@ -25,7 +28,8 @@ def put_users_item(table: Table, item: UserItem) -> PutResult:
 
     try:
         response = table.put_item(
-            Item=item, ConditionExpression='attribute_not_exists(player_id)'
+            Item=cast('Mapping[str, Any]', item),
+            ConditionExpression='attribute_not_exists(player_id)',
         )
         return put_item_response(response)
 

@@ -1,5 +1,10 @@
 from botocore.exceptions import ClientError
-from league.tables.response_types import GetResult, PutResult, UpdateResult
+from league.tables.response_types import (
+    Failure,
+    GetResult,
+    PutResult,
+    UpdateResult,
+)
 from types_boto3_dynamodb.type_defs import (
     GetItemOutputTableTypeDef,
     PutItemOutputTableTypeDef,
@@ -17,7 +22,7 @@ def get_item_response(response: GetItemOutputTableTypeDef) -> GetResult:
     }
 
 
-def item_exception_response(err: ClientError) -> GetResult:
+def item_exception_response(err: ClientError) -> Failure:
     error = err.response.get('Error', {})
     return {
         'success': False,
