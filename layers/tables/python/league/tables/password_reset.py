@@ -10,7 +10,7 @@ from types_boto3_dynamodb.service_resource import Table
 
 
 def get_reset_item(table: Table, reset_id: str) -> GetResult:
-    """Returns item for Player ID if it exists in the Users table."""
+    """Returns item for Reset ID if it exists in the Reset table."""
 
     try:
         response = table.get_item(Key={'reset_id': reset_id})
@@ -21,6 +21,7 @@ def get_reset_item(table: Table, reset_id: str) -> GetResult:
 
 
 def put_reset_item(table: Table, item: ResetItem) -> PutResult:
+    """Put new reset item in the Reset Table"""
 
     try:
         response = table.put_item(Item=item)

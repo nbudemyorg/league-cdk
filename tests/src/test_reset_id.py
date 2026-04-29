@@ -6,9 +6,37 @@ from freezegun import freeze_time
 
 
 @pytest.mark.resetid
-def test_mocked_modules(mock_auth_layer: None, mock_html_layer: None) -> None:
-    assert 'auth_layer' in sys.modules
+def test_mocked_modules(
+    mock_league_tables_layer: None, mock_html_layer: None
+) -> None:
+    assert 'league' in sys.modules
     assert 'html_layer' in sys.modules
+
+
+@pytest.mark.resetid
+def test_server_error() -> None:
+    from src.password_reset.id.get.reset_id_get import server_error
+
+    result = {'success': False}
+
+    assert server_error(result) is True
+
+    result = {'success': True}
+
+    assert server_error(result) is False
+
+
+@pytest.mark.resetid
+def test_reset_item_found() -> None:
+    from src.password_reset.id.get.reset_id_get import reset_item_found
+
+    response = {'item': {}}
+
+    assert reset_item_found(response) is False
+
+    response = {'item': {'some': 'data'}}
+
+    assert reset_item_found(response) is True
 
 
 @pytest.mark.resetid
