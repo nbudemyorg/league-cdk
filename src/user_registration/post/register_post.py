@@ -100,7 +100,7 @@ def lambda_handler(
 
     put_response = put_sessions_item(sessions_table, session_item)
 
-    if not session_saved(put_response):
+    if not put_response['success']:
         return {
             'statusCode': 500,
             'body': json.dumps('Server Error: Put Item failed'),
@@ -163,10 +163,6 @@ def password_meets_criteria(
         return False
 
     return not re.search(supplied_player.lower(), supplied_password.lower())
-
-
-def session_saved(response: PutResult) -> bool:
-    return response['success']
 
 
 def user_already_exists(response: PutResult) -> bool | None:
