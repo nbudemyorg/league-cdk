@@ -1,5 +1,4 @@
 import re
-import secrets
 from datetime import UTC, datetime
 
 import bcrypt
