@@ -37,7 +37,7 @@ def update_users_item(table: Table, player_id: str, token: str) -> PutResult:
 
     try:
         response = table.update_item(
-            Key=player_id,
+            Key={'player_id': player_id},
             UpdateExpression='set reset_id: r',
             ExpressionAttributeValues={':r': token},
             ReturnValues='UPDATED_NEW',

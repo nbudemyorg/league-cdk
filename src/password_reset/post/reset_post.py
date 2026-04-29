@@ -34,9 +34,9 @@ def lambda_handler(
 
     reset_item = create_reset_item(supplied_player_id)
 
-    safe_token = reset_item['reset_id']
+    token = reset_item['reset_id']
 
-    update_response = update_users_item(supplied_player_id, safe_token)
+    update_response = update_users_item(users_table, supplied_player_id, token)
 
     if not users_item_updated(update_response):
         return fail_response()
