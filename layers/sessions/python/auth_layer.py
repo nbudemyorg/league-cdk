@@ -32,54 +32,6 @@ def create_login_response(
     return {'statusCode': 301, 'multiValueHeaders': multi_value_headers}
 
 
-def get_player_item(table: Table, supplied_id: str) -> dict[str, str] | None:
-    """Returns item for Player ID if it exists in the Users table."""
-
-    try:
-        response = table.get_item(Key={'player_id': supplied_id})
-
-    except ClientError:
-        return None
-    else:
-        if 'Item' in response:
-            return response['Item']
-
-        return {'id_not_found': supplied_id}
-
-
-def put_player_item(
-    table: Table, item: dict[str, str], reset_token: bool = False
-) -> bool | None:
-
-    if reset_token:
-        token = secrets.token_urlsafe()
-        item['reset_id'] = token
-
-    try:
-        response = table.put_item(Item=item)
-
-    except ClientError:
-        return None
-
-    return item
-
-
-def get_reset_item(table: Table, reset_id: str) -> dict[str, str] | None:
-
-    try:
-        response = table.get_item(Key={'reset_id': reset_id})
-
-    except ClientError:
-        return None
-
-    reset_item = response.get('Item')
-
-    if not reset_item:
-        return {'item_not_found': reset_id}
-
-    return reset_item
-
-
 def generate_password_hash(supplied_password: str) -> str:
     """Generates a bcrypt hash with salt of the supplied password"""
 
