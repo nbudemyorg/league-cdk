@@ -296,8 +296,7 @@ class LoginRegistrationStack(Stack):
             layers=[
                 static_content_layer,
                 common_pkg_layer,
-                sessions_dependencies_layer,
-                bcrypt_pkg_layer,
+                league_tables_layer,
             ],
         )
 
