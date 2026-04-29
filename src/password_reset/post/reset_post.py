@@ -50,11 +50,11 @@ def lambda_handler(
 
 
 def reset_item_saved(response: PutResult) -> bool:
-    return cast('bool', response['success'])
+    return response['success']
 
 
 def users_item_updated(response: UpdateResult) -> bool:
-    return cast('bool', response['success'])
+    return response['success']
 
 
 def transform_validate(body: str) -> dict[str, str]:

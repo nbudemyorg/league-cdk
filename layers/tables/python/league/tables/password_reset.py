@@ -1,3 +1,6 @@
+from collections.abc import Mapping
+from typing import Any, cast
+
 from botocore.exceptions import ClientError
 from league.tables.item_types import ResetItem
 from league.tables.response_libs import (
@@ -24,7 +27,7 @@ def put_reset_item(table: Table, item: ResetItem) -> PutResult:
     """Put new reset item in the Reset Table"""
 
     try:
-        response = table.put_item(Item=item)
+        response = table.put_item(Item=cast('Mapping[str, Any]', item))
         return put_item_response(response)
 
     except ClientError as e:

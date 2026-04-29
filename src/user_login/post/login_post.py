@@ -9,7 +9,7 @@ from aws_lambda_context import LambdaContext
 from aws_lambda_typing.events import APIGatewayProxyEventV1
 from aws_lambda_typing.responses import APIGatewayProxyResponseV1
 from league.tables.item_libs import create_session_item
-from league.tables.item_types import SessionItem
+from league.tables.item_types import SessionItem, UserItem
 from league.tables.sessions import put_sessions_item
 from league.tables.users import get_users_item
 from types_boto3_dynamodb.service_resource import Table
@@ -90,7 +90,7 @@ def password_is_valid(
     get_response = get_users_item(table, supplied_id)
 
     if get_response['success'] is True:
-        stored_item = get_response.get('item')
+        stored_item = cast('UserItem', get_response.get('item'))
         if stored_item:
             stored_password_bytes = stored_item['password'].encode('utf-8')
             posted_password_bytes = supplied_password.encode('utf-8')
@@ -103,4 +103,4 @@ def password_is_valid(
 
 def save_session_item(table: Table, item: SessionItem) -> bool:
     save_response = put_sessions_item(table, item)
-    return cast('bool', save_response['success'])
+    return save_response['success']

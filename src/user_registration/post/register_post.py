@@ -166,14 +166,15 @@ def password_meets_criteria(
 
 
 def session_saved(response: PutResult) -> bool:
-    return cast('bool', response['success'])
+    return response['success']
 
 
 def user_already_exists(response: PutResult) -> bool | None:
     if response['success']:
         return False
 
-    if response['error_code'] == 'ConditionalCheckFailedException':
+    error_code = response.get('error_code')
+    if error_code == 'ConditionalCheckFailedException':
         return True
 
     return None
