@@ -14,32 +14,6 @@ def test_mocked_modules(
 
 
 @pytest.mark.resetid
-def test_server_error() -> None:
-    from src.password_reset.id.get.reset_id_get import server_error
-
-    result = {'success': False}
-
-    assert server_error(result) is True
-
-    result = {'success': True}
-
-    assert server_error(result) is False
-
-
-@pytest.mark.resetid
-def test_reset_item_found() -> None:
-    from src.password_reset.id.get.reset_id_get import reset_item_found
-
-    response = {'item': {}}
-
-    assert reset_item_found(response) is False
-
-    response = {'item': {'some': 'data'}}
-
-    assert reset_item_found(response) is True
-
-
-@pytest.mark.resetid
 def test_reset_item_still_valid_true(frozen_date: datetime) -> None:
     from src.password_reset.id.get.reset_id_get import reset_item_still_valid
 

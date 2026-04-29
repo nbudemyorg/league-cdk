@@ -9,7 +9,6 @@ from aws_lambda_typing.responses import APIGatewayProxyResponseV1
 from html_layer import new_password_form
 from league.tables.item_types import ResetItem
 from league.tables.password_reset import get_reset_item
-from league.tables.response_types import GetResult
 
 db_client = boto3.resource('dynamodb')
 reset_table = db_client.Table('PasswordReset')
@@ -31,10 +30,12 @@ def lambda_handler(
 
     get_response = get_reset_item(reset_table, reset_id)
 
-    if server_error(get_response):
+    if not get_response['success']:
         return {'statusCode': 500, 'body': json.dumps('Server Error')}
 
-    if not reset_item_found(get_response):
+    reset_item = get_response.get('item')
+
+    if not reset_item:
         return {
             'statusCode': 200,
             'headers': {
@@ -42,8 +43,6 @@ def lambda_handler(
             },
             'body': 'Reset token not found',
         }
-
-    reset_item = get_response.get('item')
 
     if reset_item_still_valid(cast('ResetItem', reset_item)):
         return {
@@ -61,15 +60,6 @@ def lambda_handler(
         },
         'body': 'Reset token has expired',
     }
-
-
-def server_error(response: GetResult) -> bool:
-    return response['success'] is False
-
-
-def reset_item_found(response: GetResult) -> bool:
-    item = response.get('item')
-    return bool(item != {})
 
 
 def reset_item_still_valid(item: ResetItem) -> bool:
