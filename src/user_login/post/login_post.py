@@ -9,7 +9,7 @@ from aws_lambda_context import LambdaContext
 from aws_lambda_typing.events import APIGatewayProxyEventV1
 from aws_lambda_typing.responses import APIGatewayProxyResponseV1
 from league.tables.item_libs import create_session_item
-from league.tables.item_types import SessionItem, UserItem
+from league.tables.item_types import UserItem
 from league.tables.sessions import put_sessions_item
 from league.tables.users import get_users_item
 from types_boto3_dynamodb.service_resource import Table
@@ -49,7 +49,9 @@ def lambda_handler(
 
     session_item = create_session_item(player_id)
 
-    if not save_session_item(sessions_table, session_item):
+    put_response = put_sessions_item(sessions_table, session_item)
+
+    if not put_response['success']:
         return {
             'statusCode': 500,
             'body': json.dumps('Server Error: Put Item failed'),
@@ -99,8 +101,3 @@ def password_is_valid(
         return False
 
     return None
-
-
-def save_session_item(table: Table, item: SessionItem) -> bool:
-    save_response = put_sessions_item(table, item)
-    return save_response['success']
