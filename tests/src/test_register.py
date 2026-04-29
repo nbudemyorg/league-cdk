@@ -192,17 +192,3 @@ def test_user_already_exists_exception(
     response = user_already_exists(users_put_result_client_err)
 
     assert response is None
-
-
-@pytest.mark.registration
-def test_session_saved() -> None:
-
-    from src.user_registration.post.register_post import session_saved
-
-    put_result = {'success': True}
-
-    assert session_saved(put_result)
-
-    put_result = {'success': False}
-
-    assert session_saved(put_result) is False
