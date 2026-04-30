@@ -204,10 +204,9 @@ class LoginRegistrationStack(Stack):
             code=Code.from_asset(path='src/home_page/get'),
             timeout=Duration.seconds(5),
             layers=[
-                sessions_dependencies_layer,
                 static_content_layer,
                 common_pkg_layer,
-                bcrypt_pkg_layer,
+                league_tables_layer,
             ],
         )
 
@@ -245,7 +244,6 @@ class LoginRegistrationStack(Stack):
             layers=[
                 sessions_dependencies_layer,
                 common_pkg_layer,
-                bcrypt_pkg_layer,
                 league_tables_layer,
             ],
         )
