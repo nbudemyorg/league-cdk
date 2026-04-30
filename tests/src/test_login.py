@@ -42,7 +42,7 @@ def mock_get_no_item(
 
 @pytest.fixture
 def mock_get_item_exception(
-        mock_get_item: MockerFixture, mock_item_found_response: dict[str, Any]
+    mock_get_item: MockerFixture, mock_item_found_response: dict[str, Any]
 ):
     mock_item_found_response['success'] = False
     mock_get_item.return_value = mock_item_found_response
@@ -70,10 +70,10 @@ def test_mocked_modules_imported(
 @pytest.mark.parametrize('form_string, expected_result', LOGIN_FORM_VARIATIONS)
 @pytest.mark.login
 def test_invalid_form_data(
-        form_string: str,
-        expected_result: bool,
-        users_table: Table,
-        sessions_table: Table,
+    form_string: str,
+    expected_result: bool,
+    users_table: Table,
+    sessions_table: Table,
 ) -> None:
     """Test missing login form parameters are handled"""
 
@@ -153,7 +153,7 @@ def test_password_is_valid_no_user_found(
 def test_password_is_valid_client_error(
     users_table: Table,
     sessions_table: Table,
-    mock_get_item_exception: MockerFixture
+    mock_get_item_exception: MockerFixture,
 ) -> None:
     """Test function handles AWS ClientError exception for db read"""
 
