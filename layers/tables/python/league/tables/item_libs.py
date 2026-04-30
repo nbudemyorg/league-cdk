@@ -26,6 +26,18 @@ def create_session_item(supplied_id: str) -> SessionItem:
     }
 
 
+def valid_session(item: SessionItem) -> bool:
+    """Verify the supplied session item has not expired"""
+
+    if 'expiry' not in item:
+        return False
+
+    current_time = datetime.now(UTC)
+    session_expiry = datetime.fromisoformat(item['expiry'])
+
+    return session_expiry > current_time
+
+
 def create_user_item(
     supplied_id: str, hashed_password: str, email: str
 ) -> UserItem:

@@ -42,13 +42,12 @@ def mock_get_no_item(
 
 @pytest.mark.login
 def test_mocked_modules_imported(
-    mock_auth_layer: None,
+    mock_sessions_layer: None,
     mock_bcrypt_module: None,
     mock_league_tables_layer: None,
 ) -> None:
     """Test mocked modules are imported"""
 
-    assert 'auth_layer' in sys.modules
     assert 'bcrypt' in sys.modules
     assert 'league.tables.item_libs' in sys.modules
     assert 'league.tables.item_types' in sys.modules

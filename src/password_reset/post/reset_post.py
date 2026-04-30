@@ -1,13 +1,13 @@
 from urllib.parse import parse_qs
 
 import boto3
-from auth_layer import valid_player_id
 from aws_lambda_context import LambdaContext
 from aws_lambda_typing.events import APIGatewayProxyEventV1
 from aws_lambda_typing.responses import APIGatewayProxyResponseV1
 from league.tables.item_libs import create_reset_item
 from league.tables.password_reset import put_reset_item
 from league.tables.users import update_users_item
+from league.validate import valid_player_id
 
 SECONDS_VALID = 600
 
