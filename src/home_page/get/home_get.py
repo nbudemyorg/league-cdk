@@ -1,11 +1,14 @@
 from http import cookies
+from typing import cast
 
 import boto3
 from aws_lambda_context import LambdaContext
 from aws_lambda_typing.events import APIGatewayProxyEventV1
 from aws_lambda_typing.responses import APIGatewayProxyResponseV1
 from html_layer import access_denied, home_page, server_error
-from league.tables.sessions import get_sessions_item, valid_session
+from league.tables.item_libs import valid_session
+from league.tables.item_types import SessionItem
+from league.tables.sessions import get_sessions_item
 
 db_client = boto3.resource('dynamodb')
 sessions_table = db_client.Table('Sessions')
@@ -46,7 +49,7 @@ def lambda_handler(
     if not item:
         return generate_response(401, access_denied)
 
-    if valid_session(item):
+    if valid_session(cast('SessionItem', item)):
         return generate_response(200, home_page)
 
     return generate_response(403, access_denied)
