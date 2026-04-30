@@ -52,7 +52,7 @@ def lambda_handler(
     return generate_response(403, access_denied)
 
 
-def generate_response(http_code: int, body: str):
+def generate_response(http_code: int, body: str) -> APIGatewayProxyResponseV1:
     return {
         'statusCode': http_code,
         'headers': {
