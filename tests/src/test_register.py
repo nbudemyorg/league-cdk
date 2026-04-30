@@ -60,12 +60,11 @@ def users_put_result_client_err() -> PutResult:
 @pytest.mark.registration
 def test_mocked_modules_imported(
     mock_bcrypt_module: None,
-    mock_auth_layer: None,
+    mock_sessions_layer: None,
     mock_league_tables_layer: None,
 ) -> None:
     """Test successful mocked import of modules"""
 
-    assert 'auth_layer' in sys.modules
     assert 'bcrypt' in sys.modules
     assert 'league' in sys.modules
 

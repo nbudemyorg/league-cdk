@@ -4,20 +4,18 @@ from typing import cast
 from urllib.parse import parse_qs
 
 import boto3
-from auth_layer import (
-    create_login_response,
-    generate_password_hash,
-    valid_player_id,
-)
 from aws_lambda_context import LambdaContext
 from aws_lambda_typing.events import APIGatewayProxyEventV1
 from aws_lambda_typing.responses import APIGatewayProxyResponseV1
 from botocore.exceptions import ClientError
 from email_validator import EmailNotValidError, validate_email
+from league.auth import create_login_response
+from league.credentials import generate_password_hash
 from league.tables.item_libs import create_session_item, create_user_item
 from league.tables.response_types import PutResult
 from league.tables.sessions import put_sessions_item
 from league.tables.users import put_users_item
+from league.validate import valid_player_id
 
 TEST_EMAIL_DELIVERY = True
 

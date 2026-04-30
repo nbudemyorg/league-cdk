@@ -40,25 +40,41 @@ def mock_get_no_item(
     yield mock_get_item
 
 
+@pytest.fixture
+def mock_get_item_exception(
+    mock_get_item: MockerFixture, mock_item_found_response: dict[str, Any]
+):
+    mock_item_found_response['success'] = False
+    mock_get_item.return_value = mock_item_found_response
+    yield mock_get_item
+
+
 @pytest.mark.login
 def test_mocked_modules_imported(
-    mock_auth_layer: None,
+    mock_sessions_layer: None,
     mock_bcrypt_module: None,
     mock_league_tables_layer: None,
 ) -> None:
     """Test mocked modules are imported"""
 
-    assert 'auth_layer' in sys.modules
     assert 'bcrypt' in sys.modules
     assert 'league.tables.item_libs' in sys.modules
     assert 'league.tables.item_types' in sys.modules
     assert 'league.tables.sessions' in sys.modules
     assert 'league.tables.users' in sys.modules
+    assert 'league.auth' in sys.modules
+    assert 'league.credentials' in sys.modules
+    assert 'league.validate' in sys.modules
 
 
 @pytest.mark.parametrize('form_string, expected_result', LOGIN_FORM_VARIATIONS)
 @pytest.mark.login
-def test_invalid_form_data(form_string: str, expected_result: bool) -> None:
+def test_invalid_form_data(
+    form_string: str,
+    expected_result: bool,
+    users_table: Table,
+    sessions_table: Table,
+) -> None:
     """Test missing login form parameters are handled"""
 
     from src.user_login.post.login_post import valid_form_data
@@ -67,15 +83,18 @@ def test_invalid_form_data(form_string: str, expected_result: bool) -> None:
 
 
 @pytest.mark.login
-def test_valid_form_data() -> None:
+def test_valid_form_data(
+    users_table: Table,
+    sessions_table: Table,
+) -> None:
     """Test valid login form params return expected dict"""
 
     from src.user_login.post.login_post import valid_form_data
 
-    valid_form_params = 'player_id=The_Username&password=NotAHasButGoodEnough'
+    valid_form_params = 'player_id=The_Username&password=NotAHashButGoodEnough'
     expected_result = {
         'player_id': 'The_Username',
-        'password': 'NotAHasButGoodEnough',
+        'password': 'NotAHashButGoodEnough',
     }
 
     assert valid_form_data(valid_form_params) == expected_result
@@ -83,7 +102,8 @@ def test_valid_form_data() -> None:
 
 @pytest.mark.login
 def test_password_is_valid_checkpw(
-    users_table_with_user: Table,
+    users_table: Table,
+    sessions_table: Table,
     mocker: MockerFixture,
     mock_get_item: MockerFixture,
     test_user: dict[str, str],
@@ -98,13 +118,13 @@ def test_password_is_valid_checkpw(
 
     player = 'A_player'
     password = 'DoesNotMatter'
-    response = password_is_valid(users_table_with_user, player, password)
+    response = password_is_valid(users_table, player, password)
 
     assert response
     assert mock_bcrypt.call_count == 1
     assert mock_get_item.call_count == 1
 
-    response = password_is_valid(users_table_with_user, player, password)
+    response = password_is_valid(users_table, player, password)
 
     assert not response
     assert mock_bcrypt.call_count == 2
@@ -114,6 +134,7 @@ def test_password_is_valid_checkpw(
 @pytest.mark.login
 def test_password_is_valid_no_user_found(
     users_table: Table,
+    sessions_table: Table,
     mock_get_no_item: MockerFixture,
 ) -> None:
     """Test False is returned when item for player does not exist in db"""
@@ -124,14 +145,15 @@ def test_password_is_valid_no_user_found(
     password = 'DoesNotMatter'
     response = password_is_valid(users_table, player, password)
 
-    assert not response
-
+    assert response is False
     assert mock_get_no_item.call_count == 1
 
 
 @pytest.mark.login
 def test_password_is_valid_client_error(
-    users_table_client_error: Table,
+    users_table: Table,
+    sessions_table: Table,
+    mock_get_item_exception: MockerFixture,
 ) -> None:
     """Test function handles AWS ClientError exception for db read"""
 
@@ -139,6 +161,7 @@ def test_password_is_valid_client_error(
 
     player = 'DoesNotMatter'
     password = 'DoesNotMatter'
-    response = password_is_valid(users_table_client_error, player, password)
+    response = password_is_valid(users_table, player, password)
 
     assert response is None
+    assert mock_get_item_exception.call_count == 1

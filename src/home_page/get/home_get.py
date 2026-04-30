@@ -1,11 +1,14 @@
 from http import cookies
+from typing import cast
 
 import boto3
-from auth_layer import valid_session
 from aws_lambda_context import LambdaContext
 from aws_lambda_typing.events import APIGatewayProxyEventV1
 from aws_lambda_typing.responses import APIGatewayProxyResponseV1
 from html_layer import access_denied, home_page, server_error
+from league.tables.item_libs import valid_session
+from league.tables.item_types import SessionItem
+from league.tables.sessions import get_sessions_item
 
 db_client = boto3.resource('dynamodb')
 sessions_table = db_client.Table('Sessions')
@@ -32,38 +35,31 @@ def lambda_handler(
     session_id = received_cookies.get('session_id', None)
 
     if not player_id or not session_id:
-        return {
-            'statusCode': 401,
-            'headers': {
-                'Content-Type': 'text/html',
-            },
-            'body': access_denied,
-        }
+        return generate_response(401, access_denied)
 
-    response = valid_session(sessions_table, player_id.value, session_id.value)
+    get_response = get_sessions_item(
+        sessions_table, player_id.value, session_id.value
+    )
 
-    if response:
-        return {
-            'statusCode': 200,
-            'headers': {
-                'Content-Type': 'text/html',
-            },
-            'body': home_page,
-        }
+    if get_response['success'] is False:
+        return generate_response(503, server_error)
 
-    if response is None:
-        return {
-            'statusCode': 500,
-            'headers': {
-                'Content-Type': 'text/html',
-            },
-            'body': server_error,
-        }
+    item = get_response.get('item')
 
+    if not item:
+        return generate_response(401, access_denied)
+
+    if valid_session(cast('SessionItem', item)):
+        return generate_response(200, home_page)
+
+    return generate_response(403, access_denied)
+
+
+def generate_response(http_code: int, body: str) -> APIGatewayProxyResponseV1:
     return {
-        'statusCode': 403,
+        'statusCode': http_code,
         'headers': {
             'Content-Type': 'text/html',
         },
-        'body': access_denied,
+        'body': body,
     }

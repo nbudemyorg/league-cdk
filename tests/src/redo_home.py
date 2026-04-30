@@ -17,13 +17,13 @@ def event_cookies():
     }
 
 
-@pytest.mark.registration
+@pytest.mark.homepage
 def test_mocked_modules_imported(
-    mock_html_layer: None, mock_auth_layer: None
+    mock_html_layer: None, mock_league_tables_layer: None
 ) -> None:
     """Test mocked modules were imported"""
 
-    assert 'auth_layer' in sys.modules
+    assert 'league' in sys.modules
     assert 'html_layer' in sys.modules
 
 

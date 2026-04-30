@@ -5,10 +5,9 @@ import pytest
 
 @pytest.mark.reset
 def test_mocked_modules(
-    mock_auth_layer: None, mock_league_tables_layer
+    mock_sessions_layer: None, mock_league_tables_layer
 ) -> None:
 
-    assert 'auth_layer' in sys.modules
     assert 'league' in sys.modules
 
 

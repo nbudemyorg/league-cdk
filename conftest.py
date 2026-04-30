@@ -22,13 +22,11 @@ def mock_html_layer():
 
 
 @pytest.fixture(scope='module')
-def mock_auth_layer():
-    sys.modules['auth_layer'] = MagicMock()
-    sys.modules['auth_layer']['valid_session'] = MagicMock()
-    sys.modules['auth_layer']['create_session_item'] = MagicMock()
-    sys.modules['auth_layer']['valid_player_id'] = MagicMock()
-    sys.modules['auth_layer']['valid_psn_id'] = MagicMock()
-    sys.modules['auth_layer']['valid_xbox_id'] = MagicMock()
+def mock_sessions_layer():
+    sys.modules['league'] = MagicMock()
+    sys.modules['league.auth'] = MagicMock()
+    sys.modules['league.credentials'] = MagicMock()
+    sys.modules['league.validate'] = MagicMock()
 
 
 @pytest.fixture(scope='module')

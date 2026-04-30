@@ -4,14 +4,15 @@ from urllib.parse import parse_qs
 
 import bcrypt
 import boto3
-from auth_layer import create_login_response, valid_player_id
 from aws_lambda_context import LambdaContext
 from aws_lambda_typing.events import APIGatewayProxyEventV1
 from aws_lambda_typing.responses import APIGatewayProxyResponseV1
+from league.auth import create_login_response
 from league.tables.item_libs import create_session_item
 from league.tables.item_types import UserItem
 from league.tables.sessions import put_sessions_item
 from league.tables.users import get_users_item
+from league.validate import valid_player_id
 from types_boto3_dynamodb.service_resource import Table
 
 db_client = boto3.resource('dynamodb')
