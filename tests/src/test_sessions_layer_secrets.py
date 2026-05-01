@@ -47,6 +47,9 @@ def test_invitation_import_env_missing_region(
         print(INVITE_SECRET)  #  Ruff check fudge
 
     assert exc_info.type is RuntimeError
+    assert (
+        exc_info.value.args[0] == 'Environment variable AWS_REGION is not set.'
+    )
 
 
 @pytest.mark.registration
@@ -63,3 +66,6 @@ def test_invitation_import_env_missing_key(
         print(INVITE_SECRET)  #  Ruff check fudge
 
     assert exc_info.type is RuntimeError
+    assert (
+        exc_info.value.args[0] == 'Environment variable INVITE_KEY is not set.'
+    )

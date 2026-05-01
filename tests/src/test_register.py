@@ -1,7 +1,6 @@
 import sys
 
 import pytest
-from types_boto3_secretsmanager.client import SecretsManagerClient
 
 from layers.tables.python.league.tables.response_types import PutResult
 
@@ -105,7 +104,7 @@ def test_valid_form_data_missing(
 
 
 @pytest.mark.registration
-def test_valid_form_data(invitation_secret: SecretsManagerClient) -> None:
+def test_valid_form_data() -> None:
     """Test expected dict is returned when all form params supplied"""
 
     valid_form_params = (
