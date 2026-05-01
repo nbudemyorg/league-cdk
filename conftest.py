@@ -1,6 +1,7 @@
 import os
 import sys
 from datetime import UTC, datetime
+from typing import Any
 from unittest.mock import MagicMock
 
 import boto3
@@ -85,6 +86,47 @@ def sessions_table(aws_credentials):
 
 
 @pytest.fixture(scope='function')
+def sessions_table_with_session(
+    sessions_table: Table, session_item: dict[str, str]
+):
+    """Sessions table with a session item"""
+    sessions_table.put_item(Item=session_item)
+    yield sessions_table
+
+
+@pytest.fixture(scope='function')
+def client_error_object():
+    yield {
+        'Error': {
+            'Code': 'PyTestSimulatedException',
+            'Message': 'Pytest mocked ClientError Sessions Table',
+        }
+    }
+
+
+@pytest.fixture(scope='function')
+def sessions_table_client_error(
+    sessions_table: Table,
+    mocker: MockerFixture,
+    client_error_object: dict[str, Any],
+):
+    """Provide a mocked Dynamodb Sessions table which throws ClientError
+    exceptions for GetItem & PutItem"""
+    with mock_aws():
+        mocker.patch.object(
+            sessions_table,
+            'put_item',
+            side_effect=ClientError(client_error_object, 'PutItem'),
+        )
+        mocker.patch.object(
+            sessions_table,
+            'get_item',
+            side_effect=ClientError(error_object, 'GetItem'),
+        )
+        yield
+
+
+@pytest.fixture(scope='function')
 def frozen_date():
     yield datetime(
         year=2026,
@@ -114,6 +156,24 @@ def users_table(aws_credentials):
         yield users_table
 
 
+@pytest.fixture
+def test_user(scope='function'):
+    """Test user of type UserItem"""
+    user_data = {
+        'player_id': 'PlayerOne',
+        'password': 'NotReallyAHash',
+        'email': 'bob@hotmail.com',
+    }
+    yield user_data
+
+
+@pytest.fixture(scope='function')
+def users_table_with_user(users_table: Table, test_user: dict[str, str]):
+    """Users table with a user item"""
+    users_table.put_item(Item=test_user)
+    yield users_table
+
+
 @pytest.fixture(scope='function')
 def users_table_client_error(users_table: Table, mocker: MockerFixture):
     """Provide a mocked Dynamodb Users table which throws ClientError
@@ -122,7 +182,7 @@ def users_table_client_error(users_table: Table, mocker: MockerFixture):
         error_object = {
             'Error': {
                 'Code': 'PyTestSimulatedException',
-                'Message': 'Pytest mocked ClientError',
+                'Message': 'Pytest mocked ClientError Users Table',
             }
         }
         mocker.patch.object(
@@ -140,7 +200,7 @@ def users_table_client_error(users_table: Table, mocker: MockerFixture):
 
 @pytest.fixture(scope='function')
 def password_reset_table(aws_credentials):
-    """Provide a mocked Dynamodb Users table"""
+    """Provide a mocked Dynamodb PasswordReset table"""
     with mock_aws():
         dynamodb = boto3.resource('dynamodb')
         password_reset_table = dynamodb.create_table(
@@ -164,7 +224,7 @@ def password_reset_table_client_error(
         error_object = {
             'Error': {
                 'Code': 'PyTestSimulatedException',
-                'Message': 'Pytest mocked ClientError',
+                'Message': 'Pytest mocked ClientError PasswordReset Table',
             }
         }
         mocker.patch.object(
@@ -178,19 +238,3 @@ def password_reset_table_client_error(
             side_effect=ClientError(error_object, 'GetItem'),
         )
         yield password_reset_table
-
-
-@pytest.fixture
-def test_user(scope='function'):
-    user_data = {
-        'player_id': 'PlayerOne',
-        'password': 'NotReallyAHash',
-        'email': 'bob@hotmail.com',
-    }
-    yield user_data
-
-
-@pytest.fixture(scope='function')
-def users_table_with_user(users_table: Table, test_user: dict[str, str]):
-    users_table.put_item(Item=test_user)
-    yield users_table
