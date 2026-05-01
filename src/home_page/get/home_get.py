@@ -5,7 +5,7 @@ import boto3
 from aws_lambda_context import LambdaContext
 from aws_lambda_typing.events import APIGatewayProxyEventV1
 from aws_lambda_typing.responses import APIGatewayProxyResponseV1
-from html_layer import access_denied, home_page, server_error
+from league.static.pages import access_denied, home_page, server_error
 from league.tables.item.libs import valid_session
 from league.tables.item.types import SessionItem
 from league.tables.sessions import get_sessions_item

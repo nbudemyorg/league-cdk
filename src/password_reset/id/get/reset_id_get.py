@@ -6,7 +6,7 @@ import boto3
 from aws_lambda_context import LambdaContext
 from aws_lambda_typing.events import APIGatewayProxyEventV1
 from aws_lambda_typing.responses import APIGatewayProxyResponseV1
-from html_layer import new_password_form
+from league.static.pages import new_password_form
 from league.tables.item.types import ResetItem
 from league.tables.password_reset import get_reset_item
 

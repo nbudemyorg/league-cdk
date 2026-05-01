@@ -9,8 +9,13 @@ from freezegun import freeze_time
 def test_mocked_modules(
     mock_league_tables_layer: None, mock_html_layer: None
 ) -> None:
-    assert 'league' in sys.modules
-    assert 'html_layer' in sys.modules
+    assert 'league.auth' in sys.modules
+    assert 'league.tables.item.libs' in sys.modules
+    assert 'league.tables.item.types' in sys.modules
+    assert 'league.tables.sessions' in sys.modules
+    assert 'league.tables.users' in sys.modules
+    assert 'league.validate' in sys.modules
+    assert 'league.static.pages' in sys.modules
 
 
 @pytest.mark.resetid
