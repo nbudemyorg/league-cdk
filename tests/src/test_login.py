@@ -13,7 +13,7 @@ LOGIN_FORM_VARIATIONS = [
 
 
 @pytest.fixture
-def mock_item_found_response():
+def mock_get_users_item_response():
     yield {
         'success': True,
         'item': {'player_id': 'A_user', 'password': 'DoesNotMatter'},
@@ -22,31 +22,33 @@ def mock_item_found_response():
 
 
 @pytest.fixture
-def mock_get_item(
-    mocker: MockerFixture, mock_item_found_response: dict[str, Any]
+def mock_get_users_item(
+    mocker: MockerFixture, mock_get_users_item_response: dict[str, Any]
 ):
     yield mocker.patch(
         'src.user_login.post.login_post.get_users_item',
-        return_value=mock_item_found_response,
+        return_value=mock_get_users_item_response,
     )
 
 
 @pytest.fixture
-def mock_get_no_item(
-    mock_get_item: MockerFixture, mock_item_found_response: dict[str, Any]
+def mock_get_users_no_item(
+    mock_get_users_item: MockerFixture,
+    mock_get_users_item_response: dict[str, Any],
 ):
-    mock_item_found_response['item'] = {}
-    mock_get_item.return_value = mock_item_found_response
-    yield mock_get_item
+    mock_get_users_item_response['item'] = {}
+    mock_get_users_item.return_value = mock_get_users_item_response
+    yield mock_get_users_item
 
 
 @pytest.fixture
-def mock_get_item_exception(
-    mock_get_item: MockerFixture, mock_item_found_response: dict[str, Any]
-):
-    mock_item_found_response['success'] = False
-    mock_get_item.return_value = mock_item_found_response
-    yield mock_get_item
+def mock_get_users_item_exception(
+    mock_get_users_item: MockerFixture,
+    mock_get_users_item_response: dict[str, Any],
+) -> None:
+    mock_get_users_item_response['success'] = False
+    mock_get_users_item.return_value = mock_get_users_item_response
+    yield mock_get_users_item
 
 
 @pytest.mark.login
@@ -58,12 +60,11 @@ def test_mocked_modules_imported(
     """Test mocked modules are imported"""
 
     assert 'bcrypt' in sys.modules
+    assert 'league.auth' in sys.modules
     assert 'league.tables.item_libs' in sys.modules
     assert 'league.tables.item_types' in sys.modules
     assert 'league.tables.sessions' in sys.modules
     assert 'league.tables.users' in sys.modules
-    assert 'league.auth' in sys.modules
-    assert 'league.credentials' in sys.modules
     assert 'league.validate' in sys.modules
 
 
@@ -105,8 +106,7 @@ def test_password_is_valid_checkpw(
     users_table: Table,
     sessions_table: Table,
     mocker: MockerFixture,
-    mock_get_item: MockerFixture,
-    test_user: dict[str, str],
+    mock_get_users_item: MockerFixture,
 ) -> None:
     """Test that result of bcrypt.checkpw is returned by the function when a
     user password is verified as being valid and invalid"""
@@ -122,20 +122,20 @@ def test_password_is_valid_checkpw(
 
     assert response
     assert mock_bcrypt.call_count == 1
-    assert mock_get_item.call_count == 1
+    assert mock_get_users_item.call_count == 1
 
     response = password_is_valid(users_table, player, password)
 
     assert not response
     assert mock_bcrypt.call_count == 2
-    assert mock_get_item.call_count == 2
+    assert mock_get_users_item.call_count == 2
 
 
 @pytest.mark.login
 def test_password_is_valid_no_user_found(
     users_table: Table,
     sessions_table: Table,
-    mock_get_no_item: MockerFixture,
+    mock_get_users_no_item: MockerFixture,
 ) -> None:
     """Test False is returned when item for player does not exist in db"""
 
@@ -146,14 +146,14 @@ def test_password_is_valid_no_user_found(
     response = password_is_valid(users_table, player, password)
 
     assert response is False
-    assert mock_get_no_item.call_count == 1
+    assert mock_get_users_no_item.call_count == 1
 
 
 @pytest.mark.login
 def test_password_is_valid_client_error(
     users_table: Table,
     sessions_table: Table,
-    mock_get_item_exception: MockerFixture,
+    mock_get_users_item_exception: MockerFixture,
 ) -> None:
     """Test function handles AWS ClientError exception for db read"""
 
@@ -164,4 +164,4 @@ def test_password_is_valid_client_error(
     response = password_is_valid(users_table, player, password)
 
     assert response is None
-    assert mock_get_item_exception.call_count == 1
+    assert mock_get_users_item_exception.call_count == 1

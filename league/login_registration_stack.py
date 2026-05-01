@@ -117,6 +117,10 @@ class LoginRegistrationStack(Stack):
             runtime=Runtime.PYTHON_3_14,
             code=Code.from_asset(path='src/user_registration/post'),
             timeout=Duration.seconds(10),
+            environment={
+                'INVITE_KEY': 'league/invitation_key',
+                'REGION': 'eu-west-1',
+            },
             layers=[
                 bcrypt_pkg_layer,
                 sessions_dependencies_layer,

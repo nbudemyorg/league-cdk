@@ -7,10 +7,10 @@ import boto3
 from aws_lambda_context import LambdaContext
 from aws_lambda_typing.events import APIGatewayProxyEventV1
 from aws_lambda_typing.responses import APIGatewayProxyResponseV1
-from botocore.exceptions import ClientError
 from email_validator import EmailNotValidError, validate_email
 from league.auth import create_login_response
 from league.credentials import generate_password_hash
+from league.secrets import INVITE_SECRET
 from league.tables.item_libs import create_session_item, create_user_item
 from league.tables.response_types import PutResult
 from league.tables.sessions import put_sessions_item
@@ -18,20 +18,6 @@ from league.tables.users import put_users_item
 from league.validate import valid_player_id
 
 TEST_EMAIL_DELIVERY = True
-
-secret_name = 'league/invitation_key'
-region_name = 'eu-west-1'
-
-# Create a Secrets Manager client
-client = boto3.client(service_name='secretsmanager', region_name=region_name)
-
-try:
-    get_secret_value_response = client.get_secret_value(SecretId=secret_name)
-
-except ClientError as e:
-    raise e
-
-secret = get_secret_value_response['SecretString']
 
 db_client = boto3.resource('dynamodb')
 users_table = db_client.Table('Users')
@@ -178,4 +164,4 @@ def valid_invitation_key(supplied_key: str) -> bool:
     """Verify the new player supplied the correct invitation key before
     allowing registration"""
 
-    return supplied_key == secret
+    return bool(supplied_key == INVITE_SECRET)
