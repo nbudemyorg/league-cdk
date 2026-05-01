@@ -9,8 +9,8 @@ from aws_lambda_typing.events import APIGatewayProxyEventV1
 from aws_lambda_typing.responses import APIGatewayProxyResponseV1
 from email_validator import EmailNotValidError, validate_email
 from league.auth import create_login_response
+from league.aws_secrets import INVITE_SECRET
 from league.credentials import generate_password_hash
-from league.secrets import INVITE_SECRET
 from league.tables.item_libs import create_session_item, create_user_item
 from league.tables.response_types import PutResult
 from league.tables.sessions import put_sessions_item
