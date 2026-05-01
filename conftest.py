@@ -95,7 +95,7 @@ def sessions_table_with_session(
 
 
 @pytest.fixture(scope='function')
-def client_error_object():
+def session_client_error():
     yield {
         'Error': {
             'Code': 'PyTestSimulatedException',
@@ -108,7 +108,7 @@ def client_error_object():
 def sessions_table_client_error(
     sessions_table: Table,
     mocker: MockerFixture,
-    client_error_object: dict[str, Any],
+    session_client_error: dict[str, Any],
 ):
     """Provide a mocked Dynamodb Sessions table which throws ClientError
     exceptions for GetItem & PutItem"""
@@ -116,12 +116,12 @@ def sessions_table_client_error(
         mocker.patch.object(
             sessions_table,
             'put_item',
-            side_effect=ClientError(client_error_object, 'PutItem'),
+            side_effect=ClientError(session_client_error, 'PutItem'),
         )
         mocker.patch.object(
             sessions_table,
             'get_item',
-            side_effect=ClientError(error_object, 'GetItem'),
+            side_effect=ClientError(session_client_error, 'GetItem'),
         )
         yield
 
@@ -175,25 +175,38 @@ def users_table_with_user(users_table: Table, test_user: dict[str, str]):
 
 
 @pytest.fixture(scope='function')
-def users_table_client_error(users_table: Table, mocker: MockerFixture):
+def users_client_error():
+    yield {
+        'Error': {
+            'Code': 'PyTestSimulatedException',
+            'Message': 'Pytest mocked ClientError Users Table',
+        }
+    }
+
+
+@pytest.fixture(scope='function')
+def users_table_client_error(
+    users_table: Table,
+    mocker: MockerFixture,
+    users_client_error: dict[str, Any],
+):
     """Provide a mocked Dynamodb Users table which throws ClientError
     exceptions for GetItem & PutItem"""
     with mock_aws():
-        error_object = {
-            'Error': {
-                'Code': 'PyTestSimulatedException',
-                'Message': 'Pytest mocked ClientError Users Table',
-            }
-        }
         mocker.patch.object(
             users_table,
             'put_item',
-            side_effect=ClientError(error_object, 'PutItem'),
+            side_effect=ClientError(users_client_error, 'PutItem'),
         )
         mocker.patch.object(
             users_table,
             'get_item',
-            side_effect=ClientError(error_object, 'GetItem'),
+            side_effect=ClientError(users_client_error, 'GetItem'),
+        )
+        mocker.patch.object(
+            users_table,
+            'update_item',
+            side_effect=ClientError(users_client_error, 'UpdateItem'),
         )
         yield users_table
 
