@@ -13,12 +13,8 @@ from types_boto3_dynamodb.service_resource import Table
 
 @pytest.fixture(scope='module')
 def mock_html_layer():
-    sys.modules['html_layer'] = MagicMock()
-    sys.modules['html_layer']['home_page'] = MagicMock()
-    sys.modules['html_layer']['access_denied'] = MagicMock()
-    sys.modules['html_layer']['server_error'] = MagicMock()
-    sys.modules['html_layer']['login_form'] = MagicMock()
-    sys.modules['html_layer']['registration_form'] = MagicMock()
+    sys.modules['league.static.pages'] = MagicMock()
+    sys.modules['league.templates'] = MagicMock()
 
 
 @pytest.fixture(scope='module')

@@ -70,11 +70,11 @@ class LoginRegistrationStack(Stack):
             layer_source='layers/pkg/common/requirements.txt',
         )
 
-        static_content_layer = layers.create_lambda_layer(
+        content_layer = layers.create_lambda_layer(
             self,
             self.stack_name,
-            layer_name='static-content',
-            layer_source='layers/static',
+            layer_name='content',
+            layer_source='layers/content',
         )
 
         bcrypt_pkg_layer = layers.create_lambda_layer(
@@ -106,7 +106,7 @@ class LoginRegistrationStack(Stack):
             runtime=Runtime.PYTHON_3_14,
             code=Code.from_asset(path='src/user_registration/get'),
             timeout=Duration.seconds(5),
-            layers=[static_content_layer, common_pkg_layer],
+            layers=[content_layer, common_pkg_layer],
         )
 
         registration_lambda_post = Function(
@@ -163,7 +163,7 @@ class LoginRegistrationStack(Stack):
             runtime=Runtime.PYTHON_3_14,
             code=Code.from_asset(path='src/user_login/get'),
             timeout=Duration.seconds(5),
-            layers=[static_content_layer, common_pkg_layer],
+            layers=[content_layer, common_pkg_layer],
         )
 
         login_lambda_post = Function(
@@ -208,7 +208,7 @@ class LoginRegistrationStack(Stack):
             code=Code.from_asset(path='src/home_page/get'),
             timeout=Duration.seconds(5),
             layers=[
-                static_content_layer,
+                content_layer,
                 common_pkg_layer,
                 league_tables_layer,
             ],
@@ -232,7 +232,7 @@ class LoginRegistrationStack(Stack):
             code=Code.from_asset(path='src/password_reset/get'),
             timeout=Duration.seconds(5),
             layers=[
-                static_content_layer,
+                content_layer,
                 common_pkg_layer,
             ],
         )
@@ -296,7 +296,7 @@ class LoginRegistrationStack(Stack):
             code=Code.from_asset(path='src/password_reset/id/get'),
             timeout=Duration.seconds(5),
             layers=[
-                static_content_layer,
+                content_layer,
                 common_pkg_layer,
                 league_tables_layer,
             ],
