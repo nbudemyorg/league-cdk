@@ -59,40 +59,18 @@ def users_put_result_client_err() -> PutResult:
 
 @pytest.mark.registration
 def test_mocked_modules_imported(
-    mock_bcrypt_module: None,
     mock_sessions_layer: None,
     mock_league_tables_layer: None,
 ) -> None:
     """Test successful mocked import of modules"""
 
-    assert 'bcrypt' in sys.modules
-    assert 'league' in sys.modules
-
-
-@pytest.mark.registration
-def test_valid_invitation_key_true(
-    invitation_secret: SecretsManagerClient,
-) -> None:
-    """Test valid_invitation_key returns True when valid key provided"""
-
-    from src.user_registration.post.register_post import valid_invitation_key
-
-    response = valid_invitation_key('CorrectValue')
-
-    assert response
-
-
-@pytest.mark.registration
-def test_valid_invitation_key_false(
-    invitation_secret: SecretsManagerClient,
-) -> None:
-    """Test valid_invitation_key returns False when invalid key provided"""
-
-    from src.user_registration.post.register_post import valid_invitation_key
-
-    response = valid_invitation_key('IncorrectValue')
-
-    assert not response
+    assert 'league.auth' in sys.modules
+    assert 'league.credentials' in sys.modules
+    assert 'league.tables.item_libs' in sys.modules
+    assert 'league.tables.response_types' in sys.modules
+    assert 'league.tables.sessions' in sys.modules
+    assert 'league.tables.users' in sys.modules
+    assert 'league.validate' in sys.modules
 
 
 @pytest.mark.parametrize(
@@ -103,7 +81,6 @@ def test_password_meets_criteria(
     password: str,
     player: str,
     expected_result: bool,
-    invitation_secret: SecretsManagerClient,
 ) -> None:
     """Tests to make sure supplied password conforms to defined standard"""
 
@@ -116,10 +93,9 @@ def test_password_meets_criteria(
 
 @pytest.mark.parametrize('form_data, expected_result', FORM_MISSING_PARAM)
 @pytest.mark.registration
-def test_invalid_form_data(
+def test_valid_form_data_missing(
     form_data: str,
     expected_result: bool,
-    invitation_secret: SecretsManagerClient,
 ) -> None:
     """Test that missing form data results in False being returned"""
 

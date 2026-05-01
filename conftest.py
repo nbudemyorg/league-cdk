@@ -23,9 +23,9 @@ def mock_html_layer():
 
 @pytest.fixture(scope='module')
 def mock_sessions_layer():
-    sys.modules['league'] = MagicMock()
     sys.modules['league.auth'] = MagicMock()
     sys.modules['league.credentials'] = MagicMock()
+    sys.modules['league.secrets'] = MagicMock()
     sys.modules['league.validate'] = MagicMock()
 
 
@@ -36,8 +36,6 @@ def mock_bcrypt_module():
 
 @pytest.fixture(scope='module')
 def mock_league_tables_layer():
-    sys.modules['league'] = MagicMock()
-    sys.modules['league.tables'] = MagicMock()
     sys.modules['league.tables.item_types'] = MagicMock()
     sys.modules['league.tables.item_libs'] = MagicMock()
     sys.modules['league.tables.password_reset'] = MagicMock()
@@ -199,16 +197,3 @@ def test_user(scope='function'):
 def users_table_with_user(users_table: Table, test_user: dict[str, str]):
     users_table.put_item(Item=test_user)
     yield users_table
-
-
-@pytest.fixture(scope='function')
-def invitation_secret(aws_credentials):
-    """Provide Secrets Manager client with a predefined invitation secret"""
-    with mock_aws():
-        sm_client = boto3.client(
-            service_name='secretsmanager', region_name='eu-west-1'
-        )
-        sm_client.create_secret(
-            Name='league/invitation_key', SecretString='CorrectValue'
-        )
-        yield sm_client
