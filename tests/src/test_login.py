@@ -61,8 +61,8 @@ def test_mocked_modules_imported(
 
     assert 'bcrypt' in sys.modules
     assert 'league.auth' in sys.modules
-    assert 'league.tables.item_libs' in sys.modules
-    assert 'league.tables.item_types' in sys.modules
+    assert 'league.tables.item.libs' in sys.modules
+    assert 'league.tables.item.types' in sys.modules
     assert 'league.tables.sessions' in sys.modules
     assert 'league.tables.users' in sys.modules
     assert 'league.validate' in sys.modules

@@ -11,8 +11,8 @@ from email_validator import EmailNotValidError, validate_email
 from league.auth import create_login_response
 from league.aws_secrets import INVITE_SECRET
 from league.credentials import generate_password_hash
-from league.tables.item_libs import create_session_item, create_user_item
-from league.tables.response_types import PutResult
+from league.tables.item.libs import create_session_item, create_user_item
+from league.tables.response.types import PutResult
 from league.tables.sessions import put_sessions_item
 from league.tables.users import put_users_item
 from league.validate import valid_player_id

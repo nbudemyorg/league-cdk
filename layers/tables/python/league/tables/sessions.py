@@ -2,13 +2,13 @@ from collections.abc import Mapping
 from typing import Any, cast
 
 from botocore.exceptions import ClientError
-from league.tables.item_types import SessionItem
-from league.tables.response_libs import (
+from league.tables.item.types import SessionItem
+from league.tables.response.libs import (
     get_item_response,
     item_exception_response,
     put_item_response,
 )
-from league.tables.response_types import GetResult, PutResult
+from league.tables.response.types import GetResult, PutResult
 from types_boto3_dynamodb.service_resource import Table
 
 

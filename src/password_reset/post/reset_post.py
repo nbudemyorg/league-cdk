@@ -4,7 +4,7 @@ import boto3
 from aws_lambda_context import LambdaContext
 from aws_lambda_typing.events import APIGatewayProxyEventV1
 from aws_lambda_typing.responses import APIGatewayProxyResponseV1
-from league.tables.item_libs import create_reset_item
+from league.tables.item.libs import create_reset_item
 from league.tables.password_reset import put_reset_item
 from league.tables.users import update_users_item
 from league.validate import valid_player_id
