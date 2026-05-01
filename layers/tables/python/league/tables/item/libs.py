@@ -2,7 +2,7 @@ from datetime import UTC, datetime, timedelta
 from secrets import token_urlsafe
 from uuid import uuid4
 
-from league.tables.item_types import ResetItem, SessionItem, UserItem
+from league.tables.item.types import ResetItem, SessionItem, UserItem
 
 SECONDS_VALID = 600
 COOKIE_MAX_AGE = 86_400  #  24 * 60 * 60 seconds (1 Day)

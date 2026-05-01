@@ -2,7 +2,7 @@ import sys
 
 import pytest
 
-from layers.tables.python.league.tables.response_types import PutResult
+from layers.tables.python.league.tables.response.types import PutResult
 
 PASSWORD_VARIATIONS = [
     ('tooshort', 'PlayerOne', False),
@@ -65,8 +65,8 @@ def test_mocked_modules_imported(
 
     assert 'league.auth' in sys.modules
     assert 'league.credentials' in sys.modules
-    assert 'league.tables.item_libs' in sys.modules
-    assert 'league.tables.response_types' in sys.modules
+    assert 'league.tables.item.libs' in sys.modules
+    assert 'league.tables.response.types' in sys.modules
     assert 'league.tables.sessions' in sys.modules
     assert 'league.tables.users' in sys.modules
     assert 'league.validate' in sys.modules

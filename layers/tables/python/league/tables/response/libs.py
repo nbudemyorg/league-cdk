@@ -1,5 +1,5 @@
 from botocore.exceptions import ClientError
-from league.tables.response_types import (
+from league.tables.response.types import (
     Failure,
     GetResult,
     PutResult,

@@ -25,7 +25,7 @@ def mock_html_layer():
 def mock_sessions_layer():
     sys.modules['league.auth'] = MagicMock()
     sys.modules['league.credentials'] = MagicMock()
-    sys.modules['league.secrets'] = MagicMock()
+    sys.modules['league.aws_secrets'] = MagicMock()
     sys.modules['league.validate'] = MagicMock()
 
 
@@ -36,10 +36,11 @@ def mock_bcrypt_module():
 
 @pytest.fixture(scope='module')
 def mock_league_tables_layer():
-    sys.modules['league.tables.item_types'] = MagicMock()
-    sys.modules['league.tables.item_libs'] = MagicMock()
+    sys.modules['league.tables.item.types'] = MagicMock()
+    sys.modules['league.tables.item.libs'] = MagicMock()
     sys.modules['league.tables.password_reset'] = MagicMock()
-    sys.modules['league.tables.response_types'] = MagicMock()
+    sys.modules['league.tables.response.libs'] = MagicMock()
+    sys.modules['league.tables.response.types'] = MagicMock()
     sys.modules['league.tables.sessions'] = MagicMock()
     sys.modules['league.tables.users'] = MagicMock()
 
