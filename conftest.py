@@ -35,7 +35,7 @@ def mock_bcrypt_module():
 def mock_league_tables_layer():
     sys.modules['league.tables.item.types'] = MagicMock()
     sys.modules['league.tables.item.libs'] = MagicMock()
-    sys.modules['league.tables.password_reset'] = MagicMock()
+    sys.modules['league.tables.reset'] = MagicMock()
     sys.modules['league.tables.response.libs'] = MagicMock()
     sys.modules['league.tables.response.types'] = MagicMock()
     sys.modules['league.tables.sessions'] = MagicMock()
