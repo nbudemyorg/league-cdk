@@ -16,7 +16,7 @@ def test_mocked_modules(
 ) -> None:
     assert 'league.tables.item.libs' in sys.modules
     assert 'league.tables.item.types' in sys.modules
-    assert 'league.tables.password_reset' in sys.modules
+    assert 'league.tables.reset' in sys.modules
     assert 'league.tables.response.libs' in sys.modules
     assert 'league.tables.response.types' in sys.modules
     assert 'league.tables.sessions' in sys.modules

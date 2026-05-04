@@ -8,7 +8,7 @@ from aws_lambda_typing.events import APIGatewayProxyEventV1
 from aws_lambda_typing.responses import APIGatewayProxyResponseV1
 from league.static.pages import new_password_form
 from league.tables.item.types import ResetItem
-from league.tables.password_reset import get_reset_item
+from league.tables.reset import get_reset_item
 
 db_client = boto3.resource('dynamodb')
 reset_table = db_client.Table('PasswordReset')
