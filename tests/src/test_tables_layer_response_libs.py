@@ -52,6 +52,7 @@ def test_get_item_response(
     mock_get_response_with_item: dict[str, Any],
     mock_get_response_no_item: dict[str, Any],
 ) -> None:
+    """Test the response structure for a successful get_item call"""
 
     from layers.tables.python.league.tables.response.libs import (
         get_item_response,
@@ -75,6 +76,7 @@ def test_get_item_response(
 
 @pytest.mark.response_libs
 def test_put_item_response(mock_put_response: dict[str, Any]) -> None:
+    """Test the response structure for a successful put_item call"""
     from layers.tables.python.league.tables.response.libs import (
         put_item_response,
     )
@@ -90,6 +92,7 @@ def test_put_item_response(mock_put_response: dict[str, Any]) -> None:
 
 @pytest.mark.response_libs
 def test_update_item_response(mock_update_response) -> None:
+    """Test the response structure for a successful update_item call"""
     from layers.tables.python.league.tables.response.libs import (
         update_item_response,
     )
@@ -104,15 +107,16 @@ def test_update_item_response(mock_update_response) -> None:
 
 
 @pytest.mark.response_libs
-def test_item_exception_response(client_error_object: dict[str, Any]) -> None:
+def test_item_exception_response(users_client_error: dict[str, Any]) -> None:
+    """Test the response structure when ClientError exception is raised"""
     from layers.tables.python.league.tables.response.libs import (
         item_exception_response,
     )
 
-    client_error = ClientError(client_error_object, 'PutItem')
+    client_error = ClientError(users_client_error, 'PutItem')
 
     response = item_exception_response(client_error)
 
     assert response['success'] is False
-    assert response['error_code'] == client_error_object['Error']['Code']
-    assert response['error_message'] == client_error_object['Error']['Message']
+    assert response['error_code'] == users_client_error['Error']['Code']
+    assert response['error_message'] == users_client_error['Error']['Message']

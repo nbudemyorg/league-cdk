@@ -24,7 +24,7 @@ def test_invitation_key_import(
     invitation_secret: SecretsManagerClient,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    """Test valid_invitation_key returns True when valid key provided"""
+    """Test invitation key is accessible if environments vars are set"""
     monkeypatch.setenv('INVITE_KEY', 'league/invitation_key')
     monkeypatch.setenv('REGION', 'eu-west-1')
 
@@ -37,7 +37,7 @@ def test_invitation_key_import(
 def test_invitation_import_env_missing_region(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    """Test valid_invitation_key returns True when valid key provided"""
+    """Test RuntimeError raised if the environment var REGION is not set"""
 
     with pytest.raises(RuntimeError) as exc_info:
         sys.modules.pop('layers.sessions.python.league.aws_secrets', None)
@@ -56,7 +56,8 @@ def test_invitation_import_env_missing_region(
 def test_invitation_import_env_missing_key(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    """Test valid_invitation_key returns True when valid key provided"""
+    """Test RuntimeError raised if the environment var INVITE_SECRET is
+    not set"""
 
     with pytest.raises(RuntimeError) as exc_info:
         sys.modules.pop('layers.sessions.python.league.aws_secrets', None)

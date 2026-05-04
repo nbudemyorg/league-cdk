@@ -2,7 +2,7 @@ from collections.abc import Mapping
 from typing import Any, cast
 
 from botocore.exceptions import ClientError
-from league.tables.item.types import SessionItem
+from league.tables.item.types import ResetItem
 from league.tables.response.libs import (
     get_item_response,
     item_exception_response,
@@ -12,22 +12,19 @@ from league.tables.response.types import GetResult, PutResult
 from types_boto3_dynamodb.service_resource import Table
 
 
-def get_sessions_item(table: Table, player: str, session: str) -> GetResult:
-    """Returns item for Player ID if it exists in the Sessions table."""
+def get_reset_item(table: Table, reset_id: str) -> GetResult:
+    """Returns item for Reset ID if it exists in the Reset table."""
 
     try:
-        response = table.get_item(
-            Key={'player_id': player, 'session_id': session},
-            AttributesToGet=['expiry'],
-        )
+        response = table.get_item(Key={'reset_id': reset_id})
         return get_item_response(response)
 
     except ClientError as e:
         return item_exception_response(e)
 
 
-def put_sessions_item(table: Table, item: SessionItem) -> PutResult:
-    """Puts new sessions item into the Sessions table"""
+def put_reset_item(table: Table, item: ResetItem) -> PutResult:
+    """Put new reset item in the Reset Table"""
 
     try:
         response = table.put_item(Item=cast('Mapping[str, Any]', item))

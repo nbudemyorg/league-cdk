@@ -28,6 +28,7 @@ def test_mocked_modules(
 def test_create_session_item(
     frozen_date: datetime, mocker: MockerFixture
 ) -> None:
+    """Test that a valid Sessions table item is created"""
     from layers.tables.python.league.tables.item.libs import (
         ADD_TTL,
         COOKIE_MAX_AGE,
@@ -55,6 +56,7 @@ def test_create_session_item(
 
 @pytest.mark.item_libs
 def test_create_user_item(test_user: UserItem) -> None:
+    """Test that a valid Users table item is created"""
     from layers.tables.python.league.tables.item.libs import create_user_item
 
     player_id = test_user['player_id']
@@ -70,6 +72,7 @@ def test_create_user_item(test_user: UserItem) -> None:
 def test_create_reset_item(
     frozen_date: datetime, mocker: MockerFixture
 ) -> None:
+    """Test that a valid PasswordReset table item is created"""
     from layers.tables.python.league.tables.item.libs import (
         SECONDS_VALID,
         create_reset_item,

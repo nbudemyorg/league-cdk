@@ -95,7 +95,7 @@ def sessions_table_with_session(
 
 
 @pytest.fixture(scope='function')
-def session_client_error():
+def sessions_client_error():
     yield {
         'Error': {
             'Code': 'PyTestSimulatedException',
@@ -108,7 +108,7 @@ def session_client_error():
 def sessions_table_client_error(
     sessions_table: Table,
     mocker: MockerFixture,
-    session_client_error: dict[str, Any],
+    sessions_client_error: dict[str, Any],
 ):
     """Provide a mocked Dynamodb Sessions table which throws ClientError
     exceptions for GetItem & PutItem"""
@@ -116,14 +116,14 @@ def sessions_table_client_error(
         mocker.patch.object(
             sessions_table,
             'put_item',
-            side_effect=ClientError(session_client_error, 'PutItem'),
+            side_effect=ClientError(sessions_client_error, 'PutItem'),
         )
         mocker.patch.object(
             sessions_table,
             'get_item',
-            side_effect=ClientError(session_client_error, 'GetItem'),
+            side_effect=ClientError(sessions_client_error, 'GetItem'),
         )
-        yield
+        yield sessions_table
 
 
 @pytest.fixture(scope='function')
@@ -212,7 +212,12 @@ def users_table_client_error(
 
 
 @pytest.fixture(scope='function')
-def password_reset_table(aws_credentials):
+def reset_item():
+    yield {'reset_id': 'BasicTestString', 'player_id': 'PlayerOne'}
+
+
+@pytest.fixture(scope='function')
+def reset_table(aws_credentials):
     """Provide a mocked Dynamodb PasswordReset table"""
     with mock_aws():
         dynamodb = boto3.resource('dynamodb')
@@ -228,26 +233,38 @@ def password_reset_table(aws_credentials):
 
 
 @pytest.fixture(scope='function')
-def password_reset_table_client_error(
-    password_reset_table: Table, mocker: MockerFixture
+def reset_table_with_item(reset_table: Table, reset_item: dict[str, Any]):
+    reset_table.put_item(Item=reset_item)
+    yield reset_table
+
+
+@pytest.fixture(scope='function')
+def reset_client_error():
+    yield {
+        'Error': {
+            'Code': 'PyTestSimulatedException',
+            'Message': 'Pytest mocked ClientError PasswordReset Table',
+        }
+    }
+
+
+@pytest.fixture(scope='function')
+def reset_table_client_error(
+    reset_table: Table,
+    reset_client_error: ClientError,
+    mocker: MockerFixture,
 ):
     """Provide a mocked Dynamodb PasswordReset table which throws ClientError
     exceptions for GetItem & PutItem"""
     with mock_aws():
-        error_object = {
-            'Error': {
-                'Code': 'PyTestSimulatedException',
-                'Message': 'Pytest mocked ClientError PasswordReset Table',
-            }
-        }
         mocker.patch.object(
-            password_reset_table,
+            reset_table,
             'put_item',
-            side_effect=ClientError(error_object, 'PutItem'),
+            side_effect=ClientError(reset_client_error, 'PutItem'),
         )
         mocker.patch.object(
-            password_reset_table,
+            reset_table,
             'get_item',
-            side_effect=ClientError(error_object, 'GetItem'),
+            side_effect=ClientError(reset_client_error, 'GetItem'),
         )
-        yield password_reset_table
+        yield reset_table

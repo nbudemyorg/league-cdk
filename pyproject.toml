@@ -24,7 +24,9 @@ markers = [
     'player_id: PlayerId related tests',
     'item_libs: DB item related libraries tests',
     'response_libs: DB Response transform libraries tests',
-    'users_table: DB get, put & update tests'
+    'users_table: Users table get, put, update & exception tests',
+    'sessions_table: Sessions table get, put & exception tests',
+    'reset_table: PasswordReset table get, put & exception tests',
 ]
 
 [project.optional-dependencies]
