@@ -21,7 +21,12 @@ markers = [
     'reset: Password reset related tests',
     'resetid: Password reset Id related tests',
     'sessions: Session related tests',
-    'player_id: PlayerId related tests'
+    'player_id: PlayerId related tests',
+    'item_libs: DB item related libraries tests',
+    'response_libs: DB Response transform libraries tests',
+    'users_table: Users table get, put, update & exception tests',
+    'sessions_table: Sessions table get, put & exception tests',
+    'reset_table: PasswordReset table get, put & exception tests',
 ]
 
 [project.optional-dependencies]
