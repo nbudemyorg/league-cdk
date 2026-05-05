@@ -28,6 +28,7 @@ def lambda_handler(
         return {'statusCode': 400, 'body': json.dumps('Bad Request')}
 
     reset_id = path_params.get('resetId')
+
     if not reset_id:
         return {'statusCode': 400, 'body': json.dumps('Bad Request')}
 
@@ -45,11 +46,7 @@ def lambda_handler(
 
         if reset_item_still_valid(reset_item):
             reset_id_value = reset_item['reset_id']
-            env = Environment(
-                loader=FileSystemLoader('/opt/python/league/templates')
-            )
-            template = env.get_template('change_password.html')
-            rendered_html = template.render(reset_id=reset_id_value)
+            rendered_html = render_template(reset_id_value)
             return {
                 'statusCode': 200,
                 'headers': {'Content-Type': 'text/html'},
@@ -67,3 +64,9 @@ def lambda_handler(
 
 def reset_item_still_valid(item: ResetItem) -> bool:
     return datetime.now(UTC) < datetime.fromisoformat(item['expiry'])
+
+
+def render_template(reset_id: str) -> str:
+    env = Environment(loader=FileSystemLoader('/opt/python/league/templates'))
+    template = env.get_template('change_password.html')
+    return template.render(reset_id=reset_id)
