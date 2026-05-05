@@ -1,6 +1,6 @@
 import json
 from datetime import UTC, datetime
-from typing import Any, TypeGuard, cast
+from typing import TypeGuard, cast
 
 import boto3
 from aws_lambda_context import LambdaContext
@@ -14,14 +14,13 @@ from league.tables.response.types import GetItemSuccess, GetResult
 db_client = boto3.resource('dynamodb')
 reset_table = db_client.Table('PasswordReset')
 
-from typing import TypeGuard
 
 def is_get_item_success(response: GetResult) -> TypeGuard[GetItemSuccess]:
     return response['success'] is True
 
+
 def lambda_handler(
-    event: APIGatewayProxyEventV1,
-    context: LambdaContext
+    event: APIGatewayProxyEventV1, context: LambdaContext
 ) -> APIGatewayProxyResponseV1:
     path_params = event.get('pathParameters')
 
@@ -35,7 +34,7 @@ def lambda_handler(
     get_response: GetResult = get_reset_item(reset_table, reset_id)
 
     if is_get_item_success(get_response):
-        reset_item = cast(ResetItem, get_response['item'])
+        reset_item = cast('ResetItem', get_response['item'])
 
         if not reset_item:
             return {
@@ -46,7 +45,9 @@ def lambda_handler(
 
         if reset_item_still_valid(reset_item):
             reset_id_value = reset_item['reset_id']
-            env = Environment(loader=FileSystemLoader('/opt/python/league/templates'))
+            env = Environment(
+                loader=FileSystemLoader('/opt/python/league/templates')
+            )
             template = env.get_template('change_password.html')
             rendered_html = template.render(reset_id=reset_id_value)
             return {
