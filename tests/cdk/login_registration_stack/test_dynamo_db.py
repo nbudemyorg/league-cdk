@@ -2,7 +2,7 @@ import aws_cdk as core
 import aws_cdk.assertions as assertions
 import pytest
 
-from league.login_registration_stack import LoginRegistrationStack
+from league_cdk.login_registration_stack import LoginRegistrationStack
 
 app = core.App()
 stack = LoginRegistrationStack(app, 'league')

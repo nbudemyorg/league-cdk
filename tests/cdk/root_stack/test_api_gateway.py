@@ -2,7 +2,7 @@ import aws_cdk as core
 import aws_cdk.assertions as assertions
 import pytest
 
-from league.league_root_stack import LeagueRootStack
+from league_cdk.league_root_stack import LeagueRootStack
 
 app = core.App()
 stack = LeagueRootStack(app, 'league')

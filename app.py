@@ -2,7 +2,7 @@
 
 import aws_cdk as cdk
 
-from league.league_root_stack import LeagueRootStack
+from league_cdk.league_root_stack import LeagueRootStack
 
 app = cdk.App()
 LeagueRootStack(

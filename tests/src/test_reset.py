@@ -8,7 +8,13 @@ def test_mocked_modules(
     mock_sessions_layer: None, mock_league_tables_layer
 ) -> None:
 
-    assert 'league' in sys.modules
+    assert 'league.auth' in sys.modules
+    assert 'league.credentials' in sys.modules
+    assert 'league.tables.item.libs' in sys.modules
+    assert 'league.tables.response.types' in sys.modules
+    assert 'league.tables.sessions' in sys.modules
+    assert 'league.tables.users' in sys.modules
+    assert 'league.validate' in sys.modules
 
 
 @pytest.mark.reset
