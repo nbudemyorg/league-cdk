@@ -7,7 +7,7 @@ from aws_cdk.aws_apigateway import (
 )
 from constructs import Construct
 
-from league.login_registration_stack import LoginRegistrationStack
+from league_cdk.login_registration_stack import LoginRegistrationStack
 
 
 class LeagueRootStack(Stack):
