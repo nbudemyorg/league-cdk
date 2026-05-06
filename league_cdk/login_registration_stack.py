@@ -56,11 +56,11 @@ class LoginRegistrationStack(Stack):
             time_to_live_attribute='ttl',
         )
 
-        league_tables_layer = layers.create_lambda_layer(
+        league_layer = layers.create_lambda_layer(
             self,
             self.stack_name,
-            layer_name='league_tables',
-            layer_source='layers/tables',
+            layer_name='league_layer',
+            layer_source='layers/league',
         )
 
         common_pkg_layer = layers.create_lambda_layer(
@@ -70,25 +70,11 @@ class LoginRegistrationStack(Stack):
             layer_source='layers/pkg/common/requirements.txt',
         )
 
-        content_layer = layers.create_lambda_layer(
-            self,
-            self.stack_name,
-            layer_name='content',
-            layer_source='layers/content',
-        )
-
         bcrypt_pkg_layer = layers.create_lambda_layer(
             self,
             self.stack_name,
             layer_name='bcrypt',
             layer_source='layers/pkg/bcrypt/requirements.txt',
-        )
-
-        sessions_dependencies_layer = layers.create_lambda_layer(
-            self,
-            self.stack_name,
-            layer_name='sessions',
-            layer_source='./layers/sessions',
         )
 
         email_validator_layer = layers.create_lambda_layer(
@@ -106,7 +92,7 @@ class LoginRegistrationStack(Stack):
             runtime=Runtime.PYTHON_3_14,
             code=Code.from_asset(path='src/user_registration/get'),
             timeout=Duration.seconds(5),
-            layers=[content_layer, common_pkg_layer],
+            layers=[league_layer, common_pkg_layer],
         )
 
         registration_lambda_post = Function(
@@ -123,10 +109,9 @@ class LoginRegistrationStack(Stack):
             },
             layers=[
                 bcrypt_pkg_layer,
-                sessions_dependencies_layer,
                 common_pkg_layer,
                 email_validator_layer,
-                league_tables_layer,
+                league_layer,
             ],
         )
 
@@ -163,7 +148,7 @@ class LoginRegistrationStack(Stack):
             runtime=Runtime.PYTHON_3_14,
             code=Code.from_asset(path='src/user_login/get'),
             timeout=Duration.seconds(5),
-            layers=[content_layer, common_pkg_layer],
+            layers=[league_layer, common_pkg_layer],
         )
 
         login_lambda_post = Function(
@@ -176,9 +161,8 @@ class LoginRegistrationStack(Stack):
             timeout=Duration.seconds(5),
             layers=[
                 bcrypt_pkg_layer,
-                sessions_dependencies_layer,
                 common_pkg_layer,
-                league_tables_layer,
+                league_layer,
             ],
         )
 
@@ -208,9 +192,8 @@ class LoginRegistrationStack(Stack):
             code=Code.from_asset(path='src/home_page/get'),
             timeout=Duration.seconds(5),
             layers=[
-                content_layer,
                 common_pkg_layer,
-                league_tables_layer,
+                league_layer,
             ],
         )
 
@@ -232,8 +215,8 @@ class LoginRegistrationStack(Stack):
             code=Code.from_asset(path='src/password_reset/get'),
             timeout=Duration.seconds(5),
             layers=[
-                content_layer,
                 common_pkg_layer,
+                league_layer,
             ],
         )
 
@@ -246,9 +229,8 @@ class LoginRegistrationStack(Stack):
             code=Code.from_asset(path='src/password_reset/post'),
             timeout=Duration.seconds(10),
             layers=[
-                sessions_dependencies_layer,
                 common_pkg_layer,
-                league_tables_layer,
+                league_layer,
             ],
         )
 
@@ -300,9 +282,8 @@ class LoginRegistrationStack(Stack):
             code=Code.from_asset(path='src/password_reset/id/get'),
             timeout=Duration.seconds(5),
             layers=[
-                content_layer,
                 common_pkg_layer,
-                league_tables_layer,
+                league_layer,
             ],
         )
 
@@ -319,11 +300,9 @@ class LoginRegistrationStack(Stack):
             code=Code.from_asset(path='src/password_reset/id/post'),
             timeout=Duration.seconds(5),
             layers=[
-                content_layer,
-                common_pkg_layer,
-                league_tables_layer,
-                sessions_dependencies_layer,
                 bcrypt_pkg_layer,
+                common_pkg_layer,
+                league_layer,
             ],
         )
 

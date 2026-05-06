@@ -1,6 +1,6 @@
 import pytest
 
-from layers.sessions.python.league.auth import (
+from layers.league.python.league.auth import (
     COOKIE_MAX_AGE,
     create_login_response,
 )

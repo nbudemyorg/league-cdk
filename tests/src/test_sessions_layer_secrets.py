@@ -28,7 +28,7 @@ def test_invitation_key_import(
     monkeypatch.setenv('INVITE_KEY', 'league/invitation_key')
     monkeypatch.setenv('REGION', 'eu-west-1')
 
-    import layers.sessions.python.league.aws_secrets as aws_secrets
+    import layers.league.python.league.aws_secrets as aws_secrets
 
     assert aws_secrets.INVITE_SECRET == 'CorrectValue'
 
@@ -40,9 +40,9 @@ def test_invitation_import_env_missing_region(
     """Test RuntimeError raised if the environment var REGION is not set"""
 
     with pytest.raises(RuntimeError) as exc_info:
-        sys.modules.pop('layers.sessions.python.league.aws_secrets', None)
+        sys.modules.pop('layers.league.python.league.aws_secrets', None)
         monkeypatch.setenv('INVITE_KEY', 'league/invitation_key')
-        from layers.sessions.python.league.aws_secrets import INVITE_SECRET
+        from layers.league.python.league.aws_secrets import INVITE_SECRET
 
         print(INVITE_SECRET)  #  Ruff check fudge
 
@@ -60,9 +60,9 @@ def test_invitation_import_env_missing_key(
     not set"""
 
     with pytest.raises(RuntimeError) as exc_info:
-        sys.modules.pop('layers.sessions.python.league.aws_secrets', None)
+        sys.modules.pop('layers.league.python.league.aws_secrets', None)
         monkeypatch.setenv('REGION', 'eu-west-1')
-        from layers.sessions.python.league.aws_secrets import INVITE_SECRET
+        from layers.league.python.league.aws_secrets import INVITE_SECRET
 
         print(INVITE_SECRET)  #  Ruff check fudge
 

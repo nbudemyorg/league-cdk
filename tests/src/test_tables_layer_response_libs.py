@@ -54,7 +54,7 @@ def test_get_item_response(
 ) -> None:
     """Test the response structure for a successful get_item call"""
 
-    from layers.tables.python.league.tables.response.libs import (
+    from layers.league.python.league.tables.response.libs import (
         get_item_response,
     )
 
@@ -77,7 +77,7 @@ def test_get_item_response(
 @pytest.mark.response_libs
 def test_put_item_response(mock_put_response: dict[str, Any]) -> None:
     """Test the response structure for a successful put_item call"""
-    from layers.tables.python.league.tables.response.libs import (
+    from layers.league.python.league.tables.response.libs import (
         put_item_response,
     )
 
@@ -93,7 +93,7 @@ def test_put_item_response(mock_put_response: dict[str, Any]) -> None:
 @pytest.mark.response_libs
 def test_update_item_response(mock_update_response) -> None:
     """Test the response structure for a successful update_item call"""
-    from layers.tables.python.league.tables.response.libs import (
+    from layers.league.python.league.tables.response.libs import (
         update_item_response,
     )
 
@@ -109,7 +109,7 @@ def test_update_item_response(mock_update_response) -> None:
 @pytest.mark.response_libs
 def test_item_exception_response(users_client_error: dict[str, Any]) -> None:
     """Test the response structure when ClientError exception is raised"""
-    from layers.tables.python.league.tables.response.libs import (
+    from layers.league.python.league.tables.response.libs import (
         item_exception_response,
     )
 
