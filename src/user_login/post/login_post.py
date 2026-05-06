@@ -105,7 +105,7 @@ def password_is_valid(
     return None
 
 
-def render_template(error_code: str) -> str:
+def render_template(error_code: str = 'ok') -> str:
     env = Environment(loader=FileSystemLoader('/opt/python/league/templates'))
     template = env.get_template('login_form.html')
     return template.render(error=error_code)
