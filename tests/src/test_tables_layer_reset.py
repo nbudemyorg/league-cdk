@@ -6,7 +6,7 @@ from botocore.exceptions import ClientError
 from pytest_mock import MockFixture
 from types_boto3_dynamodb.service_resource import Table
 
-from layers.tables.python.league.tables.item.types import ResetItem
+from layers.league.python.league.tables.item.types import ResetItem
 
 
 @pytest.mark.reset_table
@@ -28,12 +28,12 @@ def test_get_reset_item(
     mocker: MockFixture,
 ) -> None:
     """Test that get_item call retrieves the expected ResetItem"""
-    from layers.tables.python.league.tables.reset import get_reset_item
+    from layers.league.python.league.tables.reset import get_reset_item
 
     reset_id = reset_item['reset_id']
 
     mock_get_item_response = mocker.patch(
-        'layers.tables.python.league.tables.reset.get_item_response',
+        'layers.league.python.league.tables.reset.get_item_response',
         side_effect=lambda x: x,
     )
 
@@ -50,10 +50,10 @@ def test_put_reset_item(
     mocker: MockFixture,
 ) -> None:
     """Test that the put_item call puts a ResetItem into the table"""
-    from layers.tables.python.league.tables.reset import put_reset_item
+    from layers.league.python.league.tables.reset import put_reset_item
 
     mock_put_item_response = mocker.patch(
-        'layers.tables.python.league.tables.reset.put_item_response',
+        'layers.league.python.league.tables.reset.put_item_response',
         side_effect=lambda x: x,
     )
 
@@ -76,13 +76,13 @@ def test_reset_method_exceptions(
     """Test that exceptions are handled for get_item and put_item calls.
     Reflect the ClientError back to make sure the correct exception is being
     tested against"""
-    from layers.tables.python.league.tables.reset import (
+    from layers.league.python.league.tables.reset import (
         get_reset_item,
         put_reset_item,
     )
 
     mock_table_exception_response = mocker.patch(
-        'layers.tables.python.league.tables.reset.item_exception_response',
+        'layers.league.python.league.tables.reset.item_exception_response',
         side_effect=lambda x: x,
     )
 

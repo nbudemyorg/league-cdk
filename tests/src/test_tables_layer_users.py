@@ -6,7 +6,7 @@ import pytest
 from pytest_mock import MockFixture
 from types_boto3_dynamodb.service_resource import Table
 
-from layers.tables.python.league.tables.item.types import UserItem
+from layers.league.python.league.tables.item.types import UserItem
 
 
 @pytest.mark.users_table
@@ -26,10 +26,10 @@ def test_get_users_item(
     users_table_with_user: Table, test_user: UserItem, mocker: MockFixture
 ) -> None:
     """Test get_item response gets expected users table item"""
-    from layers.tables.python.league.tables.users import get_users_item
+    from layers.league.python.league.tables.users import get_users_item
 
     mock_get_item_response = mocker.patch(
-        'layers.tables.python.league.tables.users.get_item_response',
+        'layers.league.python.league.tables.users.get_item_response',
         side_effect=lambda x: x,
     )
 
@@ -49,14 +49,14 @@ def test_users_method_exceptions(
     """Test all exceptions are handled for the users table methods. Reflect
     the ClientError back to make sure the correct exception is being tested
     against"""
-    from layers.tables.python.league.tables.users import (
+    from layers.league.python.league.tables.users import (
         get_users_item,
         put_users_item,
         update_users_item,
     )
 
     mock_table_method_response = mocker.patch(
-        'layers.tables.python.league.tables.users.item_exception_response',
+        'layers.league.python.league.tables.users.item_exception_response',
         side_effect=lambda x: x,
     )
 
@@ -94,10 +94,10 @@ def test_put_users_item(
     users_table: Table, test_user: UserItem, mocker: MockFixture
 ) -> None:
     """Test the put_item call for the users table creates a new user item"""
-    from layers.tables.python.league.tables.users import put_users_item
+    from layers.league.python.league.tables.users import put_users_item
 
     mock_put_item_response = mocker.patch(
-        'layers.tables.python.league.tables.users.put_item_response',
+        'layers.league.python.league.tables.users.put_item_response',
         side_effect=lambda x: x,
     )
 
@@ -116,10 +116,10 @@ def test_update_users_item(
 ) -> None:
     """Test the update_item call updates an existing item as expected
     within the users table"""
-    from layers.tables.python.league.tables.users import update_users_item
+    from layers.league.python.league.tables.users import update_users_item
 
     mock_put_item_response = mocker.patch(
-        'layers.tables.python.league.tables.users.update_item_response',
+        'layers.league.python.league.tables.users.update_item_response',
         side_effect=lambda x: x,
     )
 

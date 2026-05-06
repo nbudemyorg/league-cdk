@@ -5,7 +5,7 @@ import pytest
 from freezegun import freeze_time
 from pytest_mock import MockerFixture
 
-from layers.tables.python.league.tables.item.types import UserItem
+from layers.league.python.league.tables.item.types import UserItem
 
 MOCK_UUID4 = '12345678-1234-4678-8234-567812345678'
 
@@ -29,7 +29,7 @@ def test_create_session_item(
     frozen_date: datetime, mocker: MockerFixture
 ) -> None:
     """Test that a valid Sessions table item is created"""
-    from layers.tables.python.league.tables.item.libs import (
+    from layers.league.python.league.tables.item.libs import (
         ADD_TTL,
         COOKIE_MAX_AGE,
         create_session_item,
@@ -39,7 +39,7 @@ def test_create_session_item(
     session_expiry = frozen_date + timedelta(seconds=COOKIE_MAX_AGE)
 
     mock_uuid = mocker.patch(
-        'layers.tables.python.league.tables.item.libs.uuid4',
+        'layers.league.python.league.tables.item.libs.uuid4',
         return_value=MOCK_UUID4,
     )
 
@@ -57,7 +57,7 @@ def test_create_session_item(
 @pytest.mark.item_libs
 def test_create_user_item(test_user: UserItem) -> None:
     """Test that a valid Users table item is created"""
-    from layers.tables.python.league.tables.item.libs import create_user_item
+    from layers.league.python.league.tables.item.libs import create_user_item
 
     player_id = test_user['player_id']
     hashed_password = test_user['password']
@@ -73,7 +73,7 @@ def test_create_reset_item(
     frozen_date: datetime, mocker: MockerFixture
 ) -> None:
     """Test that a valid PasswordReset table item is created"""
-    from layers.tables.python.league.tables.item.libs import (
+    from layers.league.python.league.tables.item.libs import (
         SECONDS_VALID,
         create_reset_item,
     )
@@ -83,7 +83,7 @@ def test_create_reset_item(
     expected_expiry = frozen_date + timedelta(seconds=SECONDS_VALID)
 
     mock_urlsafe = mocker.patch(
-        'layers.tables.python.league.tables.item.libs.token_urlsafe',
+        'layers.league.python.league.tables.item.libs.token_urlsafe',
         return_value=urlsafe_response,
     )
 

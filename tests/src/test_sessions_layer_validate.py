@@ -1,6 +1,6 @@
 import pytest
 
-from layers.sessions.python.league.validate import (
+from layers.league.python.league.validate import (
     valid_player_id,
     valid_psn_id,
     valid_xbox_id,

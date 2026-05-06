@@ -6,7 +6,7 @@ import pytest
 from pytest_mock import MockFixture
 from types_boto3_dynamodb.service_resource import Table
 
-from layers.tables.python.league.tables.item.types import SessionItem
+from layers.league.python.league.tables.item.types import SessionItem
 
 
 @pytest.mark.sessions_table
@@ -28,10 +28,10 @@ def test_get_sessions_item(
     mocker: MockFixture,
 ) -> None:
     """Test that get_item call retrieves the expected SessionItem"""
-    from layers.tables.python.league.tables.sessions import get_sessions_item
+    from layers.league.python.league.tables.sessions import get_sessions_item
 
     mock_get_item_response = mocker.patch(
-        'layers.tables.python.league.tables.sessions.get_item_response',
+        'layers.league.python.league.tables.sessions.get_item_response',
         side_effect=lambda x: x,
     )
 
@@ -53,10 +53,10 @@ def test_put_sessions_item(
     mocker: MockFixture,
 ) -> None:
     """Test that the put_item call puts a new SessionItem into the table"""
-    from layers.tables.python.league.tables.sessions import put_sessions_item
+    from layers.league.python.league.tables.sessions import put_sessions_item
 
     mock_put_item_response = mocker.patch(
-        'layers.tables.python.league.tables.sessions.put_item_response',
+        'layers.league.python.league.tables.sessions.put_item_response',
         side_effect=lambda x: x,
     )
 
@@ -78,13 +78,13 @@ def test_sessions_method_exceptions(
     """Test that ClientError exceptions are handled for get_item and put_item
     calls. Reflect the ClientError back to make sure the correct exception is
     being tested against"""
-    from layers.tables.python.league.tables.sessions import (
+    from layers.league.python.league.tables.sessions import (
         get_sessions_item,
         put_sessions_item,
     )
 
     mock_item_exception_response = mocker.patch(
-        'layers.tables.python.league.tables.sessions.item_exception_response',
+        'layers.league.python.league.tables.sessions.item_exception_response',
         side_effect=lambda x: x,
     )
 

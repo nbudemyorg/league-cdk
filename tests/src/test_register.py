@@ -2,7 +2,7 @@ import sys
 
 import pytest
 
-from layers.tables.python.league.tables.response.types import PutResult
+from layers.league.python.league.tables.response.types import PutResult
 
 PASSWORD_VARIATIONS = [
     ('tooshort', 'PlayerOne', False),

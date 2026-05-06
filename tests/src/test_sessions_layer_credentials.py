@@ -6,12 +6,12 @@ from pytest_mock import MockerFixture
 def test_generate_password_hash(mocker: MockerFixture) -> None:
     """Test generate_password_hash returns a mocked hashed password"""
 
-    from layers.sessions.python.league.credentials import (
+    from layers.league.python.league.credentials import (
         generate_password_hash,
     )
 
     mock_bcrypt = mocker.patch(
-        'layers.sessions.python.league.credentials.bcrypt'
+        'layers.league.python.league.credentials.bcrypt'
     )
     mock_bcrypt.hashpw.return_value = b'MockGeneratedHash'
     mock_bcrypt.gensalt.return_value = 'PinchOfSalt'
