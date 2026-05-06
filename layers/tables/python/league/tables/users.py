@@ -24,13 +24,20 @@ def get_users_item(table: Table, supplied_id: str) -> GetResult:
         return item_exception_response(e)
 
 
-def put_users_item(table: Table, item: UserItem) -> PutResult:
+def put_users_item(
+    table: Table, item: UserItem, conditional: bool = True
+) -> PutResult:
 
     try:
-        response = table.put_item(
-            Item=cast('Mapping[str, Any]', item),
-            ConditionExpression='attribute_not_exists(player_id)',
-        )
+        if conditional:
+            response = table.put_item(
+                Item=cast('Mapping[str, Any]', item),
+                ConditionExpression='attribute_not_exists(player_id)',
+            )
+        else:
+            response = table.put_item(
+                Item=cast('Mapping[str, Any]', item),
+            )
         return put_item_response(response)
 
     except ClientError as e:
