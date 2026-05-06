@@ -1,15 +1,29 @@
 from botocore.exceptions import ClientError
 from league.tables.response.types import (
+    DeleteResult,
     Failure,
     GetResult,
     PutResult,
     UpdateResult,
 )
 from types_boto3_dynamodb.type_defs import (
+    DeleteItemOutputTableTypeDef,
     GetItemOutputTableTypeDef,
     PutItemOutputTableTypeDef,
     UpdateItemOutputTableTypeDef,
 )
+
+
+def delete_item_response(
+    response: DeleteItemOutputTableTypeDef,
+) -> DeleteResult:
+    attributes = response.get('Attributes', {})
+    consumed = response.get('ConsumedCapacity', {})
+    return {
+        'success': True,
+        'attributes': attributes,
+        'consumed_capacity': consumed,
+    }
 
 
 def get_item_response(response: GetItemOutputTableTypeDef) -> GetResult:
