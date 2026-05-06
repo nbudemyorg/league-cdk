@@ -7,6 +7,7 @@ import boto3
 from aws_lambda_context import LambdaContext
 from aws_lambda_typing.events import APIGatewayProxyEventV1
 from aws_lambda_typing.responses import APIGatewayProxyResponseV1
+from jinja2 import Environment, FileSystemLoader
 from league.auth import create_login_response
 from league.tables.item.libs import create_session_item
 from league.tables.item.types import UserItem
@@ -44,19 +45,19 @@ def lambda_handler(
     valid_password = password_is_valid(users_table, player_id, password)
 
     if valid_password is False:
-        return {'statusCode': 401, 'body': json.dumps('Invalid password')}
+        body = render_template(error_code='credentials')
+        return {'statusCode': 401, 'body': body}
     if valid_password is None:
-        return {'statusCode': 500, 'body': json.dumps('Server Error')}
+        body = render_template(error_code='server')
+        return {'statusCode': 503, 'body': body}
 
     session_item = create_session_item(player_id)
 
     put_response = put_sessions_item(sessions_table, session_item)
 
     if not put_response['success']:
-        return {
-            'statusCode': 500,
-            'body': json.dumps('Server Error: Put Item failed'),
-        }
+        body = render_template(error_code='server')
+        return {'statusCode': 503, 'body': body}
 
     session_id = session_item['session_id']
 
@@ -102,3 +103,9 @@ def password_is_valid(
         return False
 
     return None
+
+
+def render_template(error_code: str) -> str:
+    env = Environment(loader=FileSystemLoader('/opt/python/league/templates'))
+    template = env.get_template('login_form.html')
+    return template.render(error=error_code)

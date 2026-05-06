@@ -1,0 +1,25 @@
+{% include 'header.html' %}
+
+{% if error == 'credentials' %}
+<div class="alert alert-warning" role="alert">
+    Incorrect username or password
+</div>
+{%elif error == 'server' %}
+<div class="alert alert-danger" role="alert">
+  Server Error
+</div>
+{% endif %}
+
+    <form action="/prod/login" method="post">
+        <div class="mb-3">
+            <label for="player_id">PlayerId:</label>
+            <input type="text" id="player_id" name="player_id" required>
+        </div>
+        <div class="mb-3">
+            <label for="password">Password:</label>
+            <input type="password" id="password" name="password" required>
+        </div>
+        <button class="btn btn-primary" type="submit">Login</button>
+    </form>
+
+{% include 'footer.html' %}
