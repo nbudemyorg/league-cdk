@@ -306,6 +306,29 @@ class LoginRegistrationStack(Stack):
             password_reset_table_ro
         )
 
+        password_reset_id_lambda_post = Function(
+            self,
+            'UserPasswordResetIdPOST',
+            function_name='UserPasswordResetIdPOST',
+            handler='reset_id_post.lambda_handler',
+            runtime=Runtime.PYTHON_3_14,
+            code=Code.from_asset(path='src/password_reset/id/post'),
+            timeout=Duration.seconds(5),
+            layers=[
+                content_layer,
+                common_pkg_layer,
+                league_tables_layer,
+                sessions_dependencies_layer,
+            ],
+        )
+
+        password_reset_id_lambda_post.add_to_role_policy(
+            password_reset_table_rw
+        )
+        password_reset_id_lambda_post.add_to_role_policy(
+            password_reset_users_rw
+        )
+
         self.login_lambda = login_lambda_post
         self.login_lambda_get = login_lambda_get
         self.registration_lambda = registration_lambda_post
@@ -314,3 +337,4 @@ class LoginRegistrationStack(Stack):
         self.password_reset_lambda_get = password_reset_lambda_get
         self.password_reset_lambda_post = password_reset_lambda_post
         self.password_reset_id_lambda_get = password_reset_id_lambda_get
+        self.password_reset_id_lambda_post = password_reset_id_lambda_post

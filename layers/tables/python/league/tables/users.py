@@ -9,7 +9,7 @@ from league.tables.response.libs import (
     put_item_response,
     update_item_response,
 )
-from league.tables.response.types import GetResult, PutResult
+from league.tables.response.types import GetResult, PutResult, UpdateResult
 from types_boto3_dynamodb.service_resource import Table
 
 
@@ -37,7 +37,9 @@ def put_users_item(table: Table, item: UserItem) -> PutResult:
         return item_exception_response(e)
 
 
-def update_users_item(table: Table, player_id: str, token: str) -> PutResult:
+def update_users_item(
+    table: Table, player_id: str, token: str
+) -> UpdateResult:
 
     try:
         response = table.update_item(

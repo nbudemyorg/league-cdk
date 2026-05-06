@@ -4,12 +4,26 @@ from typing import Any, cast
 from botocore.exceptions import ClientError
 from league.tables.item.types import ResetItem
 from league.tables.response.libs import (
+    delete_item_response,
     get_item_response,
     item_exception_response,
     put_item_response,
 )
-from league.tables.response.types import GetResult, PutResult
+from league.tables.response.types import DeleteResult, GetResult, PutResult
 from types_boto3_dynamodb.service_resource import Table
+
+
+def delete_reset_item(table: Table, reset_id: str) -> DeleteResult:
+    """Delete the reset item in the Reset table with the given id"""
+
+    reset_item = {'reset_id': reset_id}
+
+    try:
+        response = table.delete_item(Key=reset_item)
+        return delete_item_response(response)
+
+    except ClientError as e:
+        return item_exception_response(e)
 
 
 def get_reset_item(table: Table, reset_id: str) -> GetResult:
