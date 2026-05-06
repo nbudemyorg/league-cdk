@@ -35,7 +35,7 @@ def lambda_handler(
     if any(value == 'missing' for value in event_dict.values()):
         return {'statusCode': 400, 'body': json.dumps('Bad Request')}
 
-    reset_id = event_dict['resetId']
+    reset_id = event_dict['reset_id']
     new_password = event_dict['new_password']
 
     get_reset_response: GetResult = get_reset_item(reset_table, reset_id)
@@ -69,7 +69,9 @@ def lambda_handler(
 
     new_user_item = create_user_item(reset_player_id, hashed_password, email)
 
-    put_user_response = put_users_item(users_table, new_user_item)
+    put_user_response = put_users_item(
+        users_table, new_user_item, conditional=False
+    )
 
     if not put_user_response['success']:
         return {'statusCode': 503, 'body': json.dumps('Server Error')}

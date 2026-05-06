@@ -279,7 +279,9 @@ class LoginRegistrationStack(Stack):
 
         password_reset_table_rw = iam.PolicyStatement(
             effect=iam.Effect.ALLOW,
-            actions=['dynamodb:GetItem', 'dynamodb:PutItem'],
+            actions=[
+                'dynamodb:GetItem', 'dynamodb:PutItem', 'dynamodb:DeleteItem'
+            ],
             resources=[password_reset_table.table_arn],
             sid='PasswordResetLambdaPasswordResetTableRW',
         )
@@ -319,6 +321,7 @@ class LoginRegistrationStack(Stack):
                 common_pkg_layer,
                 league_tables_layer,
                 sessions_dependencies_layer,
+                bcrypt_pkg_layer,
             ],
         )
 
