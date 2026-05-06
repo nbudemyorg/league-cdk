@@ -1,4 +1,3 @@
-import json
 import re
 from typing import cast
 from urllib.parse import parse_qs
@@ -8,6 +7,7 @@ from aws_lambda_context import LambdaContext
 from aws_lambda_typing.events import APIGatewayProxyEventV1
 from aws_lambda_typing.responses import APIGatewayProxyResponseV1
 from email_validator import EmailNotValidError, validate_email
+from jinja2 import Environment, FileSystemLoader
 from league.auth import create_login_response
 from league.aws_secrets import INVITE_SECRET
 from league.credentials import generate_password_hash
@@ -34,7 +34,8 @@ def lambda_handler(
         event_body = None
 
     if not event_body:
-        return {'statusCode': 400, 'body': json.dumps('Invalid Request')}
+        body = render_template(error_code='invalid')
+        return {'statusCode': 400, 'body': body}
 
     supplied_email = event_body['email']
     supplied_invite = event_body['invite']
@@ -42,21 +43,18 @@ def lambda_handler(
     supplied_player_password = event_body['password']
 
     if not valid_invitation_key(supplied_invite):
-        return {
-            'statusCode': 400,
-            'body': json.dumps('Invalid Invitation Key'),
-        }
+        body = render_template(error_code='key')
+        return {'statusCode': 401, 'body': body}
 
     if not valid_player_id(supplied_player_id):
-        return {'statusCode': 400, 'body': json.dumps('Invalid player ID')}
+        body = render_template(error_code='player_id')
+        return {'statusCode': 400, 'body': body}
 
     if not password_meets_criteria(
         supplied_player_password, supplied_player_id
     ):
-        return {
-            'statusCode': 400,
-            'body': json.dumps('Invalid password supplied'),
-        }
+        body = render_template(error_code='password')
+        return {'statusCode': 400, 'body': body}
 
     hashed_password = generate_password_hash(supplied_player_password)
 
@@ -69,26 +67,20 @@ def lambda_handler(
     user_exists = user_already_exists(put_response)
 
     if user_exists:
-        return {
-            'statusCode': 400,
-            'body': json.dumps('Player ID already registered'),
-        }
+        body = render_template(error_code='exists')
+        return {'statusCode': 401, 'body': body}
 
     if user_exists is None:
-        return {
-            'statusCode': 500,
-            'body': json.dumps('Server Error: Put Item failed'),
-        }
+        body = render_template(error_code='server')
+        return {'statusCode': 503, 'body': body}
 
     session_item = create_session_item(supplied_player_id)
 
     put_response = put_sessions_item(sessions_table, session_item)
 
     if not put_response['success']:
-        return {
-            'statusCode': 500,
-            'body': json.dumps('Server Error: Put Item failed'),
-        }
+        body = render_template(error_code='server')
+        return {'statusCode': 503, 'body': body}
 
     return cast(
         'APIGatewayProxyResponseV1',
@@ -165,3 +157,9 @@ def valid_invitation_key(supplied_key: str) -> bool:
     allowing registration"""
 
     return bool(supplied_key == INVITE_SECRET)
+
+
+def render_template(error_code: str = 'ok') -> str:
+    env = Environment(loader=FileSystemLoader('/opt/python/league/templates'))
+    template = env.get_template('register_form.html')
+    return template.render(error=error_code)

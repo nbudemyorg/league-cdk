@@ -8,14 +8,14 @@ def lambda_handler(
     event: APIGatewayProxyEventV1, context: LambdaContext
 ) -> APIGatewayProxyResponseV1:
 
-    rendered_template = render_template()
+    body = render_template()
 
     return {
         'statusCode': 200,
         'headers': {
             'Content-Type': 'text/html',
         },
-        'body': rendered_template,
+        'body': body,
     }
 
 

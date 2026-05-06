@@ -1,0 +1,49 @@
+{% include 'header.html' %}
+
+{% if error == 'invalid' %}
+<div class="alert alert-warning" role="alert">
+    Form data provided is invalid
+</div>
+{%elif error == 'key' %}
+<div class="alert alert-warning" role="alert">
+  Supplied invitation key is incorrect
+</div>
+{%elif error == 'player_id' %}
+<div class="alert alert-warning" role="alert">
+  Supplied ID is not a valid PSNID or Xbox Gamertag
+</div>
+{%elif error == 'password' %}
+<div class="alert alert-warning" role="alert">
+  Supplied password does not conform to required standard
+</div>
+{%elif error == 'exists' %}
+<div class="alert alert-warning" role="alert">
+  Supplied PSNID or Gamertag is already registered
+</div>
+{%elif error == 'exists' %}
+<div class="alert alert-danger" role="alert">
+  Server Error
+</div>
+{% endif %}
+
+  <form action="/prod/register" method="post">
+    <div class="mb-3">
+      <label for="player_id">PlayerId:</label>
+      <input type="text" id="player_id" name="player_id" required>
+    </div>
+    <div class="mb-3">
+      <label for="password">Password:</label>
+      <input type="password" id="password" name="password" required>
+    </div>
+    <div class="mb-3">
+      <label for="email">Email:</label>
+      <input type="text" id="email" name="email" required>
+    </div>
+    <div class="mb-3">
+      <label for="invite">Invite Key:</label>
+      <input type="password" id="invite" name="invite" required>
+    </div>
+    <button class="btn btn-primary" type="submit">Submit</button>
+  </form>
+
+{% include 'footer.html' %}
