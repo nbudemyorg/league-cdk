@@ -1,25 +1,16 @@
+from typing import cast
+
 from aws_lambda_context import LambdaContext
 from aws_lambda_typing.events import APIGatewayProxyEventV1
 from aws_lambda_typing.responses import APIGatewayProxyResponseV1
-from jinja2 import Environment, FileSystemLoader
+from league.content.libs import generate_response
 
 
 def lambda_handler(
     event: APIGatewayProxyEventV1, context: LambdaContext
 ) -> APIGatewayProxyResponseV1:
 
-    body = render_template()
-
-    return {
-        'statusCode': 200,
-        'headers': {
-            'Content-Type': 'text/html',
-        },
-        'body': body,
-    }
-
-
-def render_template() -> str:
-    env = Environment(loader=FileSystemLoader('/opt/python/league/templates'))
-    template = env.get_template('login_form.html')
-    return template.render(error=None)
+    return cast(
+        'APIGatewayProxyResponseV1',
+        generate_response(200, 'login_form.html'),
+    )
