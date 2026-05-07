@@ -1,0 +1,30 @@
+{% include 'header.html' %}
+
+{% if error == 'server' %}
+<div class="alert alert-danger" role="alert">
+  Server Error
+</div>
+{% elif error == 'submitted' %}
+<div class="alert alert-success" role="alert">
+  Request submitted, please check your email
+</div>
+{% endif %}
+
+  <div class="d-flex align-items-center justify-content-center min-vh-100">
+    <div class="card shadow-sm login-card">
+      <div class="card-body p-4">
+        <h4 class="card-title mb-3 text-center">Password Reset Request</h4>
+        <form action="/prod/reset" method="post">
+          <div class="mb-3">
+            <label for="player_id" class="form-label">PlayerId</label>
+            <input id="player_id" name="player_id" type="text" class="form-control" placeholder="Enter PlayerID" required>
+          </div>
+          <div class="d-grid">
+            <button type="submit" class="btn btn-primary">Submit</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+{% include 'footer.html' %}
