@@ -1,10 +1,10 @@
 {% include 'header.html' %}
 
-{% if error == 'server' %}
+{% if alert == 'server' %}
 <div class="alert alert-danger" role="alert">
   Server Error
 </div>
-{% elif error == 'submitted' %}
+{% elif alert == 'submitted' %}
 <div class="alert alert-success" role="alert">
   Request submitted, please check your email
 </div>
