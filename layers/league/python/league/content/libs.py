@@ -35,7 +35,7 @@ def generate_response(
 
 
 def render_template(
-    template_file: str, alert: str, params: dict[str, Any]
+    template_file: str, alert: str, params: dict[str, Any] | None
 ) -> str:
     if params is None:
         params = {'params': 'none'}

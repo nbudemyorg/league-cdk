@@ -42,17 +42,11 @@ def lambda_handler(
         if reset_item_still_valid(reset_item):
             reset_id_value = reset_item['reset_id']
             params = {'reset_id': reset_id_value}
-            return cast(
-                'APIGatewayProxyResponseV1',
-                generate_response(200, 'password_form.html', params=params),
-            )
+            return generate_response(200, 'password_form.html', params=params)
 
         return reset_fail_response()
 
-    return cast(
-        'APIGatewayProxyResponseV1',
-        generate_response(503, 'reset_form.html', alert='server'),
-    )
+    return generate_response(503, 'reset_form.html', alert='server')
 
 
 def reset_item_still_valid(item: ResetItem) -> bool:
@@ -60,7 +54,4 @@ def reset_item_still_valid(item: ResetItem) -> bool:
 
 
 def reset_fail_response() -> APIGatewayProxyResponseV1:
-    return cast(
-        'APIGatewayProxyResponseV1',
-        generate_response(200, 'reset_form.html', alert='expired'),
-    )
+    return generate_response(200, 'reset_form.html', alert='expired')

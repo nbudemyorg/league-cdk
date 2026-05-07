@@ -11,7 +11,7 @@ jobs:
   build-and-test:
     runs-on: ubuntu-latest
     env:
-      MYPYPATH: ./layers/tables/python
+      MYPYPATH: ./layers/league/python
     steps:
       - name: Checkout Repo
         uses: actions/checkout@v6

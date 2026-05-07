@@ -31,50 +31,32 @@ def lambda_handler(
         user_data = None
 
     if not user_data:
-        return cast(
-            'APIGatewayProxyResponseV1',
-            generate_response(400, 'login_form.html', alert='invalid'),
-        )
+        return generate_response(400, 'login_form.html', alert='invalid')
 
     password = user_data['password']
     player_id = user_data['player_id']
 
     if not valid_player_id(player_id):
-        return cast(
-            'APIGatewayProxyResponseV1',
-            generate_response(400, 'login_form.html', alert='player'),
-        )
+        return generate_response(400, 'login_form.html', alert='player')
 
     valid_password = password_is_valid(users_table, player_id, password)
 
     if valid_password is False:
-        return cast(
-            'APIGatewayProxyResponseV1',
-            generate_response(400, 'login_form.html', alert='credentials'),
-        )
+        return generate_response(400, 'login_form.html', alert='credentials')
 
     if valid_password is None:
-        return cast(
-            'APIGatewayProxyResponseV1',
-            generate_response(503, 'login_form.html', alert='server'),
-        )
+        return generate_response(503, 'login_form.html', alert='server')
 
     session_item = create_session_item(player_id)
 
     put_response = put_sessions_item(sessions_table, session_item)
 
     if not put_response['success']:
-        return cast(
-            'APIGatewayProxyResponseV1',
-            generate_response(503, 'login_form.html', alert='server'),
-        )
+        return generate_response(503, 'login_form.html', alert='server')
 
     session_id = session_item['session_id']
 
-    return cast(
-        'APIGatewayProxyResponseV1',
-        create_login_response(player_id, session_id),
-    )
+    return create_login_response(player_id, session_id)
 
 
 def valid_form_data(event_body: str) -> dict[str, str] | None:

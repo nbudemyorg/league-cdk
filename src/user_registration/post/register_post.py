@@ -1,5 +1,4 @@
 import re
-from typing import cast
 from urllib.parse import parse_qs
 
 import boto3
@@ -35,10 +34,7 @@ def lambda_handler(
         event_body = None
 
     if not event_body:
-        return cast(
-            'APIGatewayProxyResponseV1',
-            generate_response(400, 'register_form.html', alert='invalid'),
-        )
+        return generate_response(400, 'register_form.html', alert='invalid')
 
     supplied_email = event_body['email']
     supplied_invite = event_body['invite']
@@ -46,24 +42,15 @@ def lambda_handler(
     supplied_player_password = event_body['password']
 
     if not valid_invitation_key(supplied_invite):
-        return cast(
-            'APIGatewayProxyResponseV1',
-            generate_response(401, 'register_form.html', alert='key'),
-        )
+        return generate_response(401, 'register_form.html', alert='key')
 
     if not valid_player_id(supplied_player_id):
-        return cast(
-            'APIGatewayProxyResponseV1',
-            generate_response(400, 'register_form.html', alert='player_id'),
-        )
+        return generate_response(400, 'register_form.html', alert='player_id')
 
     if not password_meets_criteria(
         supplied_player_password, supplied_player_id
     ):
-        return cast(
-            'APIGatewayProxyResponseV1',
-            generate_response(400, 'register_form.html', alert='password'),
-        )
+        return generate_response(400, 'register_form.html', alert='password')
 
     hashed_password = generate_password_hash(supplied_player_password)
 
@@ -76,30 +63,20 @@ def lambda_handler(
     user_exists = user_already_exists(put_response)
 
     if user_exists:
-        return cast(
-            'APIGatewayProxyResponseV1',
-            generate_response(401, 'register_form.html', alert='exists'),
-        )
+        return generate_response(401, 'register_form.html', alert='exists')
 
     if user_exists is None:
-        return cast(
-            'APIGatewayProxyResponseV1',
-            generate_response(503, 'register_form.html', alert='server'),
-        )
+        return generate_response(503, 'register_form.html', alert='server')
 
     session_item = create_session_item(supplied_player_id)
 
     put_response = put_sessions_item(sessions_table, session_item)
 
     if not put_response['success']:
-        return cast(
-            'APIGatewayProxyResponseV1',
-            generate_response(503, 'register_form.html', alert='server'),
-        )
+        return generate_response(503, 'register_form.html', alert='server')
 
-    return cast(
-        'APIGatewayProxyResponseV1',
-        create_login_response(supplied_player_id, session_item['session_id']),
+    return create_login_response(
+        supplied_player_id, session_item['session_id']
     )
 
 

@@ -1,6 +1,6 @@
 import re
 from datetime import UTC, datetime
-from typing import TypeGuard, cast
+from typing import TypeGuard
 from urllib.parse import parse_qs
 
 import boto3
@@ -33,10 +33,7 @@ def lambda_handler(
     event_dict = process_event(event)
 
     if any(value == 'missing' for value in event_dict.values()):
-        return cast(
-            'APIGatewayProxyResponseV1',
-            generate_response(200, 'reset_form.html', alert='unexpected'),
-        )
+        return generate_response(200, 'reset_form.html', alert='unexpected')
 
     reset_id = event_dict['reset_id']
     new_password = event_dict['new_password']
@@ -51,18 +48,12 @@ def lambda_handler(
     reset_player_id = reset_item['player_id']
 
     if reset_item_expired(item_expiry):
-        return cast(
-            'APIGatewayProxyResponseV1',
-            generate_response(200, 'reset_form.html', alert='expired'),
-        )
+        return generate_response(200, 'reset_form.html', alert='expired')
 
     if not password_meets_criteria(new_password, reset_player_id):
         params = {'reset_id': reset_id}
-        return cast(
-            'APIGatewayProxyResponseV1',
-            generate_response(
-                200, 'password_form.html', alert='password', params=params
-            ),
+        return generate_response(
+            200, 'password_form.html', alert='password', params=params
         )
 
     get_user_response: GetResult = get_users_item(users_table, reset_player_id)
@@ -73,10 +64,7 @@ def lambda_handler(
     users_item = get_user_response['item']
 
     if users_item['reset_id'] != reset_id:
-        return cast(
-            'APIGatewayProxyResponseV1',
-            generate_response(200, 'reset_form.html', alert='unexpected'),
-        )
+        return generate_response(200, 'reset_form.html', alert='unexpected')
 
     hashed_password = generate_password_hash(new_password)
 
@@ -96,10 +84,7 @@ def lambda_handler(
     if not delete_response['success']:
         return server_error_response()
 
-    return cast(
-        'APIGatewayProxyResponseV1',
-        generate_response(200, 'login_form.html', alert='password'),
-    )
+    return generate_response(200, 'login_form.html', alert='password')
 
 
 def process_event(event: APIGatewayProxyEventV1) -> dict[str, str]:
@@ -154,7 +139,4 @@ def password_meets_criteria(
 
 
 def server_error_response() -> APIGatewayProxyResponseV1:
-    return cast(
-        'APIGatewayProxyResponseV1',
-        generate_response(503, 'reset_form.html', alert='server'),
-    )
+    return generate_response(503, 'reset_form.html', alert='server')
