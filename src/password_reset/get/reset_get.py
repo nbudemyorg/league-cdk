@@ -1,4 +1,3 @@
-from typing import cast
 
 from aws_lambda_context import LambdaContext
 from aws_lambda_typing.events import APIGatewayProxyEventV1
@@ -10,6 +9,4 @@ def lambda_handler(
     event: APIGatewayProxyEventV1, context: LambdaContext
 ) -> APIGatewayProxyResponseV1:
 
-    return cast(
-        'APIGatewayProxyResponseV1', generate_response(200, 'reset_form.html')
-    )
+    return generate_response(200, 'reset_form.html')

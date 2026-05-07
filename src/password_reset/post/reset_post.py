@@ -1,4 +1,3 @@
-from typing import cast
 from urllib.parse import parse_qs
 
 import boto3
@@ -69,10 +68,7 @@ def transform_validate(body: str) -> dict[str, str]:
 
 
 def success_response() -> APIGatewayProxyResponseV1:
-    return cast(
-        'APIGatewayProxyResponseV1',
-        generate_response(200, 'reset_form.html', alert='submitted'),
-    )
+    return generate_response(200, 'reset_form.html', alert='submitted')
 
 
 def silent_fail_response() -> APIGatewayProxyResponseV1:
@@ -80,7 +76,4 @@ def silent_fail_response() -> APIGatewayProxyResponseV1:
 
 
 def fail_response() -> APIGatewayProxyResponseV1:
-    return cast(
-        'APIGatewayProxyResponseV1',
-        generate_response(503, 'reset_form.html', alert='server'),
-    )
+    return generate_response(503, 'reset_form.html', alert='server')
