@@ -1,13 +1,13 @@
-import json
 import re
 from datetime import UTC, datetime
-from typing import TypeGuard
+from typing import TypeGuard, cast
 from urllib.parse import parse_qs
 
 import boto3
 from aws_lambda_context import LambdaContext
 from aws_lambda_typing.events import APIGatewayProxyEventV1
 from aws_lambda_typing.responses import APIGatewayProxyResponseV1
+from league.content.libs import generate_response
 from league.credentials import generate_password_hash
 from league.tables.item.libs import create_user_item
 from league.tables.reset import delete_reset_item, get_reset_item
@@ -33,7 +33,10 @@ def lambda_handler(
     event_dict = process_event(event)
 
     if any(value == 'missing' for value in event_dict.values()):
-        return {'statusCode': 400, 'body': json.dumps('Bad Request')}
+        return cast(
+            'APIGatewayProxyResponseV1',
+            generate_response(200, 'reset_form.html', alert='unexpected'),
+        )
 
     reset_id = event_dict['reset_id']
     new_password = event_dict['new_password']
@@ -41,27 +44,39 @@ def lambda_handler(
     get_reset_response: GetResult = get_reset_item(reset_table, reset_id)
 
     if not get_operation_success(get_reset_response):
-        return {'statusCode': 503, 'body': json.dumps('Server Error')}
+        return server_error_response()
 
     reset_item = get_reset_response['item']
     item_expiry = reset_item['expiry']
     reset_player_id = reset_item['player_id']
 
     if reset_item_expired(item_expiry):
-        return {'statusCode': 200, 'body': json.dumps('Token Expired')}
+        return cast(
+            'APIGatewayProxyResponseV1',
+            generate_response(200, 'reset_form.html', alert='expired'),
+        )
 
     if not password_meets_criteria(new_password, reset_player_id):
-        return {'statusCode': 400, 'body': json.dumps('Bad Password')}
+        params = {'reset_id': reset_id}
+        return cast(
+            'APIGatewayProxyResponseV1',
+            generate_response(
+                200, 'password_form.html', alert='password', params=params
+            ),
+        )
 
     get_user_response: GetResult = get_users_item(users_table, reset_player_id)
 
     if not get_operation_success(get_user_response):
-        return {'statusCode': 503, 'body': json.dumps('Server Error')}
+        return server_error_response()
 
     users_item = get_user_response['item']
 
     if users_item['reset_id'] != reset_id:
-        return {'statusCode': 200, 'body': json.dumps('Unexpected Error')}
+        return cast(
+            'APIGatewayProxyResponseV1',
+            generate_response(200, 'reset_form.html', alert='unexpected'),
+        )
 
     hashed_password = generate_password_hash(new_password)
 
@@ -74,14 +89,17 @@ def lambda_handler(
     )
 
     if not put_user_response['success']:
-        return {'statusCode': 503, 'body': json.dumps('Server Error')}
+        return server_error_response()
 
     delete_response = delete_reset_item(reset_table, reset_id)
 
     if not delete_response['success']:
-        return {'statusCode': 503, 'body': json.dumps('Server Error')}
+        return server_error_response()
 
-    return {'statusCode': 200, 'body': json.dumps('Password Reset')}
+    return cast(
+        'APIGatewayProxyResponseV1',
+        generate_response(200, 'login_form.html', alert='password'),
+    )
 
 
 def process_event(event: APIGatewayProxyEventV1) -> dict[str, str]:
@@ -133,3 +151,10 @@ def password_meets_criteria(
         return False
 
     return not re.search(supplied_player.lower(), supplied_password.lower())
+
+
+def server_error_response() -> APIGatewayProxyResponseV1:
+    return cast(
+        'APIGatewayProxyResponseV1',
+        generate_response(503, 'reset_form.html', alert='server'),
+    )

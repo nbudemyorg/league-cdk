@@ -9,8 +9,8 @@ TEMPLATE_DIR = '/opt/python/league/content/templates'
 def generate_response(
     status_code: int,
     template_file: str,
-    template_alert: str = 'none',
-    template_params: dict[str, Any] | None = None,
+    alert: str = 'none',
+    params: dict[str, Any] | None = None,
 ) -> APIGatewayProxyResponseV1:
 
     if not isinstance(status_code, int):
@@ -19,12 +19,12 @@ def generate_response(
         )
     if not 99 < status_code < 599:
         raise ValueError(f'Invalid HTTP Status Code : {status_code}')
-    if not isinstance(template_alert, str):
+    if not isinstance(alert, str):
         raise TypeError(
-            f'Template alert code must be a string: Type={type(template_alert)}'
+            f'Template alert code must be a string: Type={type(alert)}'
         )
 
-    body = render_template(template_file, template_alert, template_params)
+    body = render_template(template_file, alert, params)
 
     return {
         'statusCode': status_code,
