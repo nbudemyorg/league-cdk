@@ -1,4 +1,3 @@
-import json
 from typing import cast
 from urllib.parse import parse_qs
 
@@ -9,6 +8,7 @@ from aws_lambda_typing.events import APIGatewayProxyEventV1
 from aws_lambda_typing.responses import APIGatewayProxyResponseV1
 from jinja2 import Environment, FileSystemLoader
 from league.auth import create_login_response
+from league.content.libs import generate_response
 from league.tables.item.libs import create_session_item
 from league.tables.item.types import UserItem
 from league.tables.sessions import put_sessions_item
@@ -31,33 +31,43 @@ def lambda_handler(
         user_data = None
 
     if not user_data:
-        return {
-            'statusCode': 400,
-            'body': json.dumps('Invalid form submission'),
-        }
+        return cast(
+            'APIGatewayProxyResponseV1',
+            generate_response(400, 'login_form.html', 'invalid'),
+        )
 
     password = user_data['password']
     player_id = user_data['player_id']
 
     if not valid_player_id(player_id):
-        return {'statusCode': 400, 'body': json.dumps('Invalid player ID')}
+        return cast(
+            'APIGatewayProxyResponseV1',
+            generate_response(400, 'login_form.html', 'player'),
+        )
 
     valid_password = password_is_valid(users_table, player_id, password)
 
     if valid_password is False:
-        body = render_template(error_code='credentials')
-        return {'statusCode': 401, 'body': body}
+        return cast(
+            'APIGatewayProxyResponseV1',
+            generate_response(400, 'login_form.html', 'credentials'),
+        )
+
     if valid_password is None:
-        body = render_template(error_code='server')
-        return {'statusCode': 503, 'body': body}
+        return cast(
+            'APIGatewayProxyResponseV1',
+            generate_response(503, 'login_form.html', 'server'),
+        )
 
     session_item = create_session_item(player_id)
 
     put_response = put_sessions_item(sessions_table, session_item)
 
     if not put_response['success']:
-        body = render_template(error_code='server')
-        return {'statusCode': 503, 'body': body}
+        return cast(
+            'APIGatewayProxyResponseV1',
+            generate_response(503, 'login_form.html', 'server'),
+        )
 
     session_id = session_item['session_id']
 
