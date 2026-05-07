@@ -8,9 +8,13 @@
 <div class="alert alert-success" role="alert">
   Request submitted, please check your email
 </div>
-{% elif error == 'reset_id' %}
+{% elif error == 'expired' %}
 <div class="alert alert-warning" role="alert">
   The supplied password reset token is no longer valid
+</div>
+{% elif error == 'unexpected' %}
+<div class="alert alert-warning" role="alert">
+  Unexpected error, please try again
 </div>
 {% endif %}
 

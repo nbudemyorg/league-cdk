@@ -33,7 +33,7 @@ def lambda_handler(
     if not user_data:
         return cast(
             'APIGatewayProxyResponseV1',
-            generate_response(400, 'login_form.html', 'invalid'),
+            generate_response(400, 'login_form.html', alert='invalid'),
         )
 
     password = user_data['password']
@@ -42,7 +42,7 @@ def lambda_handler(
     if not valid_player_id(player_id):
         return cast(
             'APIGatewayProxyResponseV1',
-            generate_response(400, 'login_form.html', 'player'),
+            generate_response(400, 'login_form.html', alert='player'),
         )
 
     valid_password = password_is_valid(users_table, player_id, password)
@@ -50,13 +50,13 @@ def lambda_handler(
     if valid_password is False:
         return cast(
             'APIGatewayProxyResponseV1',
-            generate_response(400, 'login_form.html', 'credentials'),
+            generate_response(400, 'login_form.html', alert='credentials'),
         )
 
     if valid_password is None:
         return cast(
             'APIGatewayProxyResponseV1',
-            generate_response(503, 'login_form.html', 'server'),
+            generate_response(503, 'login_form.html', alert='server'),
         )
 
     session_item = create_session_item(player_id)
@@ -66,7 +66,7 @@ def lambda_handler(
     if not put_response['success']:
         return cast(
             'APIGatewayProxyResponseV1',
-            generate_response(503, 'login_form.html', 'server'),
+            generate_response(503, 'login_form.html', alert='server'),
         )
 
     session_id = session_item['session_id']

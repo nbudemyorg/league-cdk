@@ -37,7 +37,7 @@ def lambda_handler(
     if not event_body:
         return cast(
             'APIGatewayProxyResponseV1',
-            generate_response(400, 'register_form.html', 'invalid'),
+            generate_response(400, 'register_form.html', alert='invalid'),
         )
 
     supplied_email = event_body['email']
@@ -48,13 +48,13 @@ def lambda_handler(
     if not valid_invitation_key(supplied_invite):
         return cast(
             'APIGatewayProxyResponseV1',
-            generate_response(401, 'register_form.html', 'key'),
+            generate_response(401, 'register_form.html', alert='key'),
         )
 
     if not valid_player_id(supplied_player_id):
         return cast(
             'APIGatewayProxyResponseV1',
-            generate_response(400, 'register_form.html', 'player_id'),
+            generate_response(400, 'register_form.html', alert='player_id'),
         )
 
     if not password_meets_criteria(
@@ -62,7 +62,7 @@ def lambda_handler(
     ):
         return cast(
             'APIGatewayProxyResponseV1',
-            generate_response(400, 'register_form.html', 'password'),
+            generate_response(400, 'register_form.html', alert='password'),
         )
 
     hashed_password = generate_password_hash(supplied_player_password)
@@ -78,13 +78,13 @@ def lambda_handler(
     if user_exists:
         return cast(
             'APIGatewayProxyResponseV1',
-            generate_response(401, 'register_form.html', 'exists'),
+            generate_response(401, 'register_form.html', alert='exists'),
         )
 
     if user_exists is None:
         return cast(
             'APIGatewayProxyResponseV1',
-            generate_response(503, 'register_form.html', 'server'),
+            generate_response(503, 'register_form.html', alert='server'),
         )
 
     session_item = create_session_item(supplied_player_id)
@@ -94,7 +94,7 @@ def lambda_handler(
     if not put_response['success']:
         return cast(
             'APIGatewayProxyResponseV1',
-            generate_response(503, 'register_form.html', 'server'),
+            generate_response(503, 'register_form.html', alert='server'),
         )
 
     return cast(
