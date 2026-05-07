@@ -1,9 +1,11 @@
+from typing import cast
 from urllib.parse import parse_qs
 
 import boto3
 from aws_lambda_context import LambdaContext
 from aws_lambda_typing.events import APIGatewayProxyEventV1
 from aws_lambda_typing.responses import APIGatewayProxyResponseV1
+from league.content.libs import generate_response
 from league.tables.item.libs import create_reset_item
 from league.tables.reset import put_reset_item
 from league.tables.users import update_users_item
@@ -67,10 +69,10 @@ def transform_validate(body: str) -> dict[str, str]:
 
 
 def success_response() -> APIGatewayProxyResponseV1:
-    multi_value_headers = {}
-    location = {'Location': ['/prod/login']}
-    multi_value_headers.update(location)
-    return {'statusCode': 301, 'multiValueHeaders': multi_value_headers}
+    return cast(
+        'APIGatewayProxyResponseV1',
+        generate_response(200, 'reset_form.html', 'submitted'),
+    )
 
 
 def silent_fail_response() -> APIGatewayProxyResponseV1:
@@ -78,4 +80,7 @@ def silent_fail_response() -> APIGatewayProxyResponseV1:
 
 
 def fail_response() -> APIGatewayProxyResponseV1:
-    return {'statusCode': 503, 'body': 'Server Error'}
+    return cast(
+        'APIGatewayProxyResponseV1',
+        generate_response(503, 'reset_form.html', 'server'),
+    )
