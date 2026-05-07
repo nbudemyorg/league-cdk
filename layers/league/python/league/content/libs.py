@@ -1,3 +1,5 @@
+from typing import Any
+
 from aws_lambda_typing.responses import APIGatewayProxyResponseV1
 from jinja2 import Environment, FileSystemLoader
 
@@ -5,7 +7,10 @@ TEMPLATE_DIR = '/opt/python/league/content/templates'
 
 
 def generate_response(
-    status_code: int, template_file: str, template_error: str = 'ok'
+    status_code: int,
+    template_file: str,
+    template_alert: str = 'none',
+    template_params: dict[str, Any] | None = None,
 ) -> APIGatewayProxyResponseV1:
 
     if not isinstance(status_code, int):
@@ -14,12 +19,12 @@ def generate_response(
         )
     if not 99 < status_code < 599:
         raise ValueError(f'Invalid HTTP Status Code : {status_code}')
-    if not isinstance(template_error, str):
+    if not isinstance(template_alert, str):
         raise TypeError(
-            f'Template error code must be a string: Type={type(template_error)}'
+            f'Template alert code must be a string: Type={type(template_alert)}'
         )
 
-    body = render_template(template_file, template_error)
+    body = render_template(template_file, template_alert, template_params)
 
     return {
         'statusCode': status_code,
@@ -29,7 +34,11 @@ def generate_response(
     }
 
 
-def render_template(template_file: str, template_error: str) -> str:
+def render_template(
+    template_file: str, alert: str, params: dict[str, Any]
+) -> str:
+    if params is None:
+        params = {'params': 'none'}
     env = Environment(loader=FileSystemLoader(TEMPLATE_DIR))
     template = env.get_template(template_file)
-    return template.render(error=template_error)
+    return template.render(alert=alert, params=params)
