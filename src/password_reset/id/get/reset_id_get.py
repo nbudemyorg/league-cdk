@@ -7,6 +7,7 @@ from aws_lambda_context import LambdaContext
 from aws_lambda_typing.events import APIGatewayProxyEventV1
 from aws_lambda_typing.responses import APIGatewayProxyResponseV1
 from jinja2 import Environment, FileSystemLoader
+from league.content.libs import generate_response
 from league.tables.item.types import ResetItem
 from league.tables.reset import get_reset_item
 from league.tables.response.types import GetItemSuccess, GetResult
@@ -25,12 +26,12 @@ def lambda_handler(
     path_params = event.get('pathParameters')
 
     if not path_params:
-        return {'statusCode': 400, 'body': json.dumps('Bad Request')}
+        return reset_fail_response()
 
     reset_id = path_params.get('resetId')
 
     if not reset_id:
-        return {'statusCode': 400, 'body': json.dumps('Bad Request')}
+        return reset_fail_response()
 
     get_response: GetResult = get_reset_item(reset_table, reset_id)
 
@@ -38,11 +39,7 @@ def lambda_handler(
         reset_item = cast('ResetItem', get_response['item'])
 
         if not reset_item:
-            return {
-                'statusCode': 200,
-                'headers': {'Content-Type': 'text/html'},
-                'body': 'Reset token not found',
-            }
+            return reset_fail_response()
 
         if reset_item_still_valid(reset_item):
             reset_id_value = reset_item['reset_id']
@@ -53,11 +50,7 @@ def lambda_handler(
                 'body': rendered_html,
             }
 
-        return {
-            'statusCode': 200,
-            'headers': {'Content-Type': 'text/html'},
-            'body': 'Reset token not found',
-        }
+        return reset_fail_response()
 
     return {'statusCode': 500, 'body': json.dumps('Server Error')}
 
@@ -70,3 +63,9 @@ def render_template(reset_id: str) -> str:
     env = Environment(loader=FileSystemLoader('/opt/python/league/templates'))
     template = env.get_template('change_password.html')
     return template.render(reset_id=reset_id)
+
+def reset_fail_response() -> APIGatewayProxyResponseV1:
+    return cast(
+        'APIGatewayProxyResponseV1',
+        generate_response(200, 'reset_form.html', 'reset_id')
+    )
