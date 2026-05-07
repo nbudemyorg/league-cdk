@@ -10,7 +10,7 @@ def generate_response(
     status_code: int,
     template_file: str,
     template_alert: str = 'none',
-    template_params: dict[str, Any] | None = None
+    template_params: dict[str, Any] | None = None,
 ) -> APIGatewayProxyResponseV1:
 
     if not isinstance(status_code, int):
@@ -35,9 +35,7 @@ def generate_response(
 
 
 def render_template(
-        template_file: str,
-        alert: str,
-        params: dict[str, Any]
+    template_file: str, alert: str, params: dict[str, Any]
 ) -> str:
     if params is None:
         params = {'params': 'none'}
