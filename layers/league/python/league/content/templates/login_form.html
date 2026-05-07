@@ -18,22 +18,28 @@
 </div>
 {% endif %}
 
-<div class="container">
-  <form action="/prod/login" method="post">
-    <div class="form-group">
-      <label for="player_id">PlayerId:</label>
-      <input class="form-control" type="text" id="player_id" name="player_id"
-             required>
+  <div class="d-flex align-items-center justify-content-center min-vh-100">
+    <div class="card shadow-sm login-card">
+      <div class="card-body p-4">
+        <h4 class="card-title mb-3 text-center">Sign In</h4>
+        <form action="/prod/login" method="post">
+          <div class="mb-3">
+            <label for="player_id" class="form-label">PlayerId</label>
+            <input id="player_id" name="player_id" type="text" class="form-control" placeholder="Enter PlayerID" required>
+          </div>
+          <div class="mb-3">
+            <label for="password" class="form-label">Password</label>
+            <input id="password" name="password" type="password" class="form-control" placeholder="Enter password" required>
+          </div>
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <a href="/reset" class="small">Forgot password?</a>
+          </div>
+          <div class="d-grid">
+            <button type="submit" class="btn btn-primary">Login</button>
+          </div>
+        </form>
+      </div>
     </div>
-    <div class="form-group">
-      <label for="password">Password:</label>
-      <input class="form-control" type="password" id="password" name="password"
-             required>
-    </div>
-    <div class="form-group">
-      <button class="btn btn-primary" type="submit">Login</button>
-    </div>
-  </form>
-</div>
+  </div>
 
 {% include 'footer.html' %}

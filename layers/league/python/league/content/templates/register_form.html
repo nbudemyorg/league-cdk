@@ -26,28 +26,33 @@
 </div>
 {% endif %}
 
-  <div class="container">
-    <form action="/prod/register" method="post">
-      <div class="form-group">
-        <label for="player_id">PlayerId:</label>
-        <input type="text" id="player_id" name="player_id" required>
+  <div class="d-flex align-items-center justify-content-center min-vh-100">
+    <div class="card shadow-sm login-card">
+      <div class="card-body p-4">
+        <h4 class="card-title mb-3 text-center">Register New Player</h4>
+        <form action="/prod/register" method="post">
+          <div class="mb-3">
+            <label for="player_id" class="form-label">PSNID or Xbox Gamertag</label>
+            <input id="player_id" name="player_id" type="text" class="form-control" placeholder="Enter PlayerID" required>
+          </div>
+          <div class="mb-3">
+            <label for="password" class="form-label">Password</label>
+            <input id="password" name="password" type="password" class="form-control" placeholder="Enter password" required>
+          </div>
+          <div class="mb-3">
+            <label for="email" class="form-label">Email</label>
+            <input id="email" name="email" type="text" class="form-control" placeholder="Enter email" required>
+          </div>
+          <div class="mb-3">
+            <label for="invite" class="form-label">Invite Key</label>
+            <input id="invite" name="invite" type="password" class="form-control" placeholder="Enter Invite Key" required>
+          </div>
+          <div class="d-grid">
+            <button type="submit" class="btn btn-primary">Register</button>
+          </div>
+        </form>
       </div>
-      <div class="form-group">
-        <label for="password">Password:</label>
-        <input type="password" id="password" name="password" required>
-      </div>
-      <div class="form-group">
-        <label for="email">Email:</label>
-        <input type="text" id="email" name="email" required>
-      </div>
-      <div class="form-group">
-        <label for="invite">Invite Key:</label>
-        <input type="password" id="invite" name="invite" required>
-      </div>
-      <div>
-        <button class="btn btn-primary" type="submit">Submit</button>
-      </div>
-    </form>
+    </div>
   </div>
 
 {% include 'footer.html' %}
