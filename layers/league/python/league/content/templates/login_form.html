@@ -2,15 +2,15 @@
 
 {% if error == 'invalid' %}
 <div class="alert alert-warning" role="alert">
-    Invalid form submission
+  Invalid form submission
 </div>
 {% elif error == 'player' %}
 <div class="alert alert-warning" role="alert">
-    Invalid PSNID or Xbox Gamertag
+  Invalid PSNID or Xbox Gamertag
 </div>
 {% elif error == 'credentials' %}
 <div class="alert alert-warning" role="alert">
-    Incorrect username or password
+  Incorrect username or password
 </div>
 {%elif error == 'server' %}
 <div class="alert alert-danger" role="alert">
@@ -18,16 +18,22 @@
 </div>
 {% endif %}
 
-    <form action="/prod/login" method="post">
-        <div class="mb-3">
-            <label for="player_id">PlayerId:</label>
-            <input type="text" id="player_id" name="player_id" required>
-        </div>
-        <div class="mb-3">
-            <label for="password">Password:</label>
-            <input type="password" id="password" name="password" required>
-        </div>
-        <button class="btn btn-primary" type="submit">Login</button>
-    </form>
+<div class="container">
+  <form action="/prod/login" method="post">
+    <div class="form-group">
+      <label for="player_id">PlayerId:</label>
+      <input class="form-control" type="text" id="player_id" name="player_id"
+             required>
+    </div>
+    <div class="form-group">
+      <label for="password">Password:</label>
+      <input class="form-control" type="password" id="password" name="password"
+             required>
+    </div>
+    <div class="form-group">
+      <button class="btn btn-primary" type="submit">Login</button>
+    </div>
+  </form>
+</div>
 
 {% include 'footer.html' %}

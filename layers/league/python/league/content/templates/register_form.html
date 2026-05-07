@@ -26,24 +26,28 @@
 </div>
 {% endif %}
 
-  <form action="/prod/register" method="post">
-    <div class="mb-3">
-      <label for="player_id">PlayerId:</label>
-      <input type="text" id="player_id" name="player_id" required>
-    </div>
-    <div class="mb-3">
-      <label for="password">Password:</label>
-      <input type="password" id="password" name="password" required>
-    </div>
-    <div class="mb-3">
-      <label for="email">Email:</label>
-      <input type="text" id="email" name="email" required>
-    </div>
-    <div class="mb-3">
-      <label for="invite">Invite Key:</label>
-      <input type="password" id="invite" name="invite" required>
-    </div>
-    <button class="btn btn-primary" type="submit">Submit</button>
-  </form>
+  <div class="container">
+    <form action="/prod/register" method="post">
+      <div class="form-group">
+        <label for="player_id">PlayerId:</label>
+        <input type="text" id="player_id" name="player_id" required>
+      </div>
+      <div class="form-group">
+        <label for="password">Password:</label>
+        <input type="password" id="password" name="password" required>
+      </div>
+      <div class="form-group">
+        <label for="email">Email:</label>
+        <input type="text" id="email" name="email" required>
+      </div>
+      <div class="form-group">
+        <label for="invite">Invite Key:</label>
+        <input type="password" id="invite" name="invite" required>
+      </div>
+      <div>
+        <button class="btn btn-primary" type="submit">Submit</button>
+      </div>
+    </form>
+  </div>
 
 {% include 'footer.html' %}
