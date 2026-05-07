@@ -1,6 +1,14 @@
 {% include 'header.html' %}
 
-{% if error == 'credentials' %}
+{% if error == 'invalid' %}
+<div class="alert alert-warning" role="alert">
+    Invalid form submission
+</div>
+{% elif error == 'player' %}
+<div class="alert alert-warning" role="alert">
+    Invalid PSNID or Xbox Gamertag
+</div>
+{% elif error == 'credentials' %}
 <div class="alert alert-warning" role="alert">
     Incorrect username or password
 </div>

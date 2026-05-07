@@ -40,6 +40,7 @@ def mock_league_tables_layer():
     sys.modules['league.tables.response.types'] = MagicMock()
     sys.modules['league.tables.sessions'] = MagicMock()
     sys.modules['league.tables.users'] = MagicMock()
+    sys.modules['league.content.libs'] = MagicMock()
 
 
 @pytest.fixture(scope='function')

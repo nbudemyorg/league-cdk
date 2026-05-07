@@ -10,6 +10,7 @@ from email_validator import EmailNotValidError, validate_email
 from jinja2 import Environment, FileSystemLoader
 from league.auth import create_login_response
 from league.aws_secrets import INVITE_SECRET
+from league.content.libs import generate_response
 from league.credentials import generate_password_hash
 from league.tables.item.libs import create_session_item, create_user_item
 from league.tables.response.types import PutResult
@@ -34,8 +35,10 @@ def lambda_handler(
         event_body = None
 
     if not event_body:
-        body = render_template(error_code='invalid')
-        return {'statusCode': 400, 'body': body}
+        return cast(
+            'APIGatewayProxyResponseV1',
+            generate_response(400, 'register_form.html', 'invalid'),
+        )
 
     supplied_email = event_body['email']
     supplied_invite = event_body['invite']
@@ -43,18 +46,24 @@ def lambda_handler(
     supplied_player_password = event_body['password']
 
     if not valid_invitation_key(supplied_invite):
-        body = render_template(error_code='key')
-        return {'statusCode': 401, 'body': body}
+        return cast(
+            'APIGatewayProxyResponseV1',
+            generate_response(401, 'register_form.html', 'key'),
+        )
 
     if not valid_player_id(supplied_player_id):
-        body = render_template(error_code='player_id')
-        return {'statusCode': 400, 'body': body}
+        return cast(
+            'APIGatewayProxyResponseV1',
+            generate_response(400, 'register_form.html', 'player_id'),
+        )
 
     if not password_meets_criteria(
         supplied_player_password, supplied_player_id
     ):
-        body = render_template(error_code='password')
-        return {'statusCode': 400, 'body': body}
+        return cast(
+            'APIGatewayProxyResponseV1',
+            generate_response(400, 'register_form.html', 'password'),
+        )
 
     hashed_password = generate_password_hash(supplied_player_password)
 
@@ -67,20 +76,26 @@ def lambda_handler(
     user_exists = user_already_exists(put_response)
 
     if user_exists:
-        body = render_template(error_code='exists')
-        return {'statusCode': 401, 'body': body}
+        return cast(
+            'APIGatewayProxyResponseV1',
+            generate_response(401, 'register_form.html', 'exists'),
+        )
 
     if user_exists is None:
-        body = render_template(error_code='server')
-        return {'statusCode': 503, 'body': body}
+        return cast(
+            'APIGatewayProxyResponseV1',
+            generate_response(503, 'register_form.html', 'server'),
+        )
 
     session_item = create_session_item(supplied_player_id)
 
     put_response = put_sessions_item(sessions_table, session_item)
 
     if not put_response['success']:
-        body = render_template(error_code='server')
-        return {'statusCode': 503, 'body': body}
+        return cast(
+            'APIGatewayProxyResponseV1',
+            generate_response(503, 'register_form.html', 'server'),
+        )
 
     return cast(
         'APIGatewayProxyResponseV1',
