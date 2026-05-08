@@ -4,7 +4,7 @@ from aws_cdk.aws_lambda import Code, Function, Runtime
 from constructs import Construct
 
 from config.tables import ddb_tables
-from lib import ddb, layers
+from lib import ddb, lambdas, layers
 
 
 class LoginRegistrationStack(Stack):
@@ -52,16 +52,28 @@ class LoginRegistrationStack(Stack):
             layer_source='./layers/pkg/email/requirements.txt',
         )
 
-        registration_lambda_get = Function(
-            self,
-            'UserRegistrationGET',
-            function_name='UserRegistrationGET',
-            handler='register_get.lambda_handler',
-            runtime=Runtime.PYTHON_3_14,
-            code=Code.from_asset(path='src/user_registration/get'),
-            timeout=Duration.seconds(5),
-            layers=[league_layer, common_pkg_layer],
+        reg_get_config = {
+            'lambda_name': 'UserRegistrationGET',
+            'handler': 'register_get.lambda_handler',
+            'source_dir': 'src/user_registration/get'
+        }
+
+        reg_get_layers = [league_layer, common_pkg_layer]
+
+        registration_lambda_get = lambdas.create_lambda(
+            self, reg_get_layers, **reg_get_config
         )
+
+        #registration_lambda_get = Function(
+        #    self,
+        #    'UserRegistrationGET',
+        #    function_name='UserRegistrationGET',
+        #    handler='register_get.lambda_handler',
+        #    runtime=Runtime.PYTHON_3_14,
+        #    code=Code.from_asset(path='src/user_registration/get'),
+        #    timeout=Duration.seconds(5),
+        #    layers=[league_layer, common_pkg_layer],
+        #)
 
         registration_lambda_post = Function(
             self,
