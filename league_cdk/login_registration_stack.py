@@ -1,10 +1,10 @@
-import aws_cdk.aws_dynamodb as dynamodb
 import aws_cdk.aws_iam as iam
-from aws_cdk import Duration, Fn, RemovalPolicy, Stack
+from aws_cdk import Duration, Fn, Stack
 from aws_cdk.aws_lambda import Code, Function, Runtime
 from constructs import Construct
 
-from lib import layers
+from config.tables import ddb_tables
+from lib import ddb, layers
 
 
 class LoginRegistrationStack(Stack):
@@ -18,43 +18,11 @@ class LoginRegistrationStack(Stack):
             ':secret:league/invitation_key-*'
         )
 
-        users_table = dynamodb.Table(
-            self,
-            'Users',
-            removal_policy=RemovalPolicy.DESTROY,
-            table_name='Users',
-            billing_mode=dynamodb.BillingMode.PAY_PER_REQUEST,
-            partition_key=dynamodb.Attribute(
-                name='player_id', type=dynamodb.AttributeType.STRING
-            ),
-        )
+        users_table = ddb.create_table(self, **ddb_tables['USERS'])
 
-        sessions_table = dynamodb.Table(
-            self,
-            'Sessions',
-            removal_policy=RemovalPolicy.DESTROY,
-            table_name='Sessions',
-            billing_mode=dynamodb.BillingMode.PAY_PER_REQUEST,
-            partition_key=dynamodb.Attribute(
-                name='player_id', type=dynamodb.AttributeType.STRING
-            ),
-            sort_key=dynamodb.Attribute(
-                name='session_id', type=dynamodb.AttributeType.STRING
-            ),
-            time_to_live_attribute='ttl',
-        )
+        sessions_table = ddb.create_table(self, **ddb_tables['SESSIONS'])
 
-        password_reset_table = dynamodb.Table(
-            self,
-            'PasswordReset',
-            removal_policy=RemovalPolicy.DESTROY,
-            table_name='PasswordReset',
-            billing_mode=dynamodb.BillingMode.PAY_PER_REQUEST,
-            partition_key=dynamodb.Attribute(
-                name='reset_id', type=dynamodb.AttributeType.STRING
-            ),
-            time_to_live_attribute='ttl',
-        )
+        password_reset_table = ddb.create_table(self, **ddb_tables['RESET'])
 
         league_layer = layers.create_lambda_layer(
             self,
