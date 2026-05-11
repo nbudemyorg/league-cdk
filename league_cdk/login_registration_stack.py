@@ -1,8 +1,8 @@
 import aws_cdk.aws_iam as iam
-from aws_cdk import Duration, Fn, Stack
-from aws_cdk.aws_lambda import Code, Function, Runtime
+from aws_cdk import Fn, Stack
 from constructs import Construct
 
+from config.lambdas.login_reg import lambda_configs
 from config.tables import ddb_tables
 from lib import ddb, lambdas, layers
 
@@ -18,95 +18,66 @@ class LoginRegistrationStack(Stack):
             ':secret:league/invitation_key-*'
         )
 
+        stack_tables = {}
+
         users_table = ddb.create_table(self, **ddb_tables['USERS'])
+
+        stack_tables.update({'users': users_table})
 
         sessions_table = ddb.create_table(self, **ddb_tables['SESSIONS'])
 
+        stack_tables.update({'sessions': sessions_table})
+
         password_reset_table = ddb.create_table(self, **ddb_tables['RESET'])
 
-        league_layer = layers.create_lambda_layer(
-            self,
-            self.stack_name,
-            layer_name='league_layer',
-            layer_source='layers/league',
-        )
+        stack_tables.update({'resets': password_reset_table})
 
-        common_pkg_layer = layers.create_lambda_layer(
-            self,
-            self.stack_name,
-            layer_name='common-pkg',
-            layer_source='layers/pkg/common/requirements.txt',
-        )
+        stack_layers = {}
 
-        bcrypt_pkg_layer = layers.create_lambda_layer(
-            self,
-            self.stack_name,
-            layer_name='bcrypt',
-            layer_source='layers/pkg/bcrypt/requirements.txt',
-        )
-
-        email_validator_layer = layers.create_lambda_layer(
-            self,
-            self.stack_name,
-            layer_name='emailvalidator',
-            layer_source='./layers/pkg/email/requirements.txt',
-        )
-
-        reg_get_config = {
-            'lambda_name': 'UserRegistrationGET',
-            'handler': 'register_get.lambda_handler',
-            'source_dir': 'src/user_registration/get'
+        layer_config = {
+            'layers': [
+                {
+                    'name': 'league',
+                    'source': 'layers/league',
+                },
+                {
+                    'name': 'common-pkg',
+                    'source': 'layers/pkg/common/requirements.txt',
+                },
+                {
+                    'name': 'bcrypt-pkg',
+                    'source': 'layers/pkg/bcrypt/requirements.txt',
+                },
+                {
+                    'name': 'emailvalidator-pkg',
+                    'source': './layers/pkg/email/requirements.txt',
+                },
+            ]
         }
 
-        reg_get_layers = [league_layer, common_pkg_layer]
+        for layer in layer_config['layers']:
+            new_layer = layers.create_lambda_layer(
+                self,
+                self.stack_name,
+                layer_name=layer['name'],
+                layer_source=layer['source'],
+            )
+
+            stack_layers.update({layer['name']: new_layer})
+
+        reg_get_config = lambda_configs.get('reg_get')
 
         registration_lambda_get = lambdas.create_lambda(
-            self, reg_get_layers, **reg_get_config
+            self, stack_layers=stack_layers, **reg_get_config
         )
 
-        #registration_lambda_get = Function(
-        #    self,
-        #    'UserRegistrationGET',
-        #    function_name='UserRegistrationGET',
-        #    handler='register_get.lambda_handler',
-        #    runtime=Runtime.PYTHON_3_14,
-        #    code=Code.from_asset(path='src/user_registration/get'),
-        #    timeout=Duration.seconds(5),
-        #    layers=[league_layer, common_pkg_layer],
-        #)
+        reg_post_config = lambda_configs.get('reg_post')
 
-        registration_lambda_post = Function(
+        registration_lambda_post = lambdas.create_lambda(
             self,
-            'UserRegistrationPOST',
-            function_name='UserRegistrationPOST',
-            handler='register_post.lambda_handler',
-            runtime=Runtime.PYTHON_3_14,
-            code=Code.from_asset(path='src/user_registration/post'),
-            timeout=Duration.seconds(10),
-            environment={
-                'INVITE_KEY': 'league/invitation_key',
-                'REGION': 'eu-west-1',
-            },
-            layers=[
-                bcrypt_pkg_layer,
-                common_pkg_layer,
-                email_validator_layer,
-                league_layer,
-            ],
-        )
-
-        registration_users_rw = iam.PolicyStatement(
-            effect=iam.Effect.ALLOW,
-            actions=['dynamodb:PutItem', 'dynamodb:GetItem'],
-            resources=[users_table.table_arn],
-            sid='RegistrationLambdaUsersTableRW',
-        )
-
-        registration_sessions_wo = iam.PolicyStatement(
-            effect=iam.Effect.ALLOW,
-            actions=['dynamodb:PutItem'],
-            resources=[sessions_table.table_arn],
-            sid='RegistrationLambdaSessionsTableWO',
+            stack_layers=stack_layers,
+            stack_tables=stack_tables,
+            **reg_post_config,
         )
 
         registration_invite_ro = iam.PolicyStatement(
@@ -116,181 +87,63 @@ class LoginRegistrationStack(Stack):
             sid='RegistrationLambdaInviteSecretRO',
         )
 
-        registration_lambda_post.add_to_role_policy(registration_users_rw)
-        registration_lambda_post.add_to_role_policy(registration_sessions_wo)
         registration_lambda_post.add_to_role_policy(registration_invite_ro)
 
-        login_lambda_get = Function(
+        login_get_config = lambda_configs.get('login_get')
+
+        login_lambda_get = lambdas.create_lambda(
+            self, stack_layers=stack_layers, **login_get_config
+        )
+
+        login_post_config = lambda_configs.get('login_post')
+
+        login_lambda_post = lambdas.create_lambda(
             self,
-            'UserLoginGET',
-            function_name='UserLoginGET',
-            handler='login_get.lambda_handler',
-            runtime=Runtime.PYTHON_3_14,
-            code=Code.from_asset(path='src/user_login/get'),
-            timeout=Duration.seconds(5),
-            layers=[league_layer, common_pkg_layer],
+            stack_layers=stack_layers,
+            stack_tables=stack_tables,
+            **login_post_config,
         )
 
-        login_lambda_post = Function(
+        home_get_config = lambda_configs.get('home_get')
+
+        home_page_lambda_get = lambdas.create_lambda(
             self,
-            'UserLoginPOST',
-            function_name='UserLoginPOST',
-            handler='login_post.lambda_handler',
-            runtime=Runtime.PYTHON_3_14,
-            code=Code.from_asset(path='src/user_login/post'),
-            timeout=Duration.seconds(5),
-            layers=[
-                bcrypt_pkg_layer,
-                common_pkg_layer,
-                league_layer,
-            ],
+            stack_layers=stack_layers,
+            stack_tables=stack_tables,
+            **home_get_config,
         )
 
-        login_users_ro = iam.PolicyStatement(
-            effect=iam.Effect.ALLOW,
-            actions=['dynamodb:GetItem'],
-            resources=[users_table.table_arn],
-            sid='LoginLambdaUsersTableRO',
+        reset_get_config = lambda_configs.get('reset_get')
+
+        password_reset_lambda_get = lambdas.create_lambda(
+            self, stack_layers, **reset_get_config
         )
 
-        login_session_wo = iam.PolicyStatement(
-            effect=iam.Effect.ALLOW,
-            actions=['dynamodb:PutItem'],
-            resources=[sessions_table.table_arn],
-            sid='LoginLambdaSessionsTableWO',
-        )
+        reset_post_config = lambda_configs.get('reset_post')
 
-        login_lambda_post.add_to_role_policy(login_users_ro)
-        login_lambda_post.add_to_role_policy(login_session_wo)
-
-        home_page_lambda_get = Function(
+        password_reset_lambda_post = lambdas.create_lambda(
             self,
-            'HomePage',
-            function_name='HomePageGET',
-            handler='home_get.lambda_handler',
-            runtime=Runtime.PYTHON_3_14,
-            code=Code.from_asset(path='src/home_page/get'),
-            timeout=Duration.seconds(5),
-            layers=[
-                common_pkg_layer,
-                league_layer,
-            ],
+            stack_layers=stack_layers,
+            stack_tables=stack_tables,
+            **reset_post_config,
         )
 
-        home_sessions_ro = iam.PolicyStatement(
-            effect=iam.Effect.ALLOW,
-            actions=['dynamodb:GetItem'],
-            resources=[sessions_table.table_arn],
-            sid='HomeLambdaSessionsTableRO',
-        )
+        reset_id_get_config = lambda_configs.get('reset_id_get')
 
-        home_page_lambda_get.add_to_role_policy(home_sessions_ro)
-
-        password_reset_lambda_get = Function(
+        password_reset_id_lambda_get = lambdas.create_lambda(
             self,
-            'UserPasswordResetGET',
-            function_name='UserPasswordResetGET',
-            handler='reset_get.lambda_handler',
-            runtime=Runtime.PYTHON_3_14,
-            code=Code.from_asset(path='src/password_reset/get'),
-            timeout=Duration.seconds(5),
-            layers=[
-                common_pkg_layer,
-                league_layer,
-            ],
+            stack_layers=stack_layers,
+            stack_tables=stack_tables,
+            **reset_id_get_config,
         )
 
-        password_reset_lambda_post = Function(
+        reset_id_post_config = lambda_configs.get('reset_id_post')
+
+        password_reset_id_lambda_post = lambdas.create_lambda(
             self,
-            'UserPasswordResetPOST',
-            function_name='UserPasswordResetPOST',
-            handler='reset_post.lambda_handler',
-            runtime=Runtime.PYTHON_3_14,
-            code=Code.from_asset(path='src/password_reset/post'),
-            timeout=Duration.seconds(10),
-            layers=[
-                common_pkg_layer,
-                league_layer,
-            ],
-        )
-
-        password_reset_users_rw = iam.PolicyStatement(
-            effect=iam.Effect.ALLOW,
-            actions=[
-                'dynamodb:PutItem',
-                'dynamodb:GetItem',
-                'dynamodb:UpdateItem',
-            ],
-            resources=[users_table.table_arn],
-            sid='PasswordResetLambdaUsersTableRW',
-        )
-
-        password_reset_table_wo = iam.PolicyStatement(
-            effect=iam.Effect.ALLOW,
-            actions=['dynamodb:PutItem'],
-            resources=[password_reset_table.table_arn],
-            sid='PasswordResetLambdaPasswordResetTableRW',
-        )
-
-        password_reset_table_ro = iam.PolicyStatement(
-            effect=iam.Effect.ALLOW,
-            actions=['dynamodb:GetItem'],
-            resources=[password_reset_table.table_arn],
-            sid='PasswordResetLambdaPasswordResetTableRO',
-        )
-
-        password_reset_table_rw = iam.PolicyStatement(
-            effect=iam.Effect.ALLOW,
-            actions=[
-                'dynamodb:GetItem',
-                'dynamodb:PutItem',
-                'dynamodb:DeleteItem',
-            ],
-            resources=[password_reset_table.table_arn],
-            sid='PasswordResetLambdaPasswordResetTableRW',
-        )
-
-        password_reset_lambda_post.add_to_role_policy(password_reset_users_rw)
-        password_reset_lambda_post.add_to_role_policy(password_reset_table_wo)
-
-        password_reset_id_lambda_get = Function(
-            self,
-            'UserPasswordResetIdGET',
-            function_name='UserPasswordResetIdGET',
-            handler='reset_id_get.lambda_handler',
-            runtime=Runtime.PYTHON_3_14,
-            code=Code.from_asset(path='src/password_reset/id/get'),
-            timeout=Duration.seconds(5),
-            layers=[
-                common_pkg_layer,
-                league_layer,
-            ],
-        )
-
-        password_reset_id_lambda_get.add_to_role_policy(
-            password_reset_table_ro
-        )
-
-        password_reset_id_lambda_post = Function(
-            self,
-            'UserPasswordResetIdPOST',
-            function_name='UserPasswordResetIdPOST',
-            handler='reset_id_post.lambda_handler',
-            runtime=Runtime.PYTHON_3_14,
-            code=Code.from_asset(path='src/password_reset/id/post'),
-            timeout=Duration.seconds(5),
-            layers=[
-                bcrypt_pkg_layer,
-                common_pkg_layer,
-                league_layer,
-            ],
-        )
-
-        password_reset_id_lambda_post.add_to_role_policy(
-            password_reset_table_rw
-        )
-        password_reset_id_lambda_post.add_to_role_policy(
-            password_reset_users_rw
+            stack_layers=stack_layers,
+            stack_tables=stack_tables,
+            **reset_id_post_config,
         )
 
         self.login_lambda = login_lambda_post
