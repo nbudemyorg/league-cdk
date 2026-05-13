@@ -20,6 +20,7 @@ def delete_reset_item(table: Table, reset_id: str) -> DeleteResult:
 
     try:
         response = table.delete_item(Key=reset_item)
+        print(response)
         return delete_item_response(response)
 
     except ClientError as e:
@@ -31,6 +32,7 @@ def get_reset_item(table: Table, reset_id: str) -> GetResult:
 
     try:
         response = table.get_item(Key={'reset_id': reset_id})
+        print(response)
         return get_item_response(response)
 
     except ClientError as e:
@@ -42,6 +44,7 @@ def put_reset_item(table: Table, item: ResetItem) -> PutResult:
 
     try:
         response = table.put_item(Item=cast('Mapping[str, Any]', item))
+        print(response)
         return put_item_response(response)
 
     except ClientError as e:

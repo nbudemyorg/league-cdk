@@ -18,6 +18,7 @@ def get_users_item(table: Table, supplied_id: str) -> GetResult:
 
     try:
         response = table.get_item(Key={'player_id': supplied_id})
+        print(response)
         return get_item_response(response)
 
     except ClientError as e:
@@ -38,6 +39,7 @@ def put_users_item(
             response = table.put_item(
                 Item=cast('Mapping[str, Any]', item),
             )
+        print(response)
         return put_item_response(response)
 
     except ClientError as e:
@@ -56,6 +58,7 @@ def update_users_item(
             ExpressionAttributeValues={':val': token},
             ReturnValues='UPDATED_NEW',
         )
+        print(response)
         return update_item_response(response)
 
     except ClientError as e:

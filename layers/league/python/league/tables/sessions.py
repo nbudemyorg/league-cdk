@@ -20,6 +20,7 @@ def get_sessions_item(table: Table, player: str, session: str) -> GetResult:
             Key={'player_id': player, 'session_id': session},
             AttributesToGet=['expiry'],
         )
+        print(response)
         return get_item_response(response)
 
     except ClientError as e:
@@ -31,6 +32,7 @@ def put_sessions_item(table: Table, item: SessionItem) -> PutResult:
 
     try:
         response = table.put_item(Item=cast('Mapping[str, Any]', item))
+        print(response)
         return put_item_response(response)
 
     except ClientError as e:
