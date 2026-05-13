@@ -11,7 +11,7 @@ from league.tables.reset import get_reset_item
 from league.tables.response.types import GetItemSuccess, GetResult
 
 db_client = boto3.resource('dynamodb')
-reset_table = db_client.Table('PasswordReset')
+resets_table = db_client.Table('Resets')
 
 
 def is_get_item_success(response: GetResult) -> TypeGuard[GetItemSuccess]:
@@ -31,7 +31,7 @@ def lambda_handler(
     if not reset_id:
         return reset_fail_response()
 
-    get_response: GetResult = get_reset_item(reset_table, reset_id)
+    get_response: GetResult = get_reset_item(resets_table, reset_id)
 
     if is_get_item_success(get_response):
         reset_item = cast('ResetItem', get_response['item'])

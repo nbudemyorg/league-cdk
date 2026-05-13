@@ -72,7 +72,7 @@ def test_registration_post_lambda_role_policies():
                                             ]
                                         )
                                     },
-                                    'Sid': 'RegistrationLambdaUsersTableRW',
+                                    'Sid': 'UserRegistrationPOSTUsersTable',
                                 }
                             ),
                             assertions.Match.object_like(
@@ -89,7 +89,7 @@ def test_registration_post_lambda_role_policies():
                                             ]
                                         )
                                     },
-                                    'Sid': 'RegistrationLambdaSessionsTableWO',
+                                    'Sid': 'UserRegistrationPOSTSessionsTable',
                                 }
                             ),
                             assertions.Match.object_like(
@@ -108,7 +108,7 @@ def test_registration_post_lambda_role_policies():
                                             ]
                                         )
                                     },
-                                    'Sid': 'RegistrationLambdaInviteSecretRO',
+                                    'Sid': 'UserRegistrationPOSTInviteSecret',
                                 }
                             ),
                         ]
@@ -155,7 +155,7 @@ def test_home_page_lambda_role_policies():
                                             ]
                                         )
                                     },
-                                    'Sid': 'HomeLambdaSessionsTableRO',
+                                    'Sid': 'HomePageGETSessionsTable',
                                 }
                             )
                         ]
@@ -215,7 +215,7 @@ def test_login_lambda_role_policies():
                                             ]
                                         )
                                     },
-                                    'Sid': 'LoginLambdaUsersTableRO',
+                                    'Sid': 'UserLoginPOSTUsersTable',
                                 }
                             ),
                             assertions.Match.object_like(
@@ -232,7 +232,7 @@ def test_login_lambda_role_policies():
                                             ]
                                         )
                                     },
-                                    'Sid': 'LoginLambdaSessionsTableWO',
+                                    'Sid': 'UserLoginPOSTSessionsTable',
                                 }
                             ),
                         ]
@@ -296,7 +296,7 @@ def test_password_reset_post_role_policies():
                                             ]
                                         )
                                     },
-                                    'Sid': 'PasswordResetLambdaUsersTableRW',
+                                    'Sid': 'UserPasswordResetPOSTUsersTable',
                                 }
                             ),
                             assertions.Match.object_like(
@@ -307,13 +307,13 @@ def test_password_reset_post_role_policies():
                                         'Fn::GetAtt': assertions.Match.array_with(
                                             [
                                                 assertions.Match.string_like_regexp(
-                                                    '(PasswordReset).{8}$'
+                                                    '(Resets).{8}$'
                                                 ),
                                                 'Arn',
                                             ]
                                         )
                                     },
-                                    'Sid': 'PasswordResetLambdaPasswordResetTableRW',
+                                    'Sid': 'UserPasswordResetPOSTResetsTable',
                                 }
                             ),
                         ]
@@ -354,13 +354,13 @@ def test_password_reset_id_get_role_policies():
                                         'Fn::GetAtt': assertions.Match.array_with(
                                             [
                                                 assertions.Match.string_like_regexp(
-                                                    '(PasswordReset).{8}$'
+                                                    '(Resets).{8}$'
                                                 ),
                                                 'Arn',
                                             ]
                                         )
                                     },
-                                    'Sid': 'PasswordResetLambdaPasswordResetTableRO',
+                                    'Sid': 'UserPasswordResetIdGETResetsTable',
                                 }
                             ),
                         ]
@@ -385,7 +385,7 @@ def test_password_reset_id_post_lambda():
 
 
 @pytest.mark.cdk
-def test_password_reset_id_get_role_policies():
+def test_password_reset_id_post_role_policies():
     template.has_resource_properties(
         'AWS::IAM::Policy',
         {
@@ -405,13 +405,13 @@ def test_password_reset_id_get_role_policies():
                                         'Fn::GetAtt': assertions.Match.array_with(
                                             [
                                                 assertions.Match.string_like_regexp(
-                                                    '(PasswordReset).{8}$'
+                                                    '(Resets).{8}$'
                                                 ),
                                                 'Arn',
                                             ]
                                         )
                                     },
-                                    'Sid': 'PasswordResetLambdaPasswordResetTableRW',
+                                    'Sid': 'UserPasswordResetIdPOSTResetsTable',
                                 }
                             ),
                             assertions.Match.object_like(
@@ -432,7 +432,7 @@ def test_password_reset_id_get_role_policies():
                                             ]
                                         )
                                     },
-                                    'Sid': 'PasswordResetLambdaUsersTableRW',
+                                    'Sid': 'UserPasswordResetIdPOSTUsersTable',
                                 }
                             ),
                         ]

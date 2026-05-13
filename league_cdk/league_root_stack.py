@@ -29,53 +29,39 @@ class LeagueRootStack(Stack):
 
         login_resource = league_api.root.add_resource('login')
         login_resource.add_method(
-            'POST', LambdaIntegration(login_registration_stack.login_lambda)
+            'POST', LambdaIntegration(login_registration_stack.login_post)
         )
         login_resource.add_method(
-            'GET', LambdaIntegration(login_registration_stack.login_lambda_get)
+            'GET', LambdaIntegration(login_registration_stack.login_get)
         )
 
         homepage_resource = league_api.root.add_resource('home')
         homepage_resource.add_method(
-            'GET', LambdaIntegration(login_registration_stack.home_page_lambda)
+            'GET', LambdaIntegration(login_registration_stack.home_get)
         )
 
         register_resource = league_api.root.add_resource('register')
         register_resource.add_method(
             'POST',
-            LambdaIntegration(login_registration_stack.registration_lambda),
+            LambdaIntegration(login_registration_stack.reg_post),
         )
         register_resource.add_method(
-            'GET',
-            LambdaIntegration(
-                login_registration_stack.registration_lambda_get
-            ),
+            'GET', LambdaIntegration(login_registration_stack.reg_get)
         )
 
         reset_resource = league_api.root.add_resource('reset')
         reset_resource.add_method(
             'GET',
-            LambdaIntegration(
-                login_registration_stack.password_reset_lambda_get
-            ),
+            LambdaIntegration(login_registration_stack.reset_get),
         )
         reset_resource.add_method(
-            'POST',
-            LambdaIntegration(
-                login_registration_stack.password_reset_lambda_post
-            ),
+            'POST', LambdaIntegration(login_registration_stack.reset_post)
         )
 
         reset_id_resource = reset_resource.add_resource('{resetId}')
         reset_id_resource.add_method(
-            'GET',
-            LambdaIntegration(
-                login_registration_stack.password_reset_id_lambda_get
-            ),
+            'GET', LambdaIntegration(login_registration_stack.reset_id_get)
         )
         reset_id_resource.add_method(
-            'POST',
-            LambdaIntegration(
-                login_registration_stack.password_reset_id_lambda_post
-            ),
+            'POST', LambdaIntegration(login_registration_stack.reset_id_post)
         )

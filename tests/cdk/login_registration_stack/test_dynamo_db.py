@@ -57,11 +57,11 @@ def test_sessions_table_props():
 
 
 @pytest.mark.cdk
-def test_password_reset_table_props():
+def test_resets_table_props():
     template.has_resource_properties(
         'AWS::DynamoDB::Table',
         {
-            'TableName': 'PasswordReset',
+            'TableName': 'Resets',
             'KeySchema': assertions.Match.array_equals(
                 [
                     {'AttributeName': 'reset_id', 'KeyType': 'HASH'},

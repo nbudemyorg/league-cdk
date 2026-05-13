@@ -14,7 +14,7 @@ SECONDS_VALID = 600
 
 db_client = boto3.resource('dynamodb')
 users_table = db_client.Table('Users')
-reset_table = db_client.Table('PasswordReset')
+resets_table = db_client.Table('Resets')
 
 
 def lambda_handler(
@@ -40,7 +40,7 @@ def lambda_handler(
     if not update_response['success']:
         return fail_response()
 
-    put_response = put_reset_item(reset_table, reset_item)
+    put_response = put_reset_item(resets_table, reset_item)
 
     if not put_response['success']:
         return fail_response()
