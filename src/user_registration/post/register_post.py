@@ -11,7 +11,7 @@ from league.auth import create_login_response
 from league.aws_secrets import INVITE_SECRET
 from league.content.libs import generate_response
 from league.credentials import generate_password_hash
-from league.logger import create_logger
+from league.logger import get_logger
 from league.tables.item.libs import create_session_item, create_user_item
 from league.tables.response.types import PutResult
 from league.tables.sessions import put_sessions_item
@@ -29,7 +29,7 @@ def lambda_handler(
     event: APIGatewayProxyEventV1, context: LambdaContext
 ) -> APIGatewayProxyResponseV1:
 
-    logger = create_logger('reg_post')
+    logger = get_logger()
 
     if isinstance(event['body'], str):
         event_body = form_data_valid(event['body'], TEST_EMAIL_DELIVERY)
