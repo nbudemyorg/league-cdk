@@ -1,9 +1,9 @@
 tables:
-- table_name: Users
+- name: Users
   partition_key:
     name: player_id
     type: STRING
-- table_name: Sessions
+- name: Sessions
   partition_key:
     name: player_id
     type: STRING
@@ -11,7 +11,7 @@ tables:
     name: session_id
     type: STRING
   ttl_attr: ttl
-- table_name: Resets
+- name: Resets
   partition_key:
     name: reset_id
     type: STRING

@@ -29,7 +29,7 @@ class LoginRegistrationStack(Stack):
         stack_tables = {}
 
         for table_config in tables_config['tables']:
-            table_name = table_config['table_name'].lower()
+            table_name = table_config['name'].lower()
             new_table = ddb.create_table(self, **table_config)
             stack_tables.update({table_name: new_table})
 
@@ -52,14 +52,13 @@ class LoginRegistrationStack(Stack):
             lambdas_config = yaml.load(lambdas_yaml, yaml.FullLoader)
 
         for lambda_dict in lambdas_config['lambdas']:
-            property_name = str(list(lambda_dict.keys())[0])
-            lambda_config = lambda_dict[property_name]
+            property_name = lambda_dict['name']
             new_lambda = lambdas.create_lambda(
                 self,
                 stack_layers=stack_layers,
                 stack_secrets=stack_secrets,
                 stack_tables=stack_tables,
-                **lambda_config,
+                **lambda_dict,
             )
 
             setattr(self, property_name, new_lambda)
