@@ -11,6 +11,7 @@ from league.auth import create_login_response
 from league.aws_secrets import INVITE_SECRET
 from league.content.libs import generate_response
 from league.credentials import generate_password_hash
+from league.logger import create_logger
 from league.tables.item.libs import create_session_item, create_user_item
 from league.tables.response.types import PutResult
 from league.tables.sessions import put_sessions_item
@@ -28,6 +29,8 @@ def lambda_handler(
     event: APIGatewayProxyEventV1, context: LambdaContext
 ) -> APIGatewayProxyResponseV1:
 
+    logger = create_logger('reg_post')
+
     if isinstance(event['body'], str):
         event_body = form_data_valid(event['body'], TEST_EMAIL_DELIVERY)
     else:
@@ -42,9 +45,11 @@ def lambda_handler(
     supplied_player_password = event_body['password']
 
     if not valid_invitation_key(supplied_invite):
+        logger.info(f'Invalid invitation key supplied: {supplied_invite}')
         return generate_response(401, 'register_form.html', alert='key')
 
     if not valid_player_id(supplied_player_id):
+        logger.info(f'Invalid player_id supplied: {supplied_player_id}')
         return generate_response(400, 'register_form.html', alert='player_id')
 
     if not password_meets_criteria(

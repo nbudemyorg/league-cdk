@@ -33,6 +33,7 @@ def mock_bcrypt_module():
 
 @pytest.fixture(scope='module')
 def mock_league_tables_layer():
+    sys.modules['league.logger'] = MagicMock()
     sys.modules['league.tables.item.types'] = MagicMock()
     sys.modules['league.tables.item.libs'] = MagicMock()
     sys.modules['league.tables.reset'] = MagicMock()
