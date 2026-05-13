@@ -1,0 +1,126 @@
+lambdas:
+- name: reg_get
+  handler: register_get.lambda_handler
+  lambda_name: UserRegistrationGET
+  layers:
+  - league
+  - common-pkg
+  source_dir: src/user_registration/get
+- name: reg_post
+  environment:
+    INVITE_KEY: league/invitation_key
+    REGION: eu-west-1
+  handler: register_post.lambda_handler
+  lambda_name: UserRegistrationPOST
+  layers:
+  - bcrypt-pkg
+  - common-pkg
+  - emailvalidator-pkg
+  - league
+  policies:
+    secrets:
+    - actions:
+      - secretsmanager:GetSecretValue
+      name: invite
+    tables:
+    - actions:
+      - dynamodb:PutItem
+      - dynamodb:GetItem
+      name: users
+    - actions:
+      - dynamodb:PutItem
+      name: sessions
+  source_dir: src/user_registration/post
+  timeout: 10
+- name: login_get
+  handler: login_get.lambda_handler
+  lambda_name: UserLoginGET
+  layers:
+  - league
+  - common-pkg
+  source_dir: src/user_login/get
+- name: login_post
+  handler: login_post.lambda_handler
+  lambda_name: UserLoginPOST
+  layers:
+  - bcrypt-pkg
+  - league
+  - common-pkg
+  policies:
+    tables:
+    - actions:
+      - dynamodb:GetItem
+      name: users
+    - actions:
+      - dynamodb:PutItem
+      name: sessions
+  source_dir: src/user_login/post
+- name: home_get
+  handler: home_get.lambda_handler
+  lambda_name: HomePageGET
+  layers:
+  - common-pkg
+  - league
+  policies:
+    tables:
+    - actions:
+      - dynamodb:GetItem
+      name: sessions
+  source_dir: src/home_page/get
+- name: reset_get
+  handler: reset_get.lambda_handler
+  lambda_name: UserPasswordResetGET
+  layers:
+  - common-pkg
+  - league
+  source_dir: src/password_reset/get
+- name: reset_post
+  handler: reset_post.lambda_handler
+  lambda_name: UserPasswordResetPOST
+  layers:
+  - common-pkg
+  - league
+  policies:
+    tables:
+    - actions:
+      - dynamodb:PutItem
+      - dynamodb:GetItem
+      - dynamodb:UpdateItem
+      name: users
+    - actions:
+      - dynamodb:PutItem
+      name: resets
+  source_dir: src/password_reset/post
+  timeout: 10
+- name: reset_id_get
+  handler: reset_id_get.lambda_handler
+  lambda_name: UserPasswordResetIdGET
+  layers:
+  - common-pkg
+  - league
+  policies:
+    tables:
+    - actions:
+      - dynamodb:GetItem
+      name: resets
+  source_dir: src/password_reset/id/get
+- name: reset_id_post
+  handler: reset_id_post.lambda_handler
+  lambda_name: UserPasswordResetIdPOST
+  layers:
+  - bcrypt-pkg
+  - common-pkg
+  - league
+  policies:
+    tables:
+    - actions:
+      - dynamodb:GetItem
+      - dynamodb:PutItem
+      - dynamodb:DeleteItem
+      name: resets
+    - actions:
+      - dynamodb:PutItem
+      - dynamodb:GetItem
+      - dynamodb:UpdateItem
+      name: users
+  source_dir: src/password_reset/id/post
