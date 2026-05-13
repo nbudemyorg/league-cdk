@@ -13,7 +13,6 @@ def valid_key(key_type: str, key: dict[str, str]) -> bool:
 
 
 def create_table(self, **kwargs) -> Table:
-    print(kwargs)
     table_name = kwargs.get('table_name')
     removal_policy = kwargs.get('removal_policy', 'DESTROY')
     billing_mode = kwargs.get('billing_mode', 'PAY_PER_REQUEST')

@@ -1,4 +1,5 @@
 from pathlib import Path
+from typing import Any
 
 from aws_cdk import Duration
 from aws_cdk.aws_iam import Effect, PolicyStatement
@@ -25,17 +26,6 @@ def create_layer_list(
     return layers
 
 
-def get_table_arn(stack_tables: dict[str, Table], table: str) -> str:
-    stack_table = stack_tables.get(table)
-    if not stack_table:
-        raise ValueError(f'Dynamodb Table {table} not found in config.')
-    return stack_table.table_arn
-
-
-def generate_sid(lambda_name: str, res_type: str, res_name: str) -> str:
-    return f'{lambda_name}{res_name.capitalize()}{res_type.capitalize()}'
-
-
 def create_policy(
     actions: list[str], resource_arn: str, sid: str
 ) -> PolicyStatement:
@@ -48,13 +38,44 @@ def create_policy(
     )
 
 
-# def add_policy_to_lambda(_lambda: Function, )
+def get_table_arn(stack_tables: dict[str, Table], table: str) -> str:
+    stack_table = stack_tables.get(table)
+    if not stack_table:
+        raise ValueError(f'Dynamodb Table {table} not found in config.')
+    return stack_table.table_arn
+
+
+def generate_sid(lambda_name: str, res_type: str, res_name: str) -> str:
+    return f'{lambda_name}{res_name.capitalize()}{res_type.capitalize()}'
+
+
+def get_policy_actions(
+    resource_type: str, policy: dict[str, Any], name: str
+) -> str:
+    resource_actions = policy.get('actions')
+    if resource_actions is None:
+        raise ValueError(
+            f'Lambda {name}: No policy actions defined for {resource_type}.'
+        )
+    return resource_actions
+
+
+def get_policy_resource(
+    resource_type: str, policy: dict[str, Any], name: str
+) -> str:
+    resource_name = policy.get('name')
+    if resource_name is None:
+        raise ValueError(
+            f'Lambda {name}: No name defined for {resource_type} in policy.'
+        )
+    return resource_name
 
 
 def create_lambda(
     self,
-    stack_layers: dict[str, LayerVersion] = None,
-    stack_tables: dict[str, Table] = None,
+    stack_layers: dict[str, LayerVersion],
+    stack_secrets: dict[str, str],
+    stack_tables: dict[str, Table],
     **kwargs,
 ) -> Function:
 
@@ -97,29 +118,36 @@ def create_lambda(
     new_lambda = Function(
         self,
         lambda_name,
+        code=Code.from_asset(path=source_dir),
+        environment=environment,
         function_name=lambda_name,
         handler=handler,
-        runtime=DEFAULT_RUNTIME,
-        code=Code.from_asset(path=source_dir),
-        timeout=Duration.seconds(timeout),
         layers=layer_list,
+        runtime=DEFAULT_RUNTIME,
+        timeout=Duration.seconds(timeout),
     )
 
-    if iam_policies is not None and 'tables' in iam_policies:
-        table_policies = iam_policies['tables']
-        for policy in table_policies:
-            table_name = policy.get('name')
-            table_actions = policy.get('actions')
+    if iam_policies is not None:
+        if 'tables' in iam_policies:
+            table_policies = iam_policies['tables']
+            res = 'table'
+            for policy in table_policies:
+                table_name = get_policy_resource(res, policy, lambda_name)
+                table_actions = get_policy_actions(res, policy, lambda_name)
+                table_arn = get_table_arn(stack_tables, table_name)
+                sid = generate_sid(lambda_name, res, table_name)
+                new_policy = create_policy(table_actions, table_arn, sid)
+                new_lambda.add_to_role_policy(new_policy)
 
-            if table_actions is None:
-                raise ValueError('Policy Table actions are not defined.')
-            if table_name is None:
-                raise ValueError('No Table name found in Policy definition')
-
-            table_arn = get_table_arn(stack_tables, table_name)
-            policy_sid = generate_sid(lambda_name, 'table', table_name)
-            new_policy = create_policy(table_actions, table_arn, policy_sid)
-
-            new_lambda.add_to_role_policy(new_policy)
+        if 'secrets' in iam_policies:
+            secret_policies = iam_policies['secrets']
+            res = 'secret'
+            for policy in secret_policies:
+                secret_name = get_policy_resource(res, policy, lambda_name)
+                secret_actions = get_policy_actions(res, policy, lambda_name)
+                secret_arn = stack_secrets[secret_name]
+                sid = generate_sid(lambda_name, res, secret_name)
+                new_policy = create_policy(secret_actions, secret_arn, sid)
+                new_lambda.add_to_role_policy(new_policy)
 
     return new_lambda

@@ -18,7 +18,7 @@ from league.tables.response.types import (
 from league.tables.users import get_users_item, put_users_item
 
 db_client = boto3.resource('dynamodb')
-reset_table = db_client.Table('PasswordReset')
+resets_table = db_client.Table('Resets')
 users_table = db_client.Table('Users')
 
 
@@ -38,7 +38,7 @@ def lambda_handler(
     reset_id = event_dict['reset_id']
     new_password = event_dict['new_password']
 
-    get_reset_response: GetResult = get_reset_item(reset_table, reset_id)
+    get_reset_response: GetResult = get_reset_item(resets_table, reset_id)
 
     if not get_operation_success(get_reset_response):
         return server_error_response()
@@ -79,7 +79,7 @@ def lambda_handler(
     if not put_user_response['success']:
         return server_error_response()
 
-    delete_response = delete_reset_item(reset_table, reset_id)
+    delete_response = delete_reset_item(resets_table, reset_id)
 
     if not delete_response['success']:
         return server_error_response()

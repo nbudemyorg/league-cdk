@@ -108,7 +108,7 @@ def test_registration_post_lambda_role_policies():
                                             ]
                                         )
                                     },
-                                    'Sid': 'RegistrationLambdaInviteSecretRO',
+                                    'Sid': 'UserRegistrationPOSTInviteSecret',
                                 }
                             ),
                         ]
@@ -307,7 +307,7 @@ def test_password_reset_post_role_policies():
                                         'Fn::GetAtt': assertions.Match.array_with(
                                             [
                                                 assertions.Match.string_like_regexp(
-                                                    '(PasswordReset).{8}$'
+                                                    '(Resets).{8}$'
                                                 ),
                                                 'Arn',
                                             ]
@@ -354,7 +354,7 @@ def test_password_reset_id_get_role_policies():
                                         'Fn::GetAtt': assertions.Match.array_with(
                                             [
                                                 assertions.Match.string_like_regexp(
-                                                    '(PasswordReset).{8}$'
+                                                    '(Resets).{8}$'
                                                 ),
                                                 'Arn',
                                             ]
@@ -405,7 +405,7 @@ def test_password_reset_id_post_role_policies():
                                         'Fn::GetAtt': assertions.Match.array_with(
                                             [
                                                 assertions.Match.string_like_regexp(
-                                                    '(PasswordReset).{8}$'
+                                                    '(Resets).{8}$'
                                                 ),
                                                 'Arn',
                                             ]
