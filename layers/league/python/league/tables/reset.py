@@ -24,7 +24,6 @@ def delete_reset_item(table: Table, reset_id: str) -> DeleteResult:
             ReturnConsumedCapacity='TOTAL',
             ReturnValues='ALL_OLD',
         )
-        print(response)
         return delete_item_response(response)
 
     except ClientError as e:
@@ -39,7 +38,6 @@ def get_reset_item(table: Table, reset_id: str) -> GetResult:
             Key={'reset_id': reset_id},
             ReturnConsumedCapacity='TOTAL',
         )
-        print(response)
         return get_item_response(response)
 
     except ClientError as e:
@@ -55,7 +53,6 @@ def put_reset_item(table: Table, item: ResetItem) -> PutResult:
             ReturnConsumedCapacity='TOTAL',
             ReturnValues='ALL_OLD',
         )
-        print(response)
         return put_item_response(response)
 
     except ClientError as e:
