@@ -43,18 +43,20 @@ def lambda_handler(
     supplied_invite = event_body['invite']
     supplied_player_id = event_body['player_id']
     supplied_player_password = event_body['password']
+    logger.info(f'Registration submitted for player_id: {supplied_player_id}.')
 
     if not valid_invitation_key(supplied_invite):
-        logger.info(f'Invalid invitation key supplied: {supplied_invite}')
+        logger.info(f'Invalid invitation key supplied: {supplied_invite}.')
         return generate_response(401, 'register_form.html', alert='key')
 
     if not valid_player_id(supplied_player_id):
-        logger.info(f'Invalid player_id supplied: {supplied_player_id}')
+        logger.info('Player ID is not valid PSNID or Xbox Gamertag.')
         return generate_response(400, 'register_form.html', alert='player_id')
 
     if not password_meets_criteria(
         supplied_player_password, supplied_player_id
     ):
+        logger.info('Supplied password did not meet required standard.')
         return generate_response(400, 'register_form.html', alert='password')
 
     hashed_password = generate_password_hash(supplied_player_password)
@@ -68,9 +70,11 @@ def lambda_handler(
     user_exists = user_already_exists(put_response)
 
     if user_exists:
+        logger.info('Application rejected, player_id is already registered.')
         return generate_response(401, 'register_form.html', alert='exists')
 
     if user_exists is None:
+        logger.critical('Failed to store submitted data in Users table')
         return generate_response(503, 'register_form.html', alert='server')
 
     session_item = create_session_item(supplied_player_id)
@@ -78,8 +82,10 @@ def lambda_handler(
     put_response = put_sessions_item(sessions_table, session_item)
 
     if not put_response['success']:
+        logger.critical('Failed to create new session Users table')
         return generate_response(503, 'register_form.html', alert='server')
 
+    logger.info('Registration process completed.')
     return create_login_response(
         supplied_player_id, session_item['session_id']
     )
