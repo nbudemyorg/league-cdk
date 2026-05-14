@@ -21,7 +21,6 @@ def get_users_item(table: Table, supplied_id: str) -> GetResult:
             Key={'player_id': supplied_id},
             ReturnConsumedCapacity='TOTAL',
         )
-        print(response)
         return get_item_response(response)
 
     except ClientError as e:
@@ -46,7 +45,6 @@ def put_users_item(
                 ReturnConsumedCapacity='TOTAL',
                 ReturnValues='ALL_OLD',
             )
-        print(response)
         return put_item_response(response)
 
     except ClientError as e:
@@ -66,7 +64,6 @@ def update_users_item(
             ReturnConsumedCapacity='TOTAL',
             ReturnValues='ALL_NEW',
         )
-        print(response)
         return update_item_response(response)
 
     except ClientError as e:
