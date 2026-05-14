@@ -9,6 +9,7 @@ from aws_lambda_typing.responses import APIGatewayProxyResponseV1
 from jinja2 import Environment, FileSystemLoader
 from league.auth import create_login_response
 from league.content.libs import generate_response
+from league.logger import get_logger
 from league.tables.item.libs import create_session_item
 from league.tables.item.types import UserItem
 from league.tables.sessions import put_sessions_item
@@ -25,26 +26,34 @@ def lambda_handler(
     event: APIGatewayProxyEventV1, context: LambdaContext
 ) -> APIGatewayProxyResponseV1:
 
+    logger = get_logger()
+
     if isinstance(event['body'], str):
         user_data = valid_form_data(event['body'])
     else:
         user_data = None
 
     if not user_data:
+        logger.warning('Invalid form data submitted. Request rejected.')
         return generate_response(400, 'login_form.html', alert='invalid')
 
     password = user_data['password']
     player_id = user_data['player_id']
 
+    logger.info(f'Starting login process for player_id: {player_id}')
+
     if not valid_player_id(player_id):
+        logger.warning('Player_id is not valid. Request rejected.')
         return generate_response(400, 'login_form.html', alert='player')
 
     valid_password = password_is_valid(users_table, player_id, password)
 
     if valid_password is False:
+        logger.warning('Supplied password is incorrect. Request rejected.')
         return generate_response(400, 'login_form.html', alert='credentials')
 
     if valid_password is None:
+        logger.critical('Unable to retrieve user item from Users table.')
         return generate_response(503, 'login_form.html', alert='server')
 
     session_item = create_session_item(player_id)
@@ -52,9 +61,12 @@ def lambda_handler(
     put_response = put_sessions_item(sessions_table, session_item)
 
     if not put_response['success']:
+        logger.critical('Unable to create new session item in Sessions table.')
         return generate_response(503, 'login_form.html', alert='server')
 
     session_id = session_item['session_id']
+
+    logger.info(f'Login successful for player_id: {player_id}')
 
     return create_login_response(player_id, session_id)
 
@@ -95,9 +107,3 @@ def password_is_valid(
         return False
 
     return None
-
-
-def render_template(error_code: str = 'ok') -> str:
-    env = Environment(loader=FileSystemLoader('/opt/python/league/templates'))
-    template = env.get_template('login_form.html')
-    return template.render(error=error_code)
