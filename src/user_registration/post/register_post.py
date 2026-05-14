@@ -46,17 +46,17 @@ def lambda_handler(
     logger.info(f'Registration submitted for player_id: {supplied_player_id}.')
 
     if not valid_invitation_key(supplied_invite):
-        logger.info(f'Invalid invitation key supplied: {supplied_invite}.')
+        logger.warning(f'Invalid invitation key supplied: {supplied_invite}.')
         return generate_response(401, 'register_form.html', alert='key')
 
     if not valid_player_id(supplied_player_id):
-        logger.info('Player ID is not valid PSNID or Xbox Gamertag.')
+        logger.warning('Player ID is not valid PSNID or Xbox Gamertag.')
         return generate_response(400, 'register_form.html', alert='player_id')
 
     if not password_meets_criteria(
         supplied_player_password, supplied_player_id
     ):
-        logger.info('Supplied password did not meet required standard.')
+        logger.info('Password != required standard. Request rejected.')
         return generate_response(400, 'register_form.html', alert='password')
 
     hashed_password = generate_password_hash(supplied_player_password)
