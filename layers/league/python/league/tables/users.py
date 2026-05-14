@@ -17,7 +17,10 @@ def get_users_item(table: Table, supplied_id: str) -> GetResult:
     """Returns item for Player ID if it exists in the Users table."""
 
     try:
-        response = table.get_item(Key={'player_id': supplied_id})
+        response = table.get_item(
+            Key={'player_id': supplied_id},
+            ReturnConsumedCapacity='TOTAL',
+        )
         print(response)
         return get_item_response(response)
 
@@ -34,10 +37,14 @@ def put_users_item(
             response = table.put_item(
                 Item=cast('Mapping[str, Any]', item),
                 ConditionExpression='attribute_not_exists(player_id)',
+                ReturnConsumedCapacity='TOTAL',
+                ReturnValues='ALL_OLD',
             )
         else:
             response = table.put_item(
                 Item=cast('Mapping[str, Any]', item),
+                ReturnConsumedCapacity='TOTAL',
+                ReturnValues='ALL_OLD',
             )
         print(response)
         return put_item_response(response)
@@ -56,7 +63,8 @@ def update_users_item(
             UpdateExpression='SET #rid = :val',
             ExpressionAttributeNames={'#rid': 'reset_id'},
             ExpressionAttributeValues={':val': token},
-            ReturnValues='UPDATED_NEW',
+            ReturnConsumedCapacity='TOTAL',
+            ReturnValues='ALL_NEW',
         )
         print(response)
         return update_item_response(response)

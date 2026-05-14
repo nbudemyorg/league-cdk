@@ -19,6 +19,7 @@ def get_sessions_item(table: Table, player: str, session: str) -> GetResult:
         response = table.get_item(
             Key={'player_id': player, 'session_id': session},
             AttributesToGet=['expiry'],
+            ReturnConsumedCapacity='TOTAL',
         )
         print(response)
         return get_item_response(response)
@@ -31,7 +32,11 @@ def put_sessions_item(table: Table, item: SessionItem) -> PutResult:
     """Puts new sessions item into the Sessions table"""
 
     try:
-        response = table.put_item(Item=cast('Mapping[str, Any]', item))
+        response = table.put_item(
+            Item=cast('Mapping[str, Any]', item),
+            ReturnConsumedCapacity='TOTAL',
+            ReturnValues='ALL_OLD',
+        )
         print(response)
         return put_item_response(response)
 
