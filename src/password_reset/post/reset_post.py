@@ -1,4 +1,3 @@
-import logging
 from urllib.parse import parse_qs
 
 import boto3
