@@ -19,7 +19,11 @@ def delete_reset_item(table: Table, reset_id: str) -> DeleteResult:
     reset_item = {'reset_id': reset_id}
 
     try:
-        response = table.delete_item(Key=reset_item)
+        response = table.delete_item(
+            Key=reset_item,
+            ReturnConsumedCapacity='TOTAL',
+            ReturnValues='ALL_OLD',
+        )
         print(response)
         return delete_item_response(response)
 
@@ -31,7 +35,10 @@ def get_reset_item(table: Table, reset_id: str) -> GetResult:
     """Returns item for Reset ID if it exists in the Reset table."""
 
     try:
-        response = table.get_item(Key={'reset_id': reset_id})
+        response = table.get_item(
+            Key={'reset_id': reset_id},
+            ReturnConsumedCapacity='TOTAL',
+        )
         print(response)
         return get_item_response(response)
 
@@ -43,7 +50,11 @@ def put_reset_item(table: Table, item: ResetItem) -> PutResult:
     """Put new reset item in the Reset Table"""
 
     try:
-        response = table.put_item(Item=cast('Mapping[str, Any]', item))
+        response = table.put_item(
+            Item=cast('Mapping[str, Any]', item),
+            ReturnConsumedCapacity='TOTAL',
+            ReturnValues='ALL_OLD',
+        )
         print(response)
         return put_item_response(response)
 
