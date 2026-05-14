@@ -52,7 +52,7 @@ def lambda_handler(
         return generate_response(400, 'login_form.html', alert='credentials')
 
     if valid_password is None:
-        logger.critical('Unable to retrieve user item from Users table.')
+        logger.critical('Failed to retrieve user item from Users table.')
         return generate_response(503, 'login_form.html', alert='server')
 
     session_item = create_session_item(player_id)
@@ -60,7 +60,7 @@ def lambda_handler(
     put_response = put_sessions_item(sessions_table, session_item)
 
     if not put_response['success']:
-        logger.critical('Unable to create new session item in Sessions table.')
+        logger.critical('Failed to create new session item in Sessions table.')
         return generate_response(503, 'login_form.html', alert='server')
 
     session_id = session_item['session_id']

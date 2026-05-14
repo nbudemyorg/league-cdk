@@ -1,3 +1,4 @@
+import logging
 from urllib.parse import parse_qs
 
 import boto3
@@ -5,6 +6,7 @@ from aws_lambda_context import LambdaContext
 from aws_lambda_typing.events import APIGatewayProxyEventV1
 from aws_lambda_typing.responses import APIGatewayProxyResponseV1
 from league.content.libs import generate_response
+from league.logger import get_logger
 from league.tables.item.libs import create_reset_item
 from league.tables.reset import put_reset_item
 from league.tables.users import update_users_item
@@ -21,15 +23,21 @@ def lambda_handler(
     event: APIGatewayProxyEventV1, context: LambdaContext
 ) -> APIGatewayProxyResponseV1:
 
+    logger = get_logger()
+
     if isinstance(event['body'], str):
         processed_form = transform_validate(event['body'])
     else:
+        logger.warning('Event body not a string. Request Rejected.')
         return silent_fail_response()
 
     if processed_form['validated'] == 'false':
+        logger.warning('Invalid form submission. Request rejected.')
         return silent_fail_response()
 
     supplied_player_id = processed_form['player_id']
+
+    logger.info(f'Processing request for player_id: {supplied_player_id}.')
 
     reset_item = create_reset_item(supplied_player_id)
 
@@ -38,13 +46,16 @@ def lambda_handler(
     update_response = update_users_item(users_table, supplied_player_id, token)
 
     if not update_response['success']:
+        logger.critical('Failed to update item in Users table.')
         return fail_response()
 
     put_response = put_reset_item(resets_table, reset_item)
 
     if not put_response['success']:
+        logger.critical('Failed to update item in Resets table.')
         return fail_response()
 
+    logger.info(f'Completed request for player_id: {supplied_player_id}.')
     return success_response()
 
 

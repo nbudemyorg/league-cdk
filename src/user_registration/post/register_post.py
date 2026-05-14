@@ -56,7 +56,7 @@ def lambda_handler(
     if not password_meets_criteria(
         supplied_player_password, supplied_player_id
     ):
-        logger.warning('Supplied password did not meet required standard.')
+        logger.info('Password != required standard. Request rejected.')
         return generate_response(400, 'register_form.html', alert='password')
 
     hashed_password = generate_password_hash(supplied_player_password)
