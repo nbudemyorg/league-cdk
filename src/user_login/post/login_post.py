@@ -6,7 +6,6 @@ import boto3
 from aws_lambda_context import LambdaContext
 from aws_lambda_typing.events import APIGatewayProxyEventV1
 from aws_lambda_typing.responses import APIGatewayProxyResponseV1
-from jinja2 import Environment, FileSystemLoader
 from league.auth import create_login_response
 from league.content.libs import generate_response
 from league.logger import get_logger
