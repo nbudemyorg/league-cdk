@@ -40,6 +40,7 @@ def test_invitation_import_env_missing_region(
     """Test RuntimeError raised if the environment var REGION is not set"""
 
     with pytest.raises(RuntimeError) as exc_info:
+        monkeypatch.delenv('REGION', raising=False)
         sys.modules.pop('layers.league.python.league.aws_secrets', None)
         monkeypatch.setenv('INVITE_KEY', 'league/invitation_key')
         from layers.league.python.league.aws_secrets import INVITE_SECRET
@@ -47,19 +48,18 @@ def test_invitation_import_env_missing_region(
         print(INVITE_SECRET)  #  Ruff check fudge
 
     assert exc_info.type is RuntimeError
-    assert (
-        exc_info.value.args[0] == 'Environment variable AWS_REGION is not set.'
-    )
+    assert exc_info.value.args[0] == 'Environment variable REGION is not set.'
 
 
 @pytest.mark.registration
 def test_invitation_import_env_missing_key(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    """Test RuntimeError raised if the environment var INVITE_SECRET is
+    """Test RuntimeError raised if the environment var INVITE_KEY is
     not set"""
 
     with pytest.raises(RuntimeError) as exc_info:
+        monkeypatch.delenv('INVITE_KEY', raising=False)
         sys.modules.pop('layers.league.python.league.aws_secrets', None)
         monkeypatch.setenv('REGION', 'eu-west-1')
         from layers.league.python.league.aws_secrets import INVITE_SECRET
