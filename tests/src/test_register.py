@@ -61,9 +61,6 @@ def test_mocked_modules_imported(mock_league_layer: None) -> None:
     assert 'league.validate' in sys.modules
 
 
-
-
-
 @pytest.mark.parametrize('form_data, expected_result', FORM_MISSING_PARAM)
 @pytest.mark.registration
 def test_valid_form_data_missing(
@@ -140,3 +137,14 @@ def test_user_already_exists_exception(
     response = user_already_exists(users_put_result_client_err)
 
     assert response is None
+
+@pytest.mark.registration
+def test_valid_invitation_key(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Returns True is the string supplied equals value stored in
+    INVITE_SECRET"""
+
+    import src.user_registration.post.register_post as register_post
+    monkeypatch.setattr(register_post, 'INVITE_SECRET', 'correct_key')
+
+    assert register_post.valid_invitation_key('correct_key') is True
+    assert register_post.valid_invitation_key('incorrect_key') is False

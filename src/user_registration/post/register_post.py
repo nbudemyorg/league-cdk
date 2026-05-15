@@ -6,7 +6,6 @@ from aws_lambda_context import LambdaContext
 from aws_lambda_typing.events import APIGatewayProxyEventV1
 from aws_lambda_typing.responses import APIGatewayProxyResponseV1
 from email_validator import EmailNotValidError, validate_email
-from jinja2 import Environment, FileSystemLoader
 from league.auth import create_login_response
 from league.aws_secrets import INVITE_SECRET
 from league.content.libs import generate_response
@@ -143,9 +142,3 @@ def valid_invitation_key(supplied_key: str) -> bool:
     allowing registration"""
 
     return bool(supplied_key == INVITE_SECRET)
-
-
-def render_template(error_code: str = 'ok') -> str:
-    env = Environment(loader=FileSystemLoader('/opt/python/league/templates'))
-    template = env.get_template('register_form.html')
-    return template.render(error=error_code)
