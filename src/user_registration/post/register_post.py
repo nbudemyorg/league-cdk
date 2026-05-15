@@ -1,4 +1,3 @@
-import re
 from urllib.parse import parse_qs
 
 import boto3
@@ -6,7 +5,6 @@ from aws_lambda_context import LambdaContext
 from aws_lambda_typing.events import APIGatewayProxyEventV1
 from aws_lambda_typing.responses import APIGatewayProxyResponseV1
 from email_validator import EmailNotValidError, validate_email
-from jinja2 import Environment, FileSystemLoader
 from league.auth import create_login_response
 from league.aws_secrets import INVITE_SECRET
 from league.content.libs import generate_response
@@ -16,7 +14,7 @@ from league.tables.item.libs import create_session_item, create_user_item
 from league.tables.response.types import PutResult
 from league.tables.sessions import put_sessions_item
 from league.tables.users import put_users_item
-from league.validate import valid_player_id
+from league.validate import password_meets_criteria, valid_player_id
 
 TEST_EMAIL_DELIVERY = True
 
@@ -127,23 +125,6 @@ def form_data_valid(
     return None
 
 
-def password_meets_criteria(
-    supplied_password: str, supplied_player: str
-) -> bool:
-    """Verifies the supplied password conforms to defined password standards"""
-
-    if len(supplied_password) < 10:
-        return False
-
-    if re.search('[0-9]', supplied_password) is None:
-        return False
-
-    if re.search('[A-Z]', supplied_password) is None:
-        return False
-
-    return not re.search(supplied_player.lower(), supplied_password.lower())
-
-
 def user_already_exists(response: PutResult) -> bool | None:
     if response['success']:
         return False
@@ -160,9 +141,3 @@ def valid_invitation_key(supplied_key: str) -> bool:
     allowing registration"""
 
     return bool(supplied_key == INVITE_SECRET)
-
-
-def render_template(error_code: str = 'ok') -> str:
-    env = Environment(loader=FileSystemLoader('/opt/python/league/templates'))
-    template = env.get_template('register_form.html')
-    return template.render(error=error_code)

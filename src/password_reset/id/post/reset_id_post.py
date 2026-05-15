@@ -1,6 +1,4 @@
-import re
-from datetime import UTC, datetime
-from typing import TypeGuard
+from typing import TypeGuard, cast
 from urllib.parse import parse_qs
 
 import boto3
@@ -10,20 +8,22 @@ from aws_lambda_typing.responses import APIGatewayProxyResponseV1
 from league.content.libs import generate_response
 from league.credentials import generate_password_hash
 from league.logger import get_logger
-from league.tables.item.libs import create_user_item
+from league.tables.item.libs import create_user_item, reset_item_expired
+from league.tables.item.types import ResetItem
 from league.tables.reset import delete_reset_item, get_reset_item
 from league.tables.response.types import (
     GetItemSuccess,
     GetResult,
 )
 from league.tables.users import get_users_item, put_users_item
+from league.validate import password_meets_criteria
 
 db_client = boto3.resource('dynamodb')
 resets_table = db_client.Table('Resets')
 users_table = db_client.Table('Users')
 
 
-def get_operation_success(response: GetResult) -> TypeGuard[GetItemSuccess]:
+def get_item_success(response: GetResult) -> TypeGuard[GetItemSuccess]:
     return response['success'] is True
 
 
@@ -46,15 +46,14 @@ def lambda_handler(
 
     get_reset_response: GetResult = get_reset_item(resets_table, reset_id)
 
-    if not get_operation_success(get_reset_response):
+    if not get_item_success(get_reset_response):
         logger.critical('Failed to retrieve item from Resets table.')
         return server_error_response()
 
-    reset_item = get_reset_response['item']
-    item_expiry = reset_item['expiry']
+    reset_item = cast('ResetItem', get_reset_response['item'])
     reset_player_id = reset_item['player_id']
 
-    if reset_item_expired(item_expiry):
+    if reset_item_expired(reset_item):
         logger.info('Supplied reset id has expired. Request rejected.')
         return generate_response(200, 'reset_form.html', alert='expired')
 
@@ -67,7 +66,7 @@ def lambda_handler(
 
     get_user_response: GetResult = get_users_item(users_table, reset_player_id)
 
-    if not get_operation_success(get_user_response):
+    if not get_item_success(get_user_response):
         logger.critical('Failed to retrieve item from Users table.')
         return server_error_response()
 
@@ -129,27 +128,6 @@ def process_event(event: APIGatewayProxyEventV1) -> dict[str, str]:
             event_data['new_password'] = new_password
 
     return event_data
-
-
-def reset_item_expired(expiry: str) -> bool:
-    return datetime.now(UTC) > datetime.fromisoformat(expiry)
-
-
-def password_meets_criteria(
-    supplied_password: str, supplied_player: str
-) -> bool:
-    """Verifies the supplied password conforms to defined password standards"""
-
-    if len(supplied_password) < 10:
-        return False
-
-    if re.search('[0-9]', supplied_password) is None:
-        return False
-
-    if re.search('[A-Z]', supplied_password) is None:
-        return False
-
-    return not re.search(supplied_player.lower(), supplied_password.lower())
 
 
 def server_error_response() -> APIGatewayProxyResponseV1:

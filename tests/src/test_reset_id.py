@@ -1,8 +1,15 @@
 import sys
-from datetime import UTC, datetime, timedelta
+from typing import Any
 
 import pytest
-from freezegun import freeze_time
+
+
+@pytest.fixture
+def mock_api_event():
+    yield {
+        'pathParameters': {'resetId': 'MockResetId'},
+        'body': 'new_password=DodgyPassword',
+    }
 
 
 @pytest.mark.resetid
@@ -15,22 +22,20 @@ def test_mocked_modules(mock_league_layer: None) -> None:
 
 
 @pytest.mark.resetid
-def test_reset_item_still_valid_true(frozen_date: datetime) -> None:
-    from src.password_reset.id.get.reset_id_get import reset_item_still_valid
+def test_process_event(mock_api_event: dict[str, Any]) -> None:
+    from src.password_reset.id.post.reset_id_post import process_event
 
-    with freeze_time(frozen_date):
-        valid_token = datetime.now(UTC) + timedelta(seconds=60)
-        test_item = {'expiry': valid_token.isoformat()}
+    response = process_event(mock_api_event)
 
-        assert reset_item_still_valid(test_item) is True
+    assert response['reset_id'] == 'MockResetId'
+    assert response['new_password'] == 'DodgyPassword'
 
+    del mock_api_event['body']
+    response = process_event(mock_api_event)
+    assert response['reset_id'] == 'MockResetId'
+    assert response['new_password'] == 'missing'
 
-@pytest.mark.resetid
-def test_reset_item_still_valid_false(frozen_date: datetime) -> None:
-    from src.password_reset.id.get.reset_id_get import reset_item_still_valid
-
-    with freeze_time(frozen_date):
-        valid_token = datetime.now(UTC) - timedelta(seconds=60)
-        test_item = {'expiry': valid_token.isoformat()}
-
-        assert reset_item_still_valid(test_item) is False
+    del mock_api_event['pathParameters']
+    response = process_event(mock_api_event)
+    assert response['reset_id'] == 'missing'
+    assert response['new_password'] == 'missing'

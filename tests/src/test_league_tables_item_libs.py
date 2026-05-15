@@ -1,5 +1,5 @@
 import sys
-from datetime import datetime, timedelta
+from datetime import UTC, datetime, timedelta
 
 import pytest
 from freezegun import freeze_time
@@ -87,3 +87,19 @@ def test_create_reset_item(
         assert reset_item['ttl'] == int(expected_expiry.timestamp())
 
     assert mock_urlsafe.call_count == 1
+
+
+@pytest.mark.item_libs
+def test_reset_item_expired(frozen_date: datetime) -> None:
+    from layers.league.python.league.tables.item.libs import reset_item_expired
+
+    with freeze_time(frozen_date):
+        expired = datetime.now(UTC) - timedelta(seconds=60)
+        test_item = {'expiry': expired.isoformat()}
+
+        assert reset_item_expired(test_item) is True
+
+        still_valid = datetime.now(UTC) + timedelta(seconds=60)
+        test_item['expiry'] = still_valid.isoformat()
+
+        assert reset_item_expired(test_item) is False
