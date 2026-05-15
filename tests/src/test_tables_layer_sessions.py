@@ -10,15 +10,11 @@ from layers.league.python.league.tables.item.types import SessionItem
 
 
 @pytest.mark.sessions_table
-def test_mocked_modules(mock_league_tables_layer: None) -> None:
+def test_mocked_modules(mock_league_layer: None) -> None:
     """Import mocked modules for subsequent tests"""
-    assert 'league.tables.item.libs' in sys.modules
     assert 'league.tables.item.types' in sys.modules
-    assert 'league.tables.reset' in sys.modules
     assert 'league.tables.response.libs' in sys.modules
     assert 'league.tables.response.types' in sys.modules
-    assert 'league.tables.sessions' in sys.modules
-    assert 'league.tables.users' in sys.modules
 
 
 @pytest.mark.sessions_table

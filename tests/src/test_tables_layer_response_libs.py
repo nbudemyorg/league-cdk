@@ -37,14 +37,8 @@ def mock_update_response():
 
 
 @pytest.mark.response_libs
-def test_mocked_modules(mock_league_tables_layer: None) -> None:
-    assert 'league.tables.item.libs' in sys.modules
-    assert 'league.tables.item.types' in sys.modules
-    assert 'league.tables.reset' in sys.modules
-    assert 'league.tables.response.libs' in sys.modules
+def test_mocked_modules(mock_league_layer: None) -> None:
     assert 'league.tables.response.types' in sys.modules
-    assert 'league.tables.sessions' in sys.modules
-    assert 'league.tables.users' in sys.modules
 
 
 @pytest.mark.response_libs

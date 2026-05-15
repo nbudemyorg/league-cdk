@@ -53,14 +53,15 @@ def mock_get_users_item_exception(
 
 @pytest.mark.login
 def test_mocked_modules_imported(
-    mock_sessions_layer: None,
     mock_bcrypt_module: None,
-    mock_league_tables_layer: None,
+    mock_league_layer: None,
 ) -> None:
     """Test mocked modules are imported"""
 
     assert 'bcrypt' in sys.modules
     assert 'league.auth' in sys.modules
+    assert 'league.content.libs' in sys.modules
+    assert 'league.logger' in sys.modules
     assert 'league.tables.item.libs' in sys.modules
     assert 'league.tables.item.types' in sys.modules
     assert 'league.tables.sessions' in sys.modules

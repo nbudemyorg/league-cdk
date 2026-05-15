@@ -11,17 +11,8 @@ MOCK_UUID4 = '12345678-1234-4678-8234-567812345678'
 
 
 @pytest.mark.item_libs
-def test_mocked_modules(
-    mock_league_tables_layer: None, mock_html_layer: None
-) -> None:
-    assert 'league.tables.item.libs' in sys.modules
+def test_mocked_modules(mock_league_layer: None) -> None:
     assert 'league.tables.item.types' in sys.modules
-    assert 'league.tables.reset' in sys.modules
-    assert 'league.tables.response.libs' in sys.modules
-    assert 'league.tables.response.types' in sys.modules
-    assert 'league.tables.sessions' in sys.modules
-    assert 'league.tables.users' in sys.modules
-    assert 'league.static.pages' in sys.modules
 
 
 @pytest.mark.item_libs
