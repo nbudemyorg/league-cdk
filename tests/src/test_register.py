@@ -138,12 +138,14 @@ def test_user_already_exists_exception(
 
     assert response is None
 
+
 @pytest.mark.registration
 def test_valid_invitation_key(monkeypatch: pytest.MonkeyPatch) -> None:
     """Returns True is the string supplied equals value stored in
     INVITE_SECRET"""
 
     import src.user_registration.post.register_post as register_post
+
     monkeypatch.setattr(register_post, 'INVITE_SECRET', 'correct_key')
 
     assert register_post.valid_invitation_key('correct_key') is True

@@ -1,4 +1,3 @@
-from datetime import UTC, datetime
 from typing import TypeGuard, cast
 
 import boto3

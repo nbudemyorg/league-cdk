@@ -92,6 +92,7 @@ def test_create_reset_item(
 @pytest.mark.item_libs
 def test_reset_item_expired(frozen_date: datetime) -> None:
     from layers.league.python.league.tables.item.libs import reset_item_expired
+
     with freeze_time(frozen_date):
         expired = datetime.now(UTC) - timedelta(seconds=60)
         test_item = {'expiry': expired.isoformat()}

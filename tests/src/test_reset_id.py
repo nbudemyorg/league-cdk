@@ -1,18 +1,14 @@
 import sys
-from datetime import UTC, datetime, timedelta
 from typing import Any
 
 import pytest
-from freezegun import freeze_time
 
 
 @pytest.fixture
 def mock_api_event():
     yield {
-        'pathParameters': {
-            'resetId': 'MockResetId'
-        },
-        'body': 'new_password=DodgyPassword'
+        'pathParameters': {'resetId': 'MockResetId'},
+        'body': 'new_password=DodgyPassword',
     }
 
 
@@ -28,6 +24,7 @@ def test_mocked_modules(mock_league_layer: None) -> None:
 @pytest.mark.resetid
 def test_process_event(mock_api_event: dict[str, Any]) -> None:
     from src.password_reset.id.post.reset_id_post import process_event
+
     response = process_event(mock_api_event)
 
     assert response['reset_id'] == 'MockResetId'

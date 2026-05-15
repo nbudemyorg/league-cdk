@@ -1,6 +1,4 @@
-import re
-from datetime import UTC, datetime
-from typing import TypeGuard
+from typing import TypeGuard, cast
 from urllib.parse import parse_qs
 
 import boto3
@@ -11,6 +9,7 @@ from league.content.libs import generate_response
 from league.credentials import generate_password_hash
 from league.logger import get_logger
 from league.tables.item.libs import create_user_item, reset_item_expired
+from league.tables.item.types import ResetItem
 from league.tables.reset import delete_reset_item, get_reset_item
 from league.tables.response.types import (
     GetItemSuccess,
@@ -24,7 +23,7 @@ resets_table = db_client.Table('Resets')
 users_table = db_client.Table('Users')
 
 
-def get_operation_success(response: GetResult) -> TypeGuard[GetItemSuccess]:
+def get_item_success(response: GetResult) -> TypeGuard[GetItemSuccess]:
     return response['success'] is True
 
 
@@ -47,11 +46,11 @@ def lambda_handler(
 
     get_reset_response: GetResult = get_reset_item(resets_table, reset_id)
 
-    if not get_operation_success(get_reset_response):
+    if not get_item_success(get_reset_response):
         logger.critical('Failed to retrieve item from Resets table.')
         return server_error_response()
 
-    reset_item = get_reset_response['item']
+    reset_item = cast('ResetItem', get_reset_response['item'])
     reset_player_id = reset_item['player_id']
 
     if reset_item_expired(reset_item):
@@ -67,7 +66,7 @@ def lambda_handler(
 
     get_user_response: GetResult = get_users_item(users_table, reset_player_id)
 
-    if not get_operation_success(get_user_response):
+    if not get_item_success(get_user_response):
         logger.critical('Failed to retrieve item from Users table.')
         return server_error_response()
 
