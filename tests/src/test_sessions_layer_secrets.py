@@ -49,7 +49,7 @@ def test_invitation_import_env_missing_region(
 
     assert exc_info.type is RuntimeError
     assert (
-        exc_info.value.args[0] == 'Environment variable AWS_REGION is not set.'
+        exc_info.value.args[0] == 'Environment variable REGION is not set.'
     )
 
 

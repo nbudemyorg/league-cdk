@@ -11,7 +11,7 @@ if secret_name is None:
     raise RuntimeError('Environment variable INVITE_KEY is not set.')
 
 if aws_region is None:
-    raise RuntimeError('Environment variable AWS_REGION is not set.')
+    raise RuntimeError('Environment variable REGION is not set.')
 
 sm_client = boto3.client(service_name='secretsmanager', region_name=aws_region)
 
