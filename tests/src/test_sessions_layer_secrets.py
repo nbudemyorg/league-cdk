@@ -48,9 +48,7 @@ def test_invitation_import_env_missing_region(
         print(INVITE_SECRET)  #  Ruff check fudge
 
     assert exc_info.type is RuntimeError
-    assert (
-        exc_info.value.args[0] == 'Environment variable REGION is not set.'
-    )
+    assert exc_info.value.args[0] == 'Environment variable REGION is not set.'
 
 
 @pytest.mark.registration

@@ -6,7 +6,6 @@ from aws_lambda_context import LambdaContext
 from aws_lambda_typing.events import APIGatewayProxyEventV1
 from aws_lambda_typing.responses import APIGatewayProxyResponseV1
 from league.content.libs import generate_response
-from league.static.pages import access_denied, home_page, server_error
 from league.tables.item.libs import valid_session
 from league.tables.item.types import SessionItem
 from league.tables.sessions import get_sessions_item
@@ -22,7 +21,7 @@ def lambda_handler(
     event_cookies = event.get('headers', False).get('cookie', False)
 
     if not event_cookies:
-        generate_response(401, 'login_form.html', alert='invalid')
+        return generate_response(401, 'login_form.html', alert='invalid')
 
     received_cookies = cookies.SimpleCookie()
     received_cookies.load(event['headers']['cookie'])
@@ -30,14 +29,14 @@ def lambda_handler(
     session_id = received_cookies.get('session_id', None)
 
     if not player_id or not session_id:
-        generate_response(401, 'login_form.html', alert='invalid')
+        return generate_response(401, 'login_form.html', alert='invalid')
 
     get_response = get_sessions_item(
         sessions_table, player_id.value, session_id.value
     )
 
     if get_response['success'] is False:
-        generate_response(503, 'login_form.html', alert='server')
+        return generate_response(503, 'login_form.html', alert='server')
 
     item = get_response.get('item')
 
