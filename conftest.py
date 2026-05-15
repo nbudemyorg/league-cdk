@@ -13,26 +13,16 @@ from types_boto3_dynamodb.service_resource import Table
 
 
 @pytest.fixture(scope='module')
-def mock_html_layer():
-    sys.modules['league.static.pages'] = MagicMock()
-    sys.modules['league.templates'] = MagicMock()
-
-
-@pytest.fixture(scope='module')
-def mock_sessions_layer():
-    sys.modules['league.auth'] = MagicMock()
-    sys.modules['league.credentials'] = MagicMock()
-    sys.modules['league.aws_secrets'] = MagicMock()
-    sys.modules['league.validate'] = MagicMock()
-
-
-@pytest.fixture(scope='module')
 def mock_bcrypt_module():
     sys.modules['bcrypt'] = MagicMock()
 
 
 @pytest.fixture(scope='module')
-def mock_league_tables_layer():
+def mock_league_layer():
+    sys.modules['league.auth'] = MagicMock()
+    sys.modules['league.aws_secrets'] = MagicMock()
+    sys.modules['league.credentials'] = MagicMock()
+    sys.modules['league.content.libs'] = MagicMock()
     sys.modules['league.logger'] = MagicMock()
     sys.modules['league.tables.item.types'] = MagicMock()
     sys.modules['league.tables.item.libs'] = MagicMock()
@@ -41,7 +31,7 @@ def mock_league_tables_layer():
     sys.modules['league.tables.response.types'] = MagicMock()
     sys.modules['league.tables.sessions'] = MagicMock()
     sys.modules['league.tables.users'] = MagicMock()
-    sys.modules['league.content.libs'] = MagicMock()
+    sys.modules['league.validate'] = MagicMock()
 
 
 @pytest.fixture(scope='function')

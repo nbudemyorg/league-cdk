@@ -57,14 +57,14 @@ def users_put_result_client_err() -> PutResult:
 
 
 @pytest.mark.registration
-def test_mocked_modules_imported(
-    mock_sessions_layer: None,
-    mock_league_tables_layer: None,
-) -> None:
+def test_mocked_modules_imported(mock_league_layer: None) -> None:
     """Test successful mocked import of modules"""
 
     assert 'league.auth' in sys.modules
+    assert 'league.aws_secrets' in sys.modules
+    assert 'league.content.libs' in sys.modules
     assert 'league.credentials' in sys.modules
+    assert 'league.logger' in sys.modules
     assert 'league.tables.item.libs' in sys.modules
     assert 'league.tables.response.types' in sys.modules
     assert 'league.tables.sessions' in sys.modules

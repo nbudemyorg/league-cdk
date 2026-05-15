@@ -6,16 +6,12 @@ from freezegun import freeze_time
 
 
 @pytest.mark.resetid
-def test_mocked_modules(
-    mock_league_tables_layer: None, mock_html_layer: None
-) -> None:
-    assert 'league.auth' in sys.modules
-    assert 'league.tables.item.libs' in sys.modules
+def test_mocked_modules(mock_league_layer: None) -> None:
+    assert 'league.content.libs' in sys.modules
+    assert 'league.logger' in sys.modules
     assert 'league.tables.item.types' in sys.modules
-    assert 'league.tables.sessions' in sys.modules
-    assert 'league.tables.users' in sys.modules
-    assert 'league.validate' in sys.modules
-    assert 'league.static.pages' in sys.modules
+    assert 'league.tables.reset' in sys.modules
+    assert 'league.tables.response.types' in sys.modules
 
 
 @pytest.mark.resetid
