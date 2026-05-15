@@ -16,7 +16,7 @@ from league.tables.item.libs import create_session_item, create_user_item
 from league.tables.response.types import PutResult
 from league.tables.sessions import put_sessions_item
 from league.tables.users import put_users_item
-from league.validate import valid_player_id
+from league.validate import password_meets_criteria, valid_player_id
 
 TEST_EMAIL_DELIVERY = True
 
@@ -125,23 +125,6 @@ def form_data_valid(
         return transformed_data
 
     return None
-
-
-def password_meets_criteria(
-    supplied_password: str, supplied_player: str
-) -> bool:
-    """Verifies the supplied password conforms to defined password standards"""
-
-    if len(supplied_password) < 10:
-        return False
-
-    if re.search('[0-9]', supplied_password) is None:
-        return False
-
-    if re.search('[A-Z]', supplied_password) is None:
-        return False
-
-    return not re.search(supplied_player.lower(), supplied_password.lower())
 
 
 def user_already_exists(response: PutResult) -> bool | None:

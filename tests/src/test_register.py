@@ -4,16 +4,6 @@ import pytest
 
 from layers.league.python.league.tables.response.types import PutResult
 
-PASSWORD_VARIATIONS = [
-    ('tooshort', 'PlayerOne', False),
-    ('missing_upper_number', 'PlayerOne', False),
-    ('Missing_number', 'PlayerOne', False),
-    ('missing_upper1', 'PlayerOne', False),
-    ('PlayerOne123', 'PlayerOne', False),
-    ('playerone1a', 'PlayerOne', False),
-    ('PLAYERONE1a', 'PlayerOne', False),
-]
-
 FORM_MISSING_PARAM = [
     ('player_id=New_User', None),
     ('player_id=New_User&password=bobbins', None),
@@ -28,7 +18,6 @@ FORM_MISSING_PARAM = [
     ('email=bob@hotmail.com&invite=CorrectValue', None),
     ('email=bob@hotmail.com&invite=CorrectValue&password=bobbins', None),
 ]
-
 
 DELIVERY_CHECK = False
 
@@ -72,22 +61,7 @@ def test_mocked_modules_imported(mock_league_layer: None) -> None:
     assert 'league.validate' in sys.modules
 
 
-@pytest.mark.parametrize(
-    'password, player, expected_result', PASSWORD_VARIATIONS
-)
-@pytest.mark.registration
-def test_password_meets_criteria(
-    password: str,
-    player: str,
-    expected_result: bool,
-) -> None:
-    """Tests to make sure supplied password conforms to defined standard"""
 
-    from src.user_registration.post.register_post import (
-        password_meets_criteria,
-    )
-
-    assert password_meets_criteria(password, player) is expected_result
 
 
 @pytest.mark.parametrize('form_data, expected_result', FORM_MISSING_PARAM)

@@ -17,6 +17,7 @@ from league.tables.response.types import (
     GetResult,
 )
 from league.tables.users import get_users_item, put_users_item
+from league.validate import password_meets_criteria
 
 db_client = boto3.resource('dynamodb')
 resets_table = db_client.Table('Resets')
@@ -133,23 +134,6 @@ def process_event(event: APIGatewayProxyEventV1) -> dict[str, str]:
 
 def reset_item_expired(expiry: str) -> bool:
     return datetime.now(UTC) > datetime.fromisoformat(expiry)
-
-
-def password_meets_criteria(
-    supplied_password: str, supplied_player: str
-) -> bool:
-    """Verifies the supplied password conforms to defined password standards"""
-
-    if len(supplied_password) < 10:
-        return False
-
-    if re.search('[0-9]', supplied_password) is None:
-        return False
-
-    if re.search('[A-Z]', supplied_password) is None:
-        return False
-
-    return not re.search(supplied_player.lower(), supplied_password.lower())
 
 
 def server_error_response() -> APIGatewayProxyResponseV1:
