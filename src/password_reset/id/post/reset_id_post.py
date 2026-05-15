@@ -10,7 +10,7 @@ from aws_lambda_typing.responses import APIGatewayProxyResponseV1
 from league.content.libs import generate_response
 from league.credentials import generate_password_hash
 from league.logger import get_logger
-from league.tables.item.libs import create_user_item
+from league.tables.item.libs import create_user_item, reset_item_expired
 from league.tables.reset import delete_reset_item, get_reset_item
 from league.tables.response.types import (
     GetItemSuccess,
@@ -52,10 +52,9 @@ def lambda_handler(
         return server_error_response()
 
     reset_item = get_reset_response['item']
-    item_expiry = reset_item['expiry']
     reset_player_id = reset_item['player_id']
 
-    if reset_item_expired(item_expiry):
+    if reset_item_expired(reset_item):
         logger.info('Supplied reset id has expired. Request rejected.')
         return generate_response(200, 'reset_form.html', alert='expired')
 
@@ -130,10 +129,6 @@ def process_event(event: APIGatewayProxyEventV1) -> dict[str, str]:
             event_data['new_password'] = new_password
 
     return event_data
-
-
-def reset_item_expired(expiry: str) -> bool:
-    return datetime.now(UTC) > datetime.fromisoformat(expiry)
 
 
 def server_error_response() -> APIGatewayProxyResponseV1:

@@ -63,3 +63,6 @@ def create_reset_item(player: str) -> ResetItem:
         'expiry': expiry_string,
         'ttl': item_ttl,
     }
+
+def reset_item_expired(item: ResetItem) -> bool:
+    return datetime.now(UTC) > datetime.fromisoformat(item['expiry'])
