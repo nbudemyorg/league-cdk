@@ -18,15 +18,17 @@ class LeagueRootStack(Stack):
 
         layers_stack = LayersStack(self, 'LayersStack')
 
+        stack_layers = layers_stack.layers
+
         events_stack = EventsStack(
-            self, 'EventStack', stack_layers=layers_stack.layers
+            self, 'EventStack', stack_layers=stack_layers
         )
 
         login_registration_stack = LoginRegistrationStack(
             self,
             'LoginRegistrationStack',
             events_arn=events_stack.league_bus_arn,
-            stack_layers=layers_stack.layers,
+            stack_layers=stack_layers,
         )
 
         api_config = EndpointConfiguration(types=[EndpointType.REGIONAL])
