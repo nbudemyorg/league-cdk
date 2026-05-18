@@ -3,7 +3,6 @@ from pathlib import Path
 import yaml
 from aws_cdk import Stack
 from aws_cdk.aws_events import EventBus
-from aws_cdk.aws_lambda import LayerVersion
 from constructs import Construct
 
 from lib import lambdas
@@ -14,7 +13,7 @@ class EventsStack(Stack):
         self,
         scope: Construct,
         construct_id: str,
-        stack_layers: dict[str, LayerVersion],
+        stack_layers: dict[str, str],
         **kwargs,
     ):
         super().__init__(scope, construct_id, **kwargs)

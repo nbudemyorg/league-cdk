@@ -10,8 +10,10 @@ DEFAULT_RUNTIME = Runtime.PYTHON_3_14
 
 
 def create_layer_list(
+    self,
+    name: str,
     requested_layers: list[str],
-    stack_layers: list[dict[str, LayerVersion]],
+    stack_layers: dict[str, str],
 ) -> list[LayerVersion] | None:
 
     layers = []
@@ -19,7 +21,11 @@ def create_layer_list(
         if not isinstance(requested_layer, str):
             raise TypeError('Lambda layer names must be of type str.')
         if requested_layer in stack_layers:
-            layers.append(stack_layers[requested_layer])
+            layer_arn = stack_layers[requested_layer]
+            layer_version = LayerVersion.from_layer_version_arn(
+                self, f'{name}-{requested_layer}', layer_arn
+            )
+            layers.append(layer_version)
         else:
             raise ValueError(f'Lambda layer {requested_layer} not found.')
 
@@ -109,7 +115,9 @@ def create_lambda(
     #    raise TypeError('environment must be of type dict.')
 
     if isinstance(requested_layers, list):
-        layer_list = create_layer_list(requested_layers, bundle['layers'])
+        layer_list = create_layer_list(
+            self, lambda_name, requested_layers, bundle['layers']
+        )
     else:
         layer_list = None
 

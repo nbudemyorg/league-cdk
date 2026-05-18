@@ -24,6 +24,6 @@ class LayersStack(Stack):
                 layer_source=layer['source'],
             )
 
-            stack_layers.update({layer['name']: new_layer})
+            stack_layers.update({layer['name']: new_layer.layer_version_arn})
 
         self.layers = stack_layers

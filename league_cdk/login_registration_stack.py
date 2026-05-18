@@ -2,7 +2,6 @@ from pathlib import Path
 
 import yaml
 from aws_cdk import Fn, Stack
-from aws_cdk.aws_lambda import LayerVersion
 from constructs import Construct
 
 from lib import ddb, lambdas
@@ -14,7 +13,7 @@ class LoginRegistrationStack(Stack):
         scope: Construct,
         construct_id: str,
         events_arn: str,
-        stack_layers: dict[str, LayerVersion],
+        stack_layers: dict[str, str],
         **kwargs,
     ) -> None:
         super().__init__(scope, construct_id, **kwargs)

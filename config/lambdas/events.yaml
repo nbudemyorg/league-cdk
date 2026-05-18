@@ -3,13 +3,13 @@ lambdas:
   handler: registration.lambda_handler
   lambda_name: RegistrationEvent
   layers:
-  - league
   - common-pkg
+  - league
   source_dir: src/events/registration
 - name: reg_backout_event
   handler: registration_backout.lambda_handler
   lambda_name: RegistrationBackoutEvent
   layers:
-  - league
   - common-pkg
+  - league
   source_dir: src/events/registration_backout
