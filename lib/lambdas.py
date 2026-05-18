@@ -76,6 +76,7 @@ def create_lambda(
     stack_layers: dict[str, LayerVersion],
     stack_secrets: dict[str, str],
     stack_tables: dict[str, Table],
+    events_arn: str,
     **kwargs,
 ) -> Function:
 
@@ -148,6 +149,16 @@ def create_lambda(
                 secret_arn = stack_secrets[secret_name]
                 sid = generate_sid(lambda_name, res, secret_name)
                 new_policy = create_policy(secret_actions, secret_arn, sid)
+                new_lambda.add_to_role_policy(new_policy)
+
+        if 'events' in iam_policies:
+            events_policies = iam_policies['events']
+            res = 'events'
+            for policy in events_policies:
+                events_name = get_policy_resource(res, policy, lambda_name)
+                events_actions = get_policy_actions(res, policy, lambda_name)
+                sid = generate_sid(lambda_name, res, events_name)
+                new_policy = create_policy(events_actions, events_arn, sid)
                 new_lambda.add_to_role_policy(new_policy)
 
     return new_lambda

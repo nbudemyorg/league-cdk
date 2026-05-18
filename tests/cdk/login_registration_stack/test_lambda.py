@@ -2,10 +2,14 @@ import aws_cdk as core
 import aws_cdk.assertions as assertions
 import pytest
 
+from league_cdk.event_stack import EventStack
 from league_cdk.login_registration_stack import LoginRegistrationStack
 
 app = core.App()
-stack = LoginRegistrationStack(app, 'league')
+event_stack = EventStack(app, 'events')
+stack = LoginRegistrationStack(
+    app, 'league', events_arn=event_stack.league_bus_arn
+)
 template = assertions.Template.from_stack(stack)
 
 
