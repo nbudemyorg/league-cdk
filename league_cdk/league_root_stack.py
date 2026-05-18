@@ -7,7 +7,7 @@ from aws_cdk.aws_apigateway import (
 )
 from constructs import Construct
 
-from league_cdk.event_stack import EventStack
+from league_cdk.events_stack import EventsStack
 from league_cdk.layers_stack import LayersStack
 from league_cdk.login_registration_stack import LoginRegistrationStack
 
@@ -18,12 +18,14 @@ class LeagueRootStack(Stack):
 
         layers_stack = LayersStack(self, 'LayersStack')
 
-        event_monitoring_stack = EventStack(self, 'EventStack')
+        events_stack = EventsStack(
+            self, 'EventStack', stack_layers=layers_stack.layers
+        )
 
         login_registration_stack = LoginRegistrationStack(
             self,
             'LoginRegistrationStack',
-            events_arn=event_monitoring_stack.league_bus_arn,
+            events_arn=events_stack.league_bus_arn,
             stack_layers=layers_stack.layers,
         )
 

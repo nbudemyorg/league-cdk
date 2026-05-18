@@ -73,10 +73,7 @@ def get_policy_resource(
 
 def create_lambda(
     self,
-    stack_layers: dict[str, LayerVersion],
-    stack_secrets: dict[str, str],
-    stack_tables: dict[str, Table],
-    events_arn: str,
+    bundle: dict[str, Any],
     **kwargs,
 ) -> Function:
 
@@ -112,7 +109,7 @@ def create_lambda(
     #    raise TypeError('environment must be of type dict.')
 
     if isinstance(requested_layers, list):
-        layer_list = create_layer_list(requested_layers, stack_layers)
+        layer_list = create_layer_list(requested_layers, bundle['layers'])
     else:
         layer_list = None
 
@@ -135,7 +132,7 @@ def create_lambda(
             for policy in table_policies:
                 table_name = get_policy_resource(res, policy, lambda_name)
                 table_actions = get_policy_actions(res, policy, lambda_name)
-                table_arn = get_table_arn(stack_tables, table_name)
+                table_arn = get_table_arn(bundle['tables'], table_name)
                 sid = generate_sid(lambda_name, res, table_name)
                 new_policy = create_policy(table_actions, table_arn, sid)
                 new_lambda.add_to_role_policy(new_policy)
@@ -146,7 +143,7 @@ def create_lambda(
             for policy in secret_policies:
                 secret_name = get_policy_resource(res, policy, lambda_name)
                 secret_actions = get_policy_actions(res, policy, lambda_name)
-                secret_arn = stack_secrets[secret_name]
+                secret_arn = bundle['secrets'][secret_name]
                 sid = generate_sid(lambda_name, res, secret_name)
                 new_policy = create_policy(secret_actions, secret_arn, sid)
                 new_lambda.add_to_role_policy(new_policy)
@@ -158,7 +155,9 @@ def create_lambda(
                 events_name = get_policy_resource(res, policy, lambda_name)
                 events_actions = get_policy_actions(res, policy, lambda_name)
                 sid = generate_sid(lambda_name, res, events_name)
-                new_policy = create_policy(events_actions, events_arn, sid)
+                new_policy = create_policy(
+                    events_actions, bundle['events'], sid
+                )
                 new_lambda.add_to_role_policy(new_policy)
 
     return new_lambda
