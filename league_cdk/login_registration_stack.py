@@ -8,7 +8,9 @@ from lib import ddb, lambdas, layers
 
 
 class LoginRegistrationStack(Stack):
-    def __init__(self, scope: Construct, construct_id: str, **kwargs) -> None:
+    def __init__(
+        self, scope: Construct, construct_id: str, events_arn: str, **kwargs
+    ) -> None:
         super().__init__(scope, construct_id, **kwargs)
 
         aws_region = Fn.ref('AWS::Region')
@@ -58,6 +60,7 @@ class LoginRegistrationStack(Stack):
                 stack_layers=stack_layers,
                 stack_secrets=stack_secrets,
                 stack_tables=stack_tables,
+                events_arn=events_arn,
                 **lambda_dict,
             )
 

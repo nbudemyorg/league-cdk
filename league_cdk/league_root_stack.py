@@ -7,6 +7,7 @@ from aws_cdk.aws_apigateway import (
 )
 from constructs import Construct
 
+from league_cdk.event_stack import EventStack
 from league_cdk.login_registration_stack import LoginRegistrationStack
 
 
@@ -14,8 +15,12 @@ class LeagueRootStack(Stack):
     def __init__(self, scope: Construct, construct_id: str, **kwargs):
         super().__init__(scope, construct_id, **kwargs)
 
+        event_monitoring_stack = EventStack(self, 'EventStack')
+
         login_registration_stack = LoginRegistrationStack(
-            self, 'LoginRegistrationStack'
+            self,
+            'LoginRegistrationStack',
+            event_monitoring_stack.league_bus_arn,
         )
 
         api_config = EndpointConfiguration(types=[EndpointType.REGIONAL])

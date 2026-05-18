@@ -18,6 +18,10 @@ lambdas:
   - emailvalidator-pkg
   - league
   policies:
+    events:
+    - actions:
+      - events:PutEvents
+      name: league
     secrets:
     - actions:
       - secretsmanager:GetSecretValue
