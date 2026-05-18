@@ -2,14 +2,20 @@ from pathlib import Path
 
 import yaml
 from aws_cdk import Fn, Stack
+from aws_cdk.aws_lambda import LayerVersion
 from constructs import Construct
 
-from lib import ddb, lambdas, layers
+from lib import ddb, lambdas
 
 
 class LoginRegistrationStack(Stack):
     def __init__(
-        self, scope: Construct, construct_id: str, events_arn: str, **kwargs
+        self,
+        scope: Construct,
+        construct_id: str,
+        events_arn: str,
+        stack_layers: dict[str, LayerVersion],
+        **kwargs,
     ) -> None:
         super().__init__(scope, construct_id, **kwargs)
 
@@ -34,21 +40,6 @@ class LoginRegistrationStack(Stack):
             table_name = table_config['name'].lower()
             new_table = ddb.create_table(self, **table_config)
             stack_tables.update({table_name: new_table})
-
-        with Path.open('./config/layers.yaml') as layers_yaml:
-            layers_config = yaml.load(layers_yaml, yaml.FullLoader)
-
-        stack_layers = {}
-
-        for layer in layers_config['layers']:
-            new_layer = layers.create_lambda_layer(
-                self,
-                self.stack_name,
-                layer_name=layer['name'],
-                layer_source=layer['source'],
-            )
-
-            stack_layers.update({layer['name']: new_layer})
 
         with Path.open('./config/lambdas/login_reg.yaml') as lambdas_yaml:
             lambdas_config = yaml.load(lambdas_yaml, yaml.FullLoader)
