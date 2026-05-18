@@ -1,3 +1,5 @@
+import json
+from typing import Any
 from urllib.parse import parse_qs
 
 import boto3
@@ -15,6 +17,8 @@ from league.tables.response.types import PutResult
 from league.tables.sessions import put_sessions_item
 from league.tables.users import put_users_item
 from league.validate import password_meets_criteria, valid_player_id
+from types_boto3_events.client import EventBridgeClient
+from types_boto3_events.type_defs import PutEventsRequestEntryTypeDef
 
 TEST_EMAIL_DELIVERY = True
 
@@ -83,6 +87,15 @@ def lambda_handler(
         logger.critical('Failed to create new session Users table')
         return generate_response(503, 'register_form.html', alert='server')
 
+    if not send_event_success(
+        new_player_event(supplied_player_id, supplied_email)
+    ):
+        logger.warning('Failed to send player registration event.')
+        if not send_event_success(backout_player_event(supplied_player_id)):
+            logger.critical(
+                f'Failed to backout registration for {supplied_player_id}'
+            )
+
     logger.info('Registration process completed.')
     return create_login_response(
         supplied_player_id, session_item['session_id']
@@ -141,3 +154,44 @@ def valid_invitation_key(supplied_key: str) -> bool:
     allowing registration"""
 
     return bool(supplied_key == INVITE_SECRET)
+
+
+def send_event_success(event: PutEventsRequestEntryTypeDef) -> bool:
+    """Sends eventbridge event and returns whether event was accepted"""
+    events_client: EventBridgeClient = boto3.client('events')
+    response = events_client.put_events(Entries=[event])
+
+    return response['FailedEntryCount'] == 0
+
+
+def new_player_event(
+    player: str, email: str
+) -> PutEventsRequestEntryTypeDef:
+    """Creates a new player registration event"""
+
+    message_detail = {
+        'player_id': player,
+        'email': email
+    }
+
+    return {
+        'Source': 'league.registration',
+        'DetailType': f'New player registration: {player}',
+        'Detail': json.dumps(message_detail),
+        'EventBusName': 'league'
+    }
+
+
+def backout_player_event(player: str) -> PutEventsRequestEntryTypeDef:
+    message_detail = {
+        'player_id': player
+    }
+    """Creates an eventbridge event to remove a player whose registration
+    failed"""
+
+    return {
+        'Source': 'league.registration.backout',
+        'DetailType': f'Remove failed registration for: {player}',
+        'Detail': json.dumps(message_detail),
+        'EventBusName': 'league'
+    }
