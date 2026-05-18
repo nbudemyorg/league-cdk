@@ -1,5 +1,4 @@
 import json
-from typing import Any
 from urllib.parse import parse_qs
 
 import boto3
@@ -164,28 +163,21 @@ def send_event_success(event: PutEventsRequestEntryTypeDef) -> bool:
     return response['FailedEntryCount'] == 0
 
 
-def new_player_event(
-    player: str, email: str
-) -> PutEventsRequestEntryTypeDef:
+def new_player_event(player: str, email: str) -> PutEventsRequestEntryTypeDef:
     """Creates a new player registration event"""
 
-    message_detail = {
-        'player_id': player,
-        'email': email
-    }
+    message_detail = {'player_id': player, 'email': email}
 
     return {
         'Source': 'league.registration',
         'DetailType': f'New player registration: {player}',
         'Detail': json.dumps(message_detail),
-        'EventBusName': 'league'
+        'EventBusName': 'league',
     }
 
 
 def backout_player_event(player: str) -> PutEventsRequestEntryTypeDef:
-    message_detail = {
-        'player_id': player
-    }
+    message_detail = {'player_id': player}
     """Creates an eventbridge event to remove a player whose registration
     failed"""
 
@@ -193,5 +185,5 @@ def backout_player_event(player: str) -> PutEventsRequestEntryTypeDef:
         'Source': 'league.registration.backout',
         'DetailType': f'Remove failed registration for: {player}',
         'Detail': json.dumps(message_detail),
-        'EventBusName': 'league'
+        'EventBusName': 'league',
     }

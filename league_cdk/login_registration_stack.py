@@ -44,14 +44,18 @@ class LoginRegistrationStack(Stack):
         with Path.open('./config/lambdas/login_reg.yaml') as lambdas_yaml:
             lambdas_config = yaml.load(lambdas_yaml, yaml.FullLoader)
 
+        lambda_bundle = {
+            'layers': stack_layers,
+            'secrets': stack_secrets,
+            'tables': stack_tables,
+            'events': events_arn,
+        }
+
         for lambda_dict in lambdas_config['lambdas']:
             property_name = lambda_dict['name']
             new_lambda = lambdas.create_lambda(
                 self,
-                stack_layers=stack_layers,
-                stack_secrets=stack_secrets,
-                stack_tables=stack_tables,
-                events_arn=events_arn,
+                bundle=lambda_bundle,
                 **lambda_dict,
             )
 
