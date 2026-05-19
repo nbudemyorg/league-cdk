@@ -1,14 +1,14 @@
 from pathlib import Path
 
 import yaml
-from aws_cdk import Stack
+from aws_cdk import NestedStack
 from aws_cdk.aws_events import EventBus
 from constructs import Construct
 
 from lib import lambdas
 
 
-class EventsStack(Stack):
+class EventsStack(NestedStack):
     def __init__(
         self,
         scope: Construct,
