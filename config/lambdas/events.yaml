@@ -1,15 +1,19 @@
 lambdas:
-- name: reg_event
-  handler: registration.lambda_handler
-  lambda_name: RegistrationEvent
-  layers:
-  - common-pkg
-  - league
-  source_dir: src/events/registration
-- name: reg_backout_event
-  handler: registration_backout.lambda_handler
-  lambda_name: RegistrationBackoutEvent
-  layers:
-  - common-pkg
-  - league
-  source_dir: src/events/registration_backout
+  - name: reg_event
+    handler: registration.lambda_handler
+    lambda_name: RegistrationEvent
+    layers:
+      - common-pkg
+      - league
+    events:
+      - name: NewPlayerRegistration
+    source_dir: src/events/registration
+  - name: reg_backout_event
+    handler: registration_backout.lambda_handler
+    lambda_name: RegistrationBackoutEvent
+    layers:
+      - common-pkg
+      - league
+    events:
+      - name: RegistrationBackout
+    source_dir: src/events/registration_backout
