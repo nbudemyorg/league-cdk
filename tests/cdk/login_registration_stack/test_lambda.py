@@ -4,14 +4,18 @@ import pytest
 
 from league_cdk.events_stack import EventsStack
 from league_cdk.layers_stack import LayersStack
+from league_cdk.league_root_stack import LeagueRootStack
 from league_cdk.login_registration_stack import LoginRegistrationStack
 
 app = core.App()
-layers_stack = LayersStack(app, 'layers')
-events_stack = EventsStack(app, 'events', stack_layers=layers_stack.layers)
+root_stack = LeagueRootStack(app, 'root')
+layers_stack = LayersStack(root_stack, 'layers')
+events_stack = EventsStack(
+    root_stack, 'events', stack_layers=layers_stack.layers
+)
 
 stack = LoginRegistrationStack(
-    app,
+    root_stack,
     'league',
     events_arn=events_stack.league_bus_arn,
     stack_layers=layers_stack.layers,

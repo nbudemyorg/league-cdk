@@ -1,13 +1,13 @@
 from pathlib import Path
 
 import yaml
-from aws_cdk import Fn, Stack
+from aws_cdk import Fn, NestedStack
 from constructs import Construct
 
 from lib import ddb, lambdas
 
 
-class LoginRegistrationStack(Stack):
+class LoginRegistrationStack(NestedStack):
     def __init__(
         self,
         scope: Construct,

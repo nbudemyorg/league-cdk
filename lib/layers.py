@@ -5,10 +5,10 @@ from aws_cdk.aws_lambda import Code, LayerVersion
 
 
 def create_lambda_layer(
-    self, stack_name: str, layer_name: str, layer_source: str
+    self, layer_name: str, layer_source: str
 ) -> LayerVersion:
 
-    layer_id = f'{stack_name}-{layer_name}-dependencies'
+    layer_id = f'layer-stack-{layer_name}-dependencies'
 
     supplied_path = Path(layer_source)
 
@@ -30,4 +30,5 @@ def create_lambda_layer(
         self,
         id=layer_id,
         code=layer_code,
+        layer_version_name=layer_id,
     )
