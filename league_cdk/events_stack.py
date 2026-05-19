@@ -2,7 +2,7 @@ from pathlib import Path
 
 import yaml
 from aws_cdk import NestedStack
-from aws_cdk.aws_events import EventBus
+from aws_cdk.aws_events import EventBus, Rule
 from constructs import Construct
 
 from lib import lambdas
@@ -20,10 +20,27 @@ class EventsStack(NestedStack):
 
         bus = EventBus(self, 'LeagueEventBus', event_bus_name='league')
 
+        stack_rules = {}
+
+        with Path.open('./config/event_rules.yaml') as rules_yaml:
+            rules_config = yaml.load(rules_yaml, yaml.FullLoader)
+
+            for rule in rules_config['events']:
+                new_rule = Rule(
+                    self,
+                    rule['name'],
+                    event_bus=bus,
+                    event_pattern={'source': [rule['source']]},
+                )
+
+                print(f'TYPE: {type(new_rule)}')
+
+                stack_rules.update({rule['name']: new_rule})
+
         with Path.open('./config/lambdas/events.yaml') as lambdas_yaml:
             lambdas_config = yaml.load(lambdas_yaml, yaml.FullLoader)
 
-        lambda_bundle = {'layers': stack_layers}
+        lambda_bundle = {'layers': stack_layers, 'events': stack_rules}
 
         for lambda_dict in lambdas_config['lambdas']:
             property_name = lambda_dict['name']

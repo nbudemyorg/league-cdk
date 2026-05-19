@@ -2,6 +2,8 @@ from pathlib import Path
 from typing import Any
 
 from aws_cdk import Duration
+from aws_cdk.aws_events import Rule
+from aws_cdk.aws_events_targets import LambdaFunction
 from aws_cdk.aws_iam import Effect, PolicyStatement
 from aws_cdk.aws_lambda import Code, Function, LayerVersion, Runtime
 from types_boto3_dynamodb.service_resource import Table
@@ -90,6 +92,7 @@ def create_lambda(
     environment = kwargs.get('environment')
     requested_layers = kwargs.get('layers')
     iam_policies = kwargs.get('policies')
+    lambda_event_rules = kwargs.get('events')
 
     if not lambda_name or not isinstance(lambda_name, str):
         raise TypeError('lambda_name must be provided and be of type str.')
@@ -167,5 +170,15 @@ def create_lambda(
                     events_actions, bundle['events'], sid
                 )
                 new_lambda.add_to_role_policy(new_policy)
+
+    if lambda_event_rules is not None:
+        rules_bundle = bundle['events']
+        for rule in lambda_event_rules:
+            event_rule_name = rule['name']
+            if event_rule_name not in rules_bundle:
+                raise ValueError(f'Event rule not found: {rule["target"]}')
+
+            event_rule: Rule = rules_bundle[event_rule_name]
+            event_rule.add_target(LambdaFunction(new_lambda))
 
     return new_lambda

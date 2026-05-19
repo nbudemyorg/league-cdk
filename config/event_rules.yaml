@@ -1,0 +1,5 @@
+events:
+  - name: NewPlayerRegistration
+    source: league.registration
+  - name: RegistrationBackout
+    source: league.registration.backout
